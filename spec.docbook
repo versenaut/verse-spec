@@ -1262,13 +1262,13 @@ a single uint16 value.
 <para>
 The smallest individually addressable part of a bitmap layer is a <emphasis>tile</emphasis>. A tile is simply
 a small flat (two-dimensional) square of pixels in the XY plane of a bitmap layer. The standard tile size is
-4x4 pixels. Tiles make bulk transfer of bitmap data in a network more efficient, by reducing addressing overhead.
+8x8 pixels. Tiles make bulk transfer of bitmap data in a network more efficient, by reducing addressing overhead.
 </para>
 <para>
-Each layer is split into tiles by simply dividing it into 4x4 squares, beginning in the top left corner. This
+Each layer is split into tiles by simply dividing it into 8x8 squares, beginning in the top left corner. This
 creates a <quote>tile coordinate system</quote>. If the bitmap's dimensions are not integer multiples of the
-tile side length, four, there will be tiles with only partial coverage of the bitmap. Any pixels in a tile
-that fall outside of the bitmap itself will not be stored and should transmitted as zeros when transmission
+tile side length, eight, there will be tiles with only partial coverage of the bitmap. Any pixels in a tile
+that fall outside of the bitmap itself will not be stored and should transmitted as zeroes when transmission
 is at all required.
 </para>
 <para>
