@@ -368,6 +368,15 @@ material goes where. This field prevents having to use absolute node IDs in the
 mapping layer, since the mapping can be done using it instead.</desc>
    </param>
   </params>
+  <alias add-field="yes">
+   <meta>
+    <name>link_destroy</name>
+    <purpose>Destroy a link in an object node.</purpose>
+   </meta>
+   <desc>
+    <para>This command destroys a link.</para>
+   </desc>
+  </alias>
   <desc>
    <para>This command sets (or un-sets) a link from one node, the one the command is sent to,
 to another node.</para>
