@@ -504,7 +504,7 @@ fill in the proper value as the call is re-sent to the method group subscribers.
    </param>
    <param>
     <name>params</name>
-    <type>VNOPackedParams</type>
+    <type>VNOParam</type>
     <desc>Block of packed parameter values.</desc>
    </param>
   </params>
