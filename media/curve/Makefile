@@ -10,5 +10,4 @@ ALL:	curve.png
 	java -jar $(BATIK) $^
 
 clean:
-	rm *.png
-
+	rm -f *.png
