@@ -1,13 +1,32 @@
+							Emil Brink
 
-Building the Verse Specification Document ("the spec")
+    Building the Verse Specification Document
 
-The spec is written in DocBook XML, with a lot of machine-
-generated parts.
 
-If you have all the tools required, a single "make" in the
-top directory should build the document, in HTML format.
+INTRODUCTION
+The Verse Specification (often referred to here as just "the
+spec") is written in DocBook XML, with a lot of machinegene-
+rated parts. It has only been built on the author's Gentoo
+Linux system; building it in e.g. Windows might be tricky.
 
-Tools needed are:
+
+BUILDING IT
+The media/ directory holds various images, and need to be
+built separately at the moment. This is mainly for performance
+reasons; I want to be able to do "make clean" in the toplevel,
+which holds all the HTML, without having that affect the images.
+So, first enter media/ and run make in there. After a while,
+various subdirs should be populated with PNG images.
+
+Then, go back to the toplevel dir, and run make a second time.
+This should enter protocol/, do various transforms there to
+generate DocBook snippets, which are included by the main
+"spec.docbook" document. The final result will be 200+ HTML
+files in the toplevel, browse "index.html" to test the spec.
+
+
+TOOLS
+The following tools are required in order to build the spec:
 
 docbook2html	- DocBook processor used for main document
 xsltproc	- General XSLT processor, used to generate
@@ -16,3 +35,21 @@ xsltproc	- General XSLT processor, used to generate
 Batik		- SVG rasterizer (written in Java)
 Java run-time	- to run Batik
 dot		- Graph renderer, part of Graphviz
+
+
+FILENAME CONVENTIONS
+The following suffixes are seen in this package:
+
+.docbook	- Complete DocBook document, with proper
+		  headers
+.xml		- Custom XML document, usually lacking a
+		  formal document type definition. Used to
+		  e.g. describe the commands.
+.snip		- Generated DocBook text, by processing XML
+		  using XSLT. Not complete, must be included
+		  in a proper document to work.
+.dot		- Graphviz graphs, used for e.g. subscription
+		  figures. Processed into SVG by "dot" tool.
+.svg		- Structured Vector Graphics, often used as
+		  source format for images.
+.png		- Bitmap image data for inclusion in spec.
