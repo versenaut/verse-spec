@@ -2,9 +2,6 @@
 # Construct media that is not "literal".
 #
 
-# Go via SVG and Batik for glorious-looking anti-aliasing. See below, though.
-BATIK=/usr/share/batik/lib/batik-rasterizer.jar
-
 ALL:	subscription-node.png subscription-o.png subscription-g.png subscription-m.png \
 	subscription-b.png subscription-t.png subscription-c.png subscription-a.png \
 

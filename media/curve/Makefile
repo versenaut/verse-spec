@@ -1,8 +1,6 @@
 #
+# Makefile for bitmap node media files. Requires BATIK to be set externally.
 #
-#
-
-BATIK=/usr/share/batik/lib/batik-rasterizer.jar
 
 ALL:	curve.png
 

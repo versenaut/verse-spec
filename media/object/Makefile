@@ -1,8 +1,6 @@
 #
+# Makefile for bitmap node media files. Requires BATIK to be set externally.
 #
-#
-
-BATIK=/usr/share/batik/lib/batik-rasterizer.jar
 
 ALL:	transform-eq.png
 
@@ -10,5 +8,4 @@ ALL:	transform-eq.png
 	java -jar $(BATIK) $^
 
 clean:
-	make *.png
-
+	rm -f *.png
