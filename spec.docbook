@@ -1893,6 +1893,21 @@ integer type, and thus have had all their values chosen to fit in the numerical 
 </para>
 </sect2>
 
+<sect2 id='protocol-encoding-arrays'>
+<title>Arrays</title>
+<para>
+Arrays are encoded simply as a sequence of values of the basic type, one after the other, and with no extraneous
+information about number of elements as part of the actual array. For variable-length arrays, the length must be
+encoded in some preceding field to allow proper decoding, as the length is not encoded automatically as part of
+the array.
+</para>
+<para>
+For arrays of unions, it must be specified where the information needed to resolve which union member is present
+is stored, and if it is shared by all slots or not. This is unlike programming languges such as C and C++, where
+unions always occupy enough space to accomodate their largest possible member.
+</para>
+</sect2>
+
 <sect2 id='protocol-encoding-structs'>
 <title>Structures and Unions</title>
 <para>
@@ -1904,20 +1919,6 @@ A union type is encoded by picking one of the fields, using external information
 encoding rules apply to that field's type. The encoded size of a union is exactly the size of whichever
 field was encoded, there is no padding of the union as a whole to the size of the largest field (unlike the
 in-memory representation of unions in the C language).
-</para>
-</sect2>
-
-<sect2 id='protocol-encoding-arrays'>
-<title>Arrays</title>
-<para>
-Arrays are encoded simply as a sequence of values of the basic type, one after the other, and with no extraneous
-information about number of elements as part of the actual array. For variable-length arrays, the length must be
-encoded in some preceding field to allow proper decoding, as the length is not encoded automatically as part of
-the array.
-</para>
-<para>
-For arrays of unions, it must be specified where the information needed to resolve which union member is present
-is stored, and if it is shared by all slots or not.
 </para>
 </sect2>
 
@@ -1940,7 +1941,8 @@ The reference API implementation hides these details from users; application pro
 themselves with how Verse data is transported in a network.
 </para>
 <para>
-No data type is smaller than a single byte; Verse data is encoded as a sequence of whole bytes.
+No data type is smaller than a single byte; Verse data is encoded as a sequence of whole bytes with no overlap,
+all bits of a given byte always belong to the same logical field.
 </para>
 </sect2>
 
