@@ -9,7 +9,7 @@ digraph subscription {
 	bitmap -> layer [label="b_layer_subscribe()"];
 	layer -> bitmap [label="b_layer_unsubscribe()"];
 
-	layer [label="b_layer_set_tile"];
+	layer [label="b_tile_set"];
 
-	bitmap [peripheries="2", label="b_init_dimensions\nb_layer_create\nb_layer_destroy"];
+	bitmap [peripheries="2", label="b_dimensions_set\nb_layer_create\nb_layer_destroy"];
 }

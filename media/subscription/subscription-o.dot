@@ -12,7 +12,7 @@ digraph subscription {
 	xform -> object [label="transform_unsubscribe()"];
 	mgroup -> object [label="method_group_unsubscribe()"];
 
-	object [peripheries="2", label="o_light_set\no_link_set\no_method_group_create\no_method_group_destroy"];
+	object [peripheries="2", label="o_light_set\no_link_set\no_method_group_create\no_method_group_destroy\nanim_run"];
 
 	xform [label="o_transform_pos\no_transform_scale\no_transform_rot"];
 	mgroup [label="o_method_create\no_method_destroy\no_method_call"];

@@ -9,7 +9,7 @@ digraph subscription {
 	curve -> acurve [label="c_curve_subscribe()"];
 	acurve -> curve [label="c_curve_unsubscribe()"];
 
-	acurve [label="c_curve_key_set\nc_curve_key_destroy"];
+	acurve [label="c_key_set\nc_key_destroy"];
 
 	curve [peripheries="2", label="c_curve_create\nc_curve_destroy"];
 }
