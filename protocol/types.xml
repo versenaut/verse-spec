@@ -321,6 +321,26 @@ supported.</para></desc>
 
  </typegroup>
 
+ <typegroup groupid="arrays">
+  <meta>
+   <name>Arrays</name>
+   <desc><para>All datatypes can be formed into arrays, which are simply linear sequences of values of one type.</para>
+<para>The notation for an array is type[length] (where type is a type name and length an integer literal) for an array
+of known length, type[min..max] (where min and max are integer literals) for an array whose length can vary, and
+type[] for an array whose length is not known. Extraneous information is needed to resolve how long a variable-length
+array is in each case; no length information is stored in the array itself.</para>
+<para>Sometimes, an array length needs to be dynamic and not known in advance. In such cases, there is always
+some related (adjacent in a structure, for instance) field that gives the length, and the notation type[fieldname]
+is used to indicate this condition.
+</para>
+<para>When a union type (see below) is made into an array, it is not defined if each element in the array has the
+same type, or if the type can vary between slots. This needs to be specified for each such use. This has consequences
+for encoding.
+</para>
+</desc>
+  </meta>
+ </typegroup>
+
  <typegroup groupid='structs'>
   <meta>
    <name>Structures and Unions</name>
@@ -523,44 +543,36 @@ structures, since each fragment requires multiple values to define it.</para></d
   </structtype>
 
   <structtype name="VNBTile" union="yes">
-   <desc><para>A union that holds the pixels of a single tile from a bitmap node. Note how the vuint1 member
-is actually a uint16, which holds the complete data for a tile in a 1-bit per pixel layer. All pixels are
-packed in a left-to-right, bottom-to-top manner, so bits 15:12 of vuint1 are the first row of the tile, bits
-11:8 are the second, and so on.
-</para></desc>
-   <structitem name="vuint1" type="uint16"/>
-   <structitem name="vuint8">
-    <arraytype type="uint8" length="16"/>
-   </structitem>
-   <structitem name="vuint16">
-    <arraytype type="uint16" length="16"/>
-   </structitem>
-   <structitem name="vreal32">
-    <arraytype type="real32" length="16"/>
-   </structitem>
-   <structitem name="vuint8">
-    <arraytype type="real64" length="16"/>
-   </structitem>
-  </structtype>
- </typegroup>
-
- <typegroup groupid="arrays">
-  <meta>
-   <name>Arrays</name>
-   <desc><para>All datatypes can be formed into arrays, which are simply linear sequences of values of one type.</para>
-<para>The notation for an array is type[length] (where type is a type name and length an integer literal) for an array
-of known length, type[min..max] (where min and max are integer literals) for an array whose length can vary, and
-type[] for an array whose length is not known. Extraneous information is needed to resolve how long a variable-length
-array is in each case; no length information is stored in the array itself.</para>
-<para>Sometimes, an array length needs to be dynamic and not known in advance. In such cases, there is always
-some related (adjacent in a structure, for instance) field that gives the length, and the notation type[fieldname]
-is used to indicate this condition.
+   <desc><para>A union that holds the pixels of a single tile from a bitmap node.</para>
+<para>Note how the vuint1 member is actually an array of vuint8, which holds the complete data for a tile in
+a 1-bit per pixel layer. All pixels are packed in a left-to-right, bottom-to-top manner, with the most significant
+bits considered to the left of the less significant ones. The array has length 8, which gives it a total capacity
+of 8 * 8 = 64 bits, which is precisely what is needed for one tile. The first <type>uint8</type> holds the first
+scanline of the tile, and bit 7 of that uint8 holds the topmost leftmost pixel of the tile.
 </para>
-<para>When a union type is made into an array, it is not defined if each element in the array has the same type, or
-if the type can vary between slots. This needs to be specified for each such use.
+<para>
+Pixels in tiles can be indexed by a coordinate pair (x,y), with x and y both in the range [0,7] inclusive. Then,
+(0,0) is the topmost leftmost pixel, and (7,7) is the pixel at the bottom right corner of the tile. For non-uint8
+tiles, a pixel is referenced as simply a[y * 8 + x], where a is the union member (one of vuint8, vuint16, vreal32
+and vreal64). For one-bit tiles, the pixel is tested by the C expression (vuint1[y] &amp; (128 &gt;&gt; x)).
 </para>
 </desc>
-  </meta>
+   <structitem name="vuint1">
+    <arraytype type="uint8" length="8"/>
+   </structitem>
+   <structitem name="vuint8">
+    <arraytype type="uint8" length="64"/>
+   </structitem>
+   <structitem name="vuint16">
+    <arraytype type="uint16" length="64"/>
+   </structitem>
+   <structitem name="vreal32">
+    <arraytype type="real32" length="64"/>
+   </structitem>
+   <structitem name="vuint8">
+    <arraytype type="real64" length="64"/>
+   </structitem>
+  </structtype>
  </typegroup>
 
 </types>
