@@ -4,7 +4,7 @@
 
 BATIK=/usr/share/batik/lib/batik-rasterizer.jar
 
-DIRS=bitmap curve material subscription
+DIRS=bitmap curve material object subscription
 
 ALL:
 	for d in $(DIRS) ; do (cd $$d && make) ; done
