@@ -1,0 +1,18 @@
+
+Building the Verse Specification Document ("the spec")
+
+The spec is written in DocBook XML, with a lot of machine-
+generated parts.
+
+If you have all the tools required, a single "make" in the
+top directory should build the document, in HTML format.
+
+Tools needed are:
+
+docbook2html	- DocBook processor used for main document
+xsltproc	- General XSLT processor, used to generate
+		  DocBook from custom XML documents by
+		  applying various transforms. See protocol/
+Batik		- SVG rasterizer (written in Java)
+Java run-time	- to run Batik
+dot		- Graph renderer, part of Graphviz
