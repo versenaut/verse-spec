@@ -17,16 +17,10 @@
  <xsl:template match="verse-commands">
   /* Structures for storing all relevant Verse commands. This is auto-generated from
   ** the command definitions in XML (part of the Verse spec sources), using XSLT.
+  ** Structures are intended to be constructed by code, so they can (and do) use
+  ** dynamic arrays and stuff.
   */
 
-  /* A place-holder until this appears in verse.h proper.
-  typedef struct {
-   uint16 vuint1;
-   uint8  vuint8[16];
-   real32 vreal32[16];
-   real64 vreal64[16];
-  } VNBTile;
-  */
   <xsl:call-template name="build-id-enum"/>
 
   <xsl:apply-templates mode="first"/>
@@ -64,10 +58,24 @@
    <xsl:call-template name="type-to-c">
     <xsl:with-param name="type" select="type"/>
    </xsl:call-template>
-   <xsl:text> </xsl:text><xsl:value-of select="name"/><xsl:call-template name="type-to-c-suffix">
-    <xsl:with-param name="type" select="type"/>
-   </xsl:call-template>
-   <xsl:if test="type/@array-length">[<xsl:value-of select="type/@array-length"/>]</xsl:if>;
+   <xsl:text> </xsl:text>
+   <!-- **************************************************** -->
+   <xsl:if test="not(type/@array-length)">
+    <xsl:value-of select="name"/><xsl:call-template name="type-to-c-suffix">
+     <xsl:with-param name="type" select="type"/>
+    </xsl:call-template>
+   </xsl:if>
+   <!-- **************************************************** -->
+   <xsl:if test="type/@array-length">
+    <xsl:if test="starts-with(type, 'string')">*</xsl:if>
+    <xsl:if test="not(contains('0123456789', substring(type/@array-length, 1, 1)))">
+     *
+    </xsl:if>
+    <xsl:value-of select="name"/>
+    <xsl:call-template name="format-array-length">
+     <xsl:with-param name="length" select="type/@array-length"/>
+    </xsl:call-template>
+   </xsl:if>;
   </xsl:for-each>} PVCmd_<xsl:value-of select="$prefix"/><xsl:call-template name="format-name"><xsl:with-param name="name" select="meta/name"/>
  </xsl:call-template>;</xsl:template>
 
@@ -79,8 +87,10 @@
   </xsl:variable>PVCmd_<xsl:value-of select="$prefix"/><xsl:call-template name="format-name"><xsl:with-param name="name" select="meta/name"/></xsl:call-template> cmd<xsl:value-of select="@id"/>;
  </xsl:template>
 
- <xsl:template name="command[@id]" mode="pack-func">
-  
+ <!-- Emit array length [<length>] specifier. Only if constant, i.e. begins with digit. -->
+ <xsl:template name="format-array-length">
+  <xsl:param name="length"/>
+  <xsl:if test="contains('0123456789', substring($length, 1, 1))">[<xsl:value-of select="$length"/>]</xsl:if>
  </xsl:template>
 
  <xsl:template name="type-to-c">
@@ -117,11 +127,13 @@
  </xsl:template>
 
 
+ <!-- Convert string to upper case. -->
  <xsl:template name="to-upper">
   <xsl:param name="str"/>
   <xsl:value-of select="translate($str, 'abcdefghijklmnopqrstuvwxyz', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ')"/>
  </xsl:template>
 
+ <!-- Make string's first character upper case. -->
  <xsl:template name="to-upper-initial">
   <xsl:param name="str"/>
   <xsl:value-of select="concat(translate(substring($str, 1, 1),
@@ -130,6 +142,7 @@
 			       substring($str, 2))"/>
  </xsl:template>
 
+ <!-- Return upper cased version of string's first character. -->
  <xsl:template name="to-upper-first">
   <xsl:param name="str"/>
   <xsl:value-of select="translate(substring($str, 1, 1),
