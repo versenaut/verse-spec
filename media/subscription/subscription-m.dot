@@ -1,0 +1,10 @@
+/*
+** Material subscription graph. Cute.
+*/
+
+digraph subscription {
+	node [label="\N", shape="ellipse", fontsize="11"];
+	edge [fontsize="10"];
+
+	material [peripheries="2", label="m_fragment_create\nm_fragment_destroy"];
+}

@@ -1,0 +1,15 @@
+/*
+** Text subscription graph.
+*/
+
+digraph subscription {
+	node [label="\N", shape="ellipse", fontsize="11"];
+	edge [fontsize="10"];
+
+	text -> buffer [label="t_buffer_subscribe()"];
+	buffer -> text [label="t_buffer_unsubscribe()"];
+
+	buffer [label="t_text_set"];
+
+	text [peripheries="2", label="b_set_language\nt_buffer_create\nt_buffer_destroy"];
+}

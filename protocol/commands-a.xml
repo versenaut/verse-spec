@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!-- Part of the Verse Specification, see file LICENSE for details. -->
+<!-- <!DOCTYPE commands [
+ <!ELEMENT name (CDATA)>
+ <!ENTITY nodeid "<param><name>node_id</name><type>uint32</type>
+                   <desc>The ID of the node being accessed.</desc>
+                   <alias><desc>The ID of the node being accessed.</desc></alias>
+                  </param>">
+ <!ENTITY layeridtype "uint16">
+ <!ENTITY LAYERDESC "<desc>The ID of the layer being accessed.</desc>">
+ <!ENTITY LAYERBODY "<name>layer_id</name><type>&layeridtype;</type>&LAYERDESC;">
+ <!ENTITY layerid      "<param>&LAYERBODY;</param>">
+ <!ENTITY layeridalias "<param>&LAYERBODY;<alias>&LAYERDESC;</alias></param>">
+]> -->
+
+<commands node="audio" prefix="a">
+ <command id="160">
+  <meta>
+   <name>layer_create</name>
+   <purpose>Create a new audio layer (a channel where audio can be transferred).</purpose>
+  </meta>
+  <params>
+   <address>
+    &nodeid;
+    &layerid;
+   </address>
+   <param>
+    <name>name</name>
+    <type>string16</type>
+    <desc>The name of the layer.</desc>
+   </param>
+  </params>
+  <alias>
+   <meta>
+    <name>layer_destroy</name>
+    <purpose>Destroy an audio layer.</purpose>
+   </meta>
+   <desc><para>This command destroys an existing audio layer.</para></desc>
+  </alias>
+  <desc>
+   <para>This command creates a new audio layer, where audio data can be sent or stored.</para>
+  </desc>
+ </command>
+
+ <command id="161">
+  <meta>
+   <name>layer_subscribe</name>
+   <purpose>Subscribe to an audio layer.</purpose>
+  </meta>
+  <params>
+   <address>
+    &nodeid;
+    &layerid;
+   </address>
+   <param>
+    <name>transfer</name>
+    <type>VNATransferType</type>
+    <desc>The desired transfer mode to use for this subscription.</desc>
+   </param>
+  </params>
+  <alias>
+   <meta>
+    <name>layer_unsubscribe</name>
+    <purpose>Stop subscribing to an audio layer.</purpose>
+   </meta>
+   <desc>
+    <boilerplate context="unsubscribe" what="audio layer"/>
+   </desc>
+  </alias>
+  <desc>
+   <boilerplate context="subscribe" what="audio layer"/>
+  </desc>
+ </command>
+
+ <command id="162">
+  <meta>
+   <name>audio</name>
+   <purpose>Send and receive audio layer data.</purpose>
+  </meta>
+  <params>
+   <address>
+    &nodeid;
+    &layerid;
+    <param>
+     <name>id</name>
+     <type>uint16</type>
+     <desc>Probably used to serialize packets. A bit uncertain, however.</desc>
+    </param>
+   </address>
+   <param>
+    <name>time</name>
+    <type>uint32</type>
+    <desc>At what time this block of audio should be played.</desc>
+   </param>
+   <param>
+    <name>length</name>
+    <type>uint16</type>
+    <desc>Duration of audio data?</desc>
+   </param>
+   <param>
+    <name>transfer</name>
+    <type>VNATransferType</type>
+    <desc>The transfer mode used for the subsequent data.</desc>
+   </param>
+   <param>
+    <name>type</name>
+    <type>VNALayerType</type>
+    <desc>The type of the audio samples.</desc>
+   </param>
+   <param>
+    <name>data</name>
+    <type array-length="128">real32</type>	<!-- FIXME: This is a placeholder only. -->
+    <desc>Actual audio data. This text is not final.</desc>
+   </param>
+  </params>
+  <desc>
+   <para>This command is used to transfer audio data in the form of an array of samples.</para>
+   <para>This text needs to be far longer.</para>
+  </desc>
+ </command>
+</commands>
