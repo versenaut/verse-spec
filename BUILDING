@@ -53,3 +53,19 @@ The following suffixes are seen in this package:
 .svg		- Structured Vector Graphics, often used as
 		  source format for images.
 .png		- Bitmap image data for inclusion in spec.
+
+
+THE CUSTOM XML
+The protocol/ directory contains a set of XML files that
+define the protocol on a bit-for-bit level, as a set of
+"commands" which is the smallest unit of communication using
+Verse.
+	These files are hand-written from reading the command
+definition C files; they are not canonical but I wanted to
+have the commands defined as XML for various reasons when
+building the spec.
+	There are no document type definitions or schema
+definitions for this XML, currently, and perhaps there will
+never be. They are not optimized for readability; read the
+output (the spec) instead, it ought to be easier and that's
+what it's there for.
