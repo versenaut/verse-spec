@@ -1,0 +1,25 @@
+/*
+** Common data subscription graph.
+*/
+
+digraph subscription {
+	node [label="\N", shape="ellipse", fontsize="11", center];
+	edge [fontsize="10"];
+
+	graph [bb="0,0,256,256"];
+	root -> nodes [label="node_list(M)"];
+	nodes -> root [label="node_list(~M)"];
+
+	root [label="none"]
+	nodes [label="node_create\nnode_destroy"];
+
+	nodes -> anode [label="node_subscribe()"];
+	anode -> nodes [label="node_unsubscribe()"];
+
+	anode [peripheries="2", label="node_name_set\ntag_group_create\ntag_group_destroy"];
+
+	anode -> tgroup [label="tag_group_subscribe()"];
+	tgroup -> anode [label="tag_group_unsubscribe()"];
+
+	tgroup [label="tag_create\ntag_destroy"];
+}

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!-- Part of the Verse Specification, see file LICENSE for details. -->
+
+<commands node="material" prefix="m">
+ <command id="68">
+  <meta>
+   <name>fragment_create</name>
+   <purpose>Create a new material fragment.</purpose>
+  </meta>
+  <params>
+   &nodeid;
+   &fragid;
+   <param>
+    <name>type</name>
+    <type>VNMFragmentType</type>
+    <desc>The type of the fragment. This controls which field of the union below is actually used.</desc>
+   </param>
+   <param>
+    <name>fragment</name>
+    <type union-control="type">VMatFrag</type>
+    <desc>The desired fragment value.</desc>
+   </param>
+  </params>
+  <alias>
+   <meta>
+    <name>fragment_destroy</name>
+    <purpose>Destroy a material fragment.</purpose>
+   </meta>
+   <desc>
+    <para>Destroys the indicated fragment. Children are not destroyed, so if there are child fragments,
+they will be left unconnected by the successful execution of this command.</para>
+   </desc>
+  </alias>
+  <desc>
+   <para>
+    This command creates, or edits in place, a material node fragment. Fragments are used to express
+    high-level properties of the desired material, and act kind of like a programming language for
+    this special purpose.
+   </para>
+  </desc>
+ </command>
+</commands>
