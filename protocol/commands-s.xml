@@ -232,7 +232,7 @@ host in responses and list results.</desc>
      <desc>The type of node to create.</desc>
     </param>
     <param>
-     <name>owner_id</name>
+     <name>owner</name>
      <type>VNodeOwner</type>
      <desc>Tells whether you're the owner of the node or not. Only used in callback.</desc>
     </param>
