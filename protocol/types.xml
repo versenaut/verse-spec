@@ -137,12 +137,18 @@ only values described in the enumeration are legal to use.</para>
    <enumitem name="V_NT_MATERIAL" value="2"/>
    <enumitem name="V_NT_BITMAP"   value="3"/>
    <enumitem name="V_NT_TEXT"     value="4"/>
-   <enumitem name="V_NT_PARTICLE" value="5"/>
-   <enumitem name="V_NT_CURVE"    value="6"/>
-   <enumitem name="V_NT_AUDIO"    value="7"/>
-   <enumitem name="V_NT_NUM_TYPES" value="8"/>
+<!--   <enumitem name="V_NT_PARTICLE" value="5"/>-->
+   <enumitem name="V_NT_CURVE"    value="5"/>
+   <enumitem name="V_NT_AUDIO"    value="6"/>
+   <enumitem name="V_NT_NUM_TYPES" value="7"/>
    <enumitem name="V_NT_SYSTEM" value="V_NT_NUM_TYPES" public="no"/>
-   <enumitem name="V_NT_NUM_TYPES_NETPACK" value="9" public="no"/>
+   <enumitem name="V_NT_NUM_TYPES_NETPACK" value="8" public="no"/>
+  </enumeratedtype>
+
+  <enumeratedtype name="VNodeOwner" using="uint8">
+   <desc><para>Used to indicate whether a receiving client is actually the owner of a node or not.</para></desc>
+   <enumitem name="VN_OWNER_OTHER" value="0"/>
+   <enumitem name="VN_OWNER_MINE"  value="1"/>
   </enumeratedtype>
 
   <enumeratedtype name="VNOParamType" using="uint8">
@@ -265,15 +271,16 @@ room for expansion.</para></desc>
    <enumitem name="VN_M_FT_LIGHT"	 value="1"/>
    <enumitem name="VN_M_FT_REFLECTION"	 value="2"/>
    <enumitem name="VN_M_FT_TRANSPARENCY" value="3"/>
-   <enumitem name="VN_M_FT_GEOMETRY"	 value="4"/>
-   <enumitem name="VN_M_FT_TEXTURE"	 value="5"/>
-   <enumitem name="VN_M_FT_TAG"		 value="6"/>
+   <enumitem name="VN_M_FT_VOLUME"	 value="4"/>
+   <enumitem name="VN_M_FT_GEOMETRY"	 value="5"/>
+   <enumitem name="VN_M_FT_TEXTURE"	 value="6"/>
    <enumitem name="VN_M_FT_NOISE"	 value="7"/>
    <enumitem name="VN_M_FT_BLENDER"	 value="8"/>
    <enumitem name="VN_M_FT_MATRIX"	 value="9"/>
    <enumitem name="VN_M_FT_RAMP"	 value="10"/>
-   <enumitem name="VN_M_FT_ALTERNATIVE"	 value="11"/>
-   <enumitem name="VN_M_FT_OUTPUT"	 value="12"/>
+   <enumitem name="VN_M_FT_ANIMATION"	 value="11"/>
+   <enumitem name="VN_M_FT_ALTERNATIVE"	 value="12"/>
+   <enumitem name="VN_M_FT_OUTPUT"	 value="13"/>
   </enumeratedtype>
 
   <enumeratedtype name="VNBLayerType" using="uint8">
@@ -436,6 +443,15 @@ structures, since each fragment requires multiple values to define it.</para></d
      <structitem name="refraction_index" type="real64"/>
     </structtype>
    </structitem>
+   <structitem name="volume">
+    <structtype>
+     <structitem name="diffusion" type="real64"/>
+     <structitem name="col_r" type="real64"/>
+     <structitem name="col_g" type="real64"/>
+     <structitem name="col_b" type="real64"/>
+     <structitem name="color" type="VNMFragmentID"/>
+    </structtype>
+   </structitem>
    <structitem name="geometry">
     <structtype>
      <structitem name="layer_r" type="string16"/>
@@ -484,6 +500,11 @@ structures, since each fragment requires multiple values to define it.</para></d
      <structitem name="mapping" type="VNMFragmentID"/>
      <structitem name="point_count" type="uint8"/>
      <structitem name="ramp"><vararraytype type="VNMRampPoint" length-min="1" length-max="48"/></structitem>
+    </structtype>
+   </structitem>
+   <structitem name="animation">
+    <structtype>
+     <structitem name="label" type="string16"/>
     </structtype>
    </structitem>
    <structitem name="alternative">

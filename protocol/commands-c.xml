@@ -83,7 +83,7 @@ unique within the node.</desc>
 
  <command id="130">
   <meta>
-   <name>curve_key_set</name>
+   <name>key_set</name>
    <purpose>Set position of a curve key point.</purpose>
   </meta>
   <params>
@@ -97,19 +97,24 @@ unique within the node.</desc>
     </param>
    </address>
    <param>
+    <name>dimensions</name>
+    <type>uint8</type>
+    <desc>The number of dimensions this curve uses; from 1 to 4 inclusive.</desc>
+   </param>
+   <param>
     <name>pre_value</name>
-    <type>real64</type>
+    <type array-length="dimensions">real64</type>
     <desc>Y component of first control point for &Bez; curve segment.</desc>
    </param>
    <param>
     <name>pre_pos</name>
-    <type>uint32</type>
+    <type array-length="dimensions">uint32</type>
     <desc>X component of first control point for &Bez; curve segment, expressed as a fraction of the previous key's
 position and this key's, where 0 is the former and 0xFFFFFFFF the latter.</desc>
    </param>
    <param>
     <name>value</name>
-    <type>real64</type>
+    <type array-length="dimensions">real64</type>
     <desc>Y component of the second control point for the &Bez; curve segment.</desc>
    </param>
    <param>
@@ -119,19 +124,19 @@ position and this key's, where 0 is the former and 0xFFFFFFFF the latter.</desc>
    </param>
    <param>
     <name>post_value</name>
-    <type>real64</type>
+    <type array-length="dimensions">real64</type>
     <desc>Y component of the third control point for &Bez; curve segment.</desc>
    </param>
    <param>
     <name>post_pos</name>
-    <type>uint32</type>
+    <type array-length="dimensions">uint32</type>
     <desc>X component of third control point for &Bez; curve segment, expressed as a fraction of this key's
 position and the next key's, where 0 is the former and 0xFFFFFFFF the latter.</desc>
    </param>
   </params>
   <alias>
    <meta>
-    <name>curve_key_destroy</name>
+    <name>key_destroy</name>
     <purpose>Destroy a curve key point.</purpose>
    </meta>
    <desc><para>Delete a part of a curve. Will change the shape of the curve, but not break it or leave it

@@ -13,9 +13,14 @@
  <!ENTITY taggroupidalias "<param>&TAGGROUPIDBODY;<alias><desc>The ID of the tag group being accessed.</desc></alias></param>">
 
  <!ENTITY tagid-type "uint16">
- <!ENTITY time     "<param><name>time</name><type>uint32</type>
-                     <desc>The time when this command should be executed. Transform commands can be
-			   scheduled to execute in the future.</desc>
+ <!ENTITY time     "<param><name>time_s</name><type>uint32</type>
+                     <desc>Whole-seconds part of the time when this command should be executed.
+                           Transform commands can be scheduled to execute in the future.</desc>
+                    </param>
+                    <param><name>time_f</name><type>uint32</type>
+                     <desc>Fractional-seconds part of the time when this command should execute.
+                           Encoded using all available bits; 0 is 0 and ~0 is very close to 1.
+                     </desc>
                     </param>">
  <!ENTITY mgroupid "<param><name>group_id</name><type>uint16</type>
                      <desc>The ID of the method group being accessed.</desc>

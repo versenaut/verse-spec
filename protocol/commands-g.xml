@@ -613,9 +613,17 @@ crease values should be the same, without creating a rather redundant layer sayi
     </param>
    </address>
    <param>
-    <name>name</name>
+    <name>weight</name>
     <type>string16</type>
-    <desc>The name of the bone.</desc>
+    <desc></desc>
+    <alias>
+     <value>""</value>
+    </alias>
+   </param>
+   <param>
+    <name>reference</name>
+    <type>string16</type>
+    <desc></desc>
     <alias>
      <value>""</value>
     </alias>

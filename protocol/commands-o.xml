@@ -354,9 +354,9 @@ the values are all zero, meaning the object does not emit light.</para>
     <desc>The target of the link, the node being linked to.</desc>
    </param>
    <param>
-    <name>name</name>
+    <name>label</name>
     <type>string16</type>
-    <desc>The name of the link, for identifying its purpose.</desc>
+    <desc>A textual label on the link, for identifying its purpose. Not unique.</desc>
    </param>
    <param>
     <name>target_id</name>
@@ -446,7 +446,7 @@ that group's ID and the name to the new name.</para>
    </address>
    <param>
     <name>name</name>
-    <type>string16</type>
+    <type>string500</type>
     <desc>The name of the method.</desc>
     <alias>
      <value>""</value>
@@ -515,6 +515,54 @@ clients subscribing to the method group in question, and it is up to the client(
 <para>The call itself does not contain enough information to decode the parameters, you need the descriptive
 information from the method_create command.</para>
   </desc>
+ </command>
+
+ <command id="45">
+  <meta>
+   <name>anim_run</name>
+   <purpose>Run an animation.</purpose>
+  </meta>
+  <params>
+   <address>
+    &nodeid;
+    <param>
+     <name>anim_id</name>
+     <type>uint16</type>
+    </param>
+   </address>
+   <param>
+    <name>link_id</name>
+    <type>uint16</type>
+   </param>
+   <param>
+    <name>time_s</name>
+    <type>uint32</type>
+   </param>
+   <param>
+    <name>time_t</name>
+    <type>uint32</type>
+   </param>
+   <param>
+    <name>start</name>
+    <type>real64</type>
+   </param>
+   <param>
+    <name>speed</name>
+    <type>real64</type>
+   </param>
+   <param>
+    <name>speed_ramp</name>
+    <type>real64</type>
+   </param>
+   <param>
+    <name>factor</name>
+    <type>real64</type>
+   </param>
+   <param>
+    <name>factor_ramp</name>
+    <type>real64</type>
+   </param>
+  </params>
  </command>
 
 </commands>

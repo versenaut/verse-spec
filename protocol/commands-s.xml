@@ -233,9 +233,8 @@ host in responses and list results.</desc>
     </param>
     <param>
      <name>owner_id</name>
-     <type>&nodeid-type;</type>
-     <desc>The ID of the avatar that sent the command to create this node, i.e. the owner of the node. Only
-filled-in in the host response; it's not possible to create a node on behalf of someone else, typically.</desc>
+     <type>VNodeOwner</type>
+     <desc>Tells whether you're the owner of the node or not. Only used in callback.</desc>
     </param>
    </address>
   </params>

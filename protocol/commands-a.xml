@@ -74,7 +74,7 @@
 
  <command id="162">
   <meta>
-   <name>audio</name>
+   <name>block_set</name>
    <purpose>Send and receive audio layer data.</purpose>
   </meta>
   <params>
@@ -88,14 +88,9 @@
     </param>
    </address>
    <param>
-    <name>time</name>
-    <type>uint32</type>
-    <desc>At what time this block of audio should be played.</desc>
-   </param>
-   <param>
     <name>length</name>
     <type>uint16</type>
-    <desc>Duration of audio data?</desc>
+    <desc>Size of block transferred.</desc>
    </param>
    <param>
     <name>transfer</name>
