@@ -344,7 +344,7 @@ allowing basic friction to be modeled.
 For each of these properties, the value is calculated by a 3D vector equation like the following:
 <informalequation>
 <alt>p(t) = p0 + v0*t + a*t^2 / 2 + drag</alt>
-<graphic fileref='media/transform-eq.png'/>
+<graphic fileref='media/object/transform-eq.png'/>
 </informalequation>
 Here, the symbol <varname>p</varname> is used to represent the transform property of interest,
 <varname>p0</varname> is the last known absolute position, <varname>v0</varname> the set initial speed,
@@ -578,54 +578,58 @@ with each one. This number is used to identify a fragment type in the network pr
 <tgroup cols="3" align="center">
  <thead><row><entry>Name</entry><entry>Enum Value</entry><entry>Purpose</entry></row></thead>
  <tbody>
-  <row><entry><link linkend="m-f-color"><symbol>M_FRAGMENT_COLOR</symbol></link></entry>
+  <row><entry><link linkend="m-f-color"><symbol>VN_M_FT_COLOR</symbol></link></entry>
     <entry><literal>0</literal></entry>
     <entry align="left">Emits a constant color.</entry></row>
-  <row><entry><link linkend="m-f-light"><symbol>M_FRAGMENT_LIGHT</symbol></link></entry>
+  <row><entry><link linkend="m-f-light"><symbol>VN_M_FT_LIGHT</symbol></link></entry>
     <entry><literal>1</literal></entry>
     <entry align="left">Represents light falling on a surface.</entry></row>
-  <row><entry><link linkend="m-f-reflection"><symbol>M_FRAGMENT_REFLECTION</symbol></link></entry>
+  <row><entry><link linkend="m-f-reflection"><symbol>VN_M_FT_REFLECTION</symbol></link></entry>
     <entry><literal>2</literal></entry>
     <entry align="left">Represents reflected light.</entry>
   </row>
-  <row><entry><link linkend="m-f-transparency"><symbol>M_FRAGMENT_TRANSPARENCY</symbol></link></entry>
+  <row><entry><link linkend="m-f-transparency"><symbol>VN_M_FT_TRANSPARENCY</symbol></link></entry>
     <entry><literal>3</literal></entry>
     <entry align="left">Represents a transparent surface.</entry>
   </row>
-  <row><entry><link linkend="m-f-geometry"><symbol>M_FRAGMENT_GEOMETRY</symbol></link></entry>
+  <row><entry><link linkend="m-f-volume"><symbol>VN_M_FT_VOLUME</symbol></link></entry>
     <entry><literal>4</literal></entry>
+    <entry align="left">Represents a volume diffusion.</entry>
+  </row>
+  <row><entry><link linkend="m-f-geometry"><symbol>VN_M_FT_GEOMETRY</symbol></link></entry>
+    <entry><literal>5</literal></entry>
     <entry align="left">Uses data from a geometry layer to create color.</entry>
   </row>
-  <row><entry><link linkend="m-f-texture"><symbol>M_FRAGMENT_TEXTURE</symbol></link></entry>
-    <entry><literal>5</literal></entry>
+  <row><entry><link linkend="m-f-texture"><symbol>VN_M_FT_TEXTURE</symbol></link></entry>
+    <entry><literal>6</literal></entry>
     <entry align="left">Does look-ups in a bitmap node.</entry>
   </row>
-  <row><entry><link linkend="m-f-tag"><symbol>M_FRAGMENT_TAG</symbol></link></entry>
-    <entry><literal>6</literal></entry>
-    <entry align="left">Returns color from tag.</entry>
-  </row>
-  <row><entry><link linkend="m-f-noise"><symbol>M_FRAGMENT_NOISE</symbol></link></entry>
+  <row><entry><link linkend="m-f-noise"><symbol>VN_M_FT_NOISE</symbol></link></entry>
     <entry><literal>7</literal></entry>
     <entry align="left">Generates random noise.</entry>
   </row>
-  <row><entry><link linkend="m-f-blender"><symbol>M_FRAGMENT_BLENDER</symbol></link></entry>
+  <row><entry><link linkend="m-f-blender"><symbol>VN_M_FT_BLENDER</symbol></link></entry>
     <entry><literal>8</literal></entry>
     <entry align="left">Blends two inputs together.</entry>
   </row>
-  <row><entry><link linkend="m-f-matrix"><symbol>M_FRAGMENT_MATRIX</symbol></link></entry>
+  <row><entry><link linkend="m-f-matrix"><symbol>VN_M_FT_MATRIX</symbol></link></entry>
     <entry><literal>9</literal></entry>
     <entry align="left">Transforms input through a matrix.</entry>
   </row>
-  <row><entry><link linkend="m-f-ramp"><symbol>M_FRAGMENT_RAMP</symbol></link></entry>
+  <row><entry><link linkend="m-f-ramp"><symbol>VN_M_FT_RAMP</symbol></link></entry>
     <entry><literal>10</literal></entry>
     <entry align="left">Interpolates in a table.</entry>
   </row>
-  <row><entry><link linkend="m-f-alternative"><symbol>M_FRAGMENT_ALTERNATIVE</symbol></link></entry>
+  <row><entry><link linkend="m-f-animation"><symbol>VN_M_FT_ANIMATION</symbol></link></entry>
     <entry><literal>11</literal></entry>
+    <entry align="left">Interpolates in a table.</entry>
+  </row>
+  <row><entry><link linkend="m-f-alternative"><symbol>VN_M_FT__ALTERNATIVE</symbol></link></entry>
+    <entry><literal>12</literal></entry>
     <entry align="left">Allows implementation to select between two alternatives.</entry>
   </row>
-  <row><entry><link linkend="m-f-output"><symbol>M_FRAGMENT_OUTPUT</symbol></link></entry>
-    <entry><literal>12</literal></entry>
+  <row><entry><link linkend="m-f-output"><symbol>VN_M_FT_OUTPUT</symbol></link></entry>
+    <entry><literal>13</literal></entry>
     <entry align="left">The root of each material fragment graph, the final output.</entry>
   </row>
  </tbody>
@@ -787,6 +791,40 @@ fall-off describes the micro-geometry just as in the <link linkend="m-f-light">l
 </row>
 
 <row>
+ <entry>Volume</entry>
+ <entry align="left">
+  <anchor id="m-f-volume"/><para>This fragment represents the properties of the surface that is behind the
+evaluation point. The refraction index represent how light is bent when passing through the surface, and the normal
+fall-off describes the micro-geometry just as in the <link linkend="m-f-light">light</link> and
+<link linkend="m-f-reflection">reflection</link> fragments.
+  </para>
+  <variablelist>
+   <varlistentry>
+    <term><type>real64</type> <varname>diffusion</varname></term>
+    <listitem><para></para></listitem>
+   </varlistentry>
+   <varlistentry>
+    <term><type>real64</type> <varname>col_r</varname></term>
+    <listitem><para></para></listitem>
+   </varlistentry>
+   <varlistentry>
+    <term><type>real64</type> <varname>col_g</varname></term>
+    <listitem><para></para></listitem>
+   </varlistentry>
+   <varlistentry>
+    <term><type>real64</type> <varname>col_b</varname></term>
+    <listitem><para></para></listitem>
+   </varlistentry>
+   <varlistentry>
+    <term><type>VNMFragmentID</type> <varname>color</varname></term>
+    <listitem><para></para></listitem>
+   </varlistentry>
+  </variablelist>
+ </entry>
+</row>
+
+
+<row>
  <entry>Geometry</entry>
  <entry align="left">
   <anchor id="m-f-geometry"/><para>The geometry fragment allows a material to reference properties defined in a
@@ -845,25 +883,6 @@ fragment</link>, to express plain old texture-mapping. It has the following fiel
    <varlistentry>
     <term><type>fragment</type> <varname>control</varname></term>
     <listitem><para>The ID of a fragment whose output is used as the mapping, see above.</para></listitem>
-   </varlistentry>
-  </variablelist>
- </entry>
-</row>
-
-<row>
- <entry>Tag</entry>
- <entry align="left">
-  <anchor id="m-f-tag"/><para>Tag fragments allow picking a constant color from a tag. The parent object node
-can override the material node's tags. It is defined by the following fields:
-  </para>
-  <variablelist>
-   <varlistentry>
-    <term><type>string</type> <varname>group</varname></term>
-    <listitem><para>The name of the tag group the tag belongs to.</para></listitem>
-   </varlistentry>
-   <varlistentry>
-    <term><type>string</type> <varname>tag</varname></term>
-    <listitem><para>The name of the desired tag.</para></listitem>
    </varlistentry>
   </variablelist>
  </entry>
@@ -1025,6 +1044,20 @@ look-up in the ramp, and the resulting color is emitted.
    <varlistentry>
     <term>array of (<type>real64</type> <varname>position,red,green,blue</varname>) <varname>ramp</varname></term>
 <listitem><para>The ramp data itself. A maximum of 48 data points can be specified in a single ramp.</para></listitem>
+   </varlistentry>
+  </variablelist>
+ </entry>
+</row>
+
+<row>
+ <entry>Animation</entry>
+ <entry align="left">
+  <anchor id="m-f-animation"/>
+  <para></para>
+  <variablelist>
+   <varlistentry>
+    <term><type>string</type> <varname>label</varname></term>
+    <listitem><para></para></listitem>
    </varlistentry>
   </variablelist>
  </entry>
@@ -1660,7 +1693,7 @@ its dimensions, and about available layers. To get at actual pixels, one needs t
 </para>
 <para>
 Having subscribed to a layer, its contents will be delivered (and kept up to date) by the host through the use of
-the <xref linkend='b_layer_set_tile'/> command.
+the <xref linkend='b_tile_set'/> command.
 </para>
 </sect2>
 
@@ -1710,7 +1743,7 @@ It can then choose to subscribe to a curve, by sending the <xref linkend='c_curv
 </para>
 <para>
 Once subscribed to a curve, a client receives a copy of its contents (which continue to arrive if the contents
-change) through the <xref linkend='c_curve_key_set'/> and <xref linkend='c_curve_key_destroy'/> commands.
+change) through the <xref linkend='c_key_set'/> and <xref linkend='c_key_destroy'/> commands.
 </para>
 </sect2>
 
@@ -1731,7 +1764,7 @@ but this graph adds the audio-specific commands.
 <para>
 Audio data is arranged into <emphasis>layers</emphasis>, each of which can be subscribed to using the
 <xref linkend='a_layer_subscribe'/> command. Once subscribed to a layer, a client will receive any data
-sent out to it, through the <xref linkend='a_audio'/> command.
+sent out to it, through the <xref linkend='a_block_set'/> command.
 </para>
 </sect2>
 
