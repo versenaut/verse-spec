@@ -11,5 +11,5 @@ digraph subscription {
 
 	buffer [label="t_text_set"];
 
-	text [peripheries="2", label="b_set_language\nt_buffer_create\nt_buffer_destroy"];
+	text [peripheries="2", label="t_set_language\nt_buffer_create\nt_buffer_destroy"];
 }
