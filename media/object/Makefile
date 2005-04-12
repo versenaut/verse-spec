@@ -1,11 +1,11 @@
 #
-# Makefile for bitmap node media files. Requires BATIK to be set externally.
+# Makefile for bitmap node media files. Requires SVG2PNG to be set externally.
 #
 
 ALL:	transform-eq.png
 
 %.png : %.svg
-	java -jar $(BATIK) $^
+	$(SVG2PNG) $^
 
 clean:
 	rm -f *.png
