@@ -6,10 +6,14 @@ digraph subscription {
 	node [label="\N", shape="ellipse", fontsize="11"];
 	edge [fontsize="10"];
 
-	text -> buffer [label="a_layer_subscribe()"];
-	buffer -> text [label="a_layer_unsubscribe()"];
+	audio -> buffer [label="a_buffer_subscribe()"];
+	buffer -> audio [label="a_buffer_unsubscribe()"];
 
 	buffer [label="a_block_set"];
 
-	text [peripheries="2", label="a_layer_create\na_layer_destroy"];
+	audio -> stream [label="a_stream_subscribe()"];
+	stream -> audio [label="a_stream_unsubscribe()"];
+	stream [label="a_stream"];
+
+	audio [peripheries="2", label="a_buffer_create\na_buffer_destroy\na_stream_create\na_stream_destroy"];
 }
