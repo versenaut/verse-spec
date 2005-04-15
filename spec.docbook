@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
-"/usr/share/sgml/docbook/xml-dtd-4.2/docbookx.dtd" [
+"/usr/share/sgml/docbook/xml-dtd-4.3/docbookx.dtd" [
  <!ENTITY Bez           "B&eacute;zier">
 
  <!ENTITY Types         SYSTEM "protocol/types.snip">
@@ -17,7 +17,7 @@
  <subtitle>A platform for sharing 3D data</subtitle>
  <author><firstname>Emil</firstname>  <surname>Brink</surname></author>
  <author><firstname>Eskil</firstname> <surname>Steenberg</surname></author>
- <copyright><year>2004</year><holder>PDC, KTH</holder></copyright>
+ <copyright><year>2004-2005</year><holder>PDC, KTH</holder></copyright>
 
  <legalnotice>
   <para>
@@ -310,7 +310,7 @@ are performed, in the <link linkend='system-commands'>system commands</link> sec
 
 </sect1>
 
-<sect1 id="n-object">
+<sect1 id="n-object" xreflabel='object node'>
 <title>The Object Node</title>
 <para>
 The <emphasis>object node</emphasis> acts as the root for data storage in Verse's data model. Its purpose is to
@@ -1480,43 +1480,90 @@ The audio node provides support for streaming audio between Verse clients. It do
 storing audio permanently on a host, only for having layers (channels) of audio that one can subscribe to
 and send/receive streaming audio content in.
 </para>
-<sect2>
-<title>Layers</title>
 <para>
-Layers are simply independent <quote>places</quote> where audio data is sent. It might be helpful to think
-of them as channels of a <quote>radio</quote> (the node), each of which can be subscribed to individually.
+Audio, in both buffers and streams, is represented as uncompressed PCM (pulse-code modulation) data, meaning
+linear sequences of digitial values that represent the audio amplitude at some point in time. The two main
+parameters that control the quality of the sound then become the sampling frequency, i.e. how many such values
+exist per unit of time, and the sampling resolution, i.e. how many bits are used to represent the value. Verse
+supports arbitrary sampling frequences, and a six different sample formats of both fixed-point (integer) and
+floating-point varieties.
+</para>
+<sect2>
+<title>Buffers</title>
+<para>
+Buffers are simply independent containers where audio data is stored, for editing. They very much
+resemble other such storage places in Verse, such as text node buffers or geometry layers.
 </para>
 <para>
-When a client requests to subscribe to an audio layer, it must also specify a desired <emphasis>transfer type</emphasis>
-that controls how it wishes to have audio data sent to it.
+Data in buffers is represented (and transported) as numbered blocks. The number of samples in a block depends
+on the data type used, see the <xref linkend='type-VNAConstants'/> type definition.  The playback time
+represented by a single such block thus depends on the type, too.
+</para>
+<para>
+Audio buffers are <quote>passive</quote>, meaning that they in themselves do not produce any audible sound.
+They can store samples needed to reproduce sound, but the intent is not to play back that data directly (unlike
+e.g. geometry, which is intended to be directly rendered). There is a second mechanism for transmitting data
+for playback: streams.</para>
+<para>
+Audio blocks are identified by numbers, but these numbers are not actually <quote>IDs</quote> like in other
+nodes, that the server has assigning authority over. Instead, the numbers are called <emphasis>indices</emphasis>
+because they simply index into a (virtual, very large) array of audio blocks. The idea is that there are
+blocks for all valid values of the index parameter (a 32-bit integer), but that blocks can be either set
+or clear. Clear blocks read as all zeros, i.e. represent silence. This means that, for example, a 64-bit floating
+point buffer can store up to 2<superscript>32</superscript> * <symbol>VN_A_BLOCK_SIZE_REAL64</symbol> =
+2<superscript>32</superscript> * 128 values at 8 bytes each, which evaluates to 4 TB of data.
+</para>
+<para>
+<figure id="a-buffer-blocks">
+<title>Blocks in an Audio Buffer</title>
+<mediaobject>
+ <imageobject>
+  <imagedata fileref="media/audio/audio.png" format="PNG"/>
+ </imageobject>
+</mediaobject>
+</figure>
+Figure <xref linkend='a-buffer-blocks'/> shows a schematic view of an audio buffer's first few blocks. Only
+blocks 0, 1, and 3 are present. Things to note are:
+<itemizedlist>
+<listitem><para>Blocks are positioned based on their indices. Block 0 is always the first, is always followed
+by block 1, and so on.</para></listitem>
+<listitem><para>Blocks that are absent still occupy their place in the indexing space. The third block
+shown has index 3, although an index of 2 might be expected based on counting.</para></listitem>
+<listitem><para>Absent blocks are rendered as a flat <quote>zero line</quote>, indicating that the value
+of the samples there is considered to be zero.</para></listitem>
+</itemizedlist>
+</para>
+<para>
+This index definition means that storing audio blocks can be a challenge. It's perfectly okay for a client
+to create an audio layer, and then set the
+first (<varname>index</varname>=<literal>0</literal>)
+and
+last (<varname>index</varname>=<literal>2<superscript>32</superscript>-1</literal>)
+blocks in the array. A receving party (the host,
+or another client) that uses a simple array to store the blocks would then need to allocate the full block space,
+which would use up a rather inconvenient amount of memory.
+</para>
+<para>
+There is no automatic way of <quote>shunting</quote> audio data from a buffer to a
+stream for playback, if such a feature is desired, some client needs to read from the buffer and send the data
+to a stream.
 </para>
 </sect2>
 
 <sect2>
-<title>Transfer Types</title>
+<title>Streams</title>
 <para>
-The audio supports two independent types of transfers: compressed and/or sustained. These can be combined
-freely, so there are four different combinations that are all available. Note that the transfer type is not
-a property of the audio layer, but of the subscription itself. It is possible to have one client, perhaps
-using a limited bandwidth link, subscribe to a layer using compression, while the audio is being produced
-by a close-to-the-host servlet using no compression.
-</para>
-<sect3><title>Compressed</title>
+Streams are used to send audio data in real-time, for playback. It might be helpful to think of each stream
+as a channel of a <quote>radio</quote> (the node), each of which can be subscribed to individually.</para>
 <para>
-A compressed audio stream contains audio that is transmitted in compressed form. At this point (R2, June 2004)
-little is known about compression algorithms, whether compression will be lossy or lossless, if algorithms
-should be independent of this specification, and so on.
+Data for streams is delivered in blocks, which have the same size as those used when storing audio data in
+buffers. Each block is timestamped with the time when it is supposed to be played back; it is the responsibility
+of receiving clients to queue up incoming stream blocks, sort them on their timestamps, and then play them
+back when the correct time arrives. To learn the current time, use the <xref linkend='verse_session_get_time'/>()
+API call.
 </para>
-</sect3>
-<sect3><title>Sustained</title>
-<para>
-A <emphasis>sustained</emphasis> audio stream is assumed to be flowing in real time, and any lost packets
-in it will be ignored since there is no point in re-sending audio that should already have been played at
-the time it arrives. A non-sustained stream, on the other hand, will have the regular resend algorithms
-applied to its packets and is thus more suitable in e.g. an editing environment.
-</para>
-</sect3>
 </sect2>
+
 </sect1>
 
 <sect1 id='subscription-graphs'>
@@ -1620,7 +1667,8 @@ host to start sending updates to the method group(s) in question.
 </orderedlist>
 <para>
 It is important to realize that a client can be in both the bottom left and bottom right states at the same time,
-by simply subscribing to both the transform and to one or more method groups. The states are not mutually exclusive.
+by simply subscribing to both the transform and to one or more method groups. The <quote>states</quote> are not
+mutually exclusive.
 </para>
 </sect2>
 
@@ -1647,8 +1695,8 @@ client to chose a desired precision for any floating-point numbers in the layers
 </para>
 <para>
 Once subscribed to a layer, the client receives the layer's contents and any changes done for as long as it is
-subscribed. Vertex data is delivered using ether <xref linkend='g_vertex_set_real32_xyz'/> or
-<xref linkend='g_vertex_set_real64_xyz'/> depending on the requested precision. Polygon data is delivered using
+subscribed. Vertex data is delivered using ether <xref linkend='g_vertex_set_xyz_real32'/> or
+<xref linkend='g_vertex_set_xyz_real64'/> depending on the requested precision. Polygon data is delivered using
 one of the g_polygon_set commands, depending on the layer type.
 </para>
 </sect2>
@@ -1762,9 +1810,15 @@ but this graph adds the audio-specific commands.
 </figure>
 </para>
 <para>
-Audio data is arranged into <emphasis>layers</emphasis>, each of which can be subscribed to using the
-<xref linkend='a_layer_subscribe'/> command. Once subscribed to a layer, a client will receive any data
-sent out to it, through the <xref linkend='a_block_set'/> command.
+Audio data is arranged into <emphasis>buffers</emphasis> and <emphasis>streams</emphasis>, each of which can
+be subscribed to using either the <xref linkend='a_buffer_subscribe'/> or the <xref linkend='a_stream_subscribe'/>
+command, respectively. If subscribed to a buffer, a client will receive any data sent out to it, through the
+<xref linkend='a_block_set'/> command. Data sent to a stream will arrive through the <xref linkend='a_stream'/> command.
+</para>
+<para>
+As with any node that has multiple subscribable entities, it is important to realize that a client can be in both
+the bottom left and bottom right states at the same time, by simply subscribing to both one or more buffers and to
+one or more streams. The <quote>states</quote> are not mutually exclusive.
 </para>
 </sect2>
 
@@ -2135,11 +2189,11 @@ sometimes enough, and no further address fields are defined. For node commands, 
 include the node ID field, and often further fields that address parts of the node.
 </para>
 <example id="ex-v-set-real32-addr">
-<title><symbol>g_vertex_set_real32_xyz</symbol> Addressing</title>
+<title><symbol>g_vertex_set_xyz_real32</symbol> Addressing</title>
 <para>
 As an example, consider setting the (X,Y,Z) position of a <link linkend="n-geometry">geometry node</link> base
 layer vertex. One command that does this is
-<link linkend='g_vertex_set_real32_xyz'><symbol>g_vertex_set_real32_xyz</symbol></link>,
+<link linkend='g_vertex_set_xyz_real32'><symbol>g_vertex_set_xyz_real32</symbol></link>,
 which has a command ID value of <literal>50</literal>. This command requires three pieces of information that
 together identify the vertex whose position is to be set: the node ID of the target node, the layer ID of the
 layer holding the vertex, and finally the vertex ID that is the index of the vertex inside the layer. These three
@@ -2158,7 +2212,7 @@ The rest of the parameters for a command make up the actual data payload, and li
 general; the specific format is very much up to each command.
 </para>
 <example>
-<title><symbol>g_vertex_set_real32_xyz</symbol> Content</title>
+<title><symbol>g_vertex_set_xyz_real32</symbol> Content</title>
 <para>
 To continue from the previous example, the content used to set a vertex with 32-bit precision is simply
 three <type>real32</type> values, named <varname>x</varname>, <varname>y</varname> and <varname>z</varname>
@@ -2182,7 +2236,7 @@ in that were left blank originally.
 </para>
 <para>
 This means that if a client sends a command to a host, asking it to e.g. move a vertex to a new position in
-3D space (using the <command><link linkend='g_vertex_set_real32_xyz'>g_vertex_set_real32_xyz</link></command>
+3D space (using the <command><link linkend='g_vertex_set_xyz_real32'>g_vertex_set_xyz_real32</link></command>
 command), the following will happen:
 <footnote>
 <para>This example does not include sufficient detail to describe what happens if one or more commands are
@@ -2207,7 +2261,7 @@ The host executes the command, typically by updating the state of the vertex lay
 <listitem><para>
 The change must be distributed to all subscribers, probably also including the client that originally sent
 the change. This is done by having the host construct a suitable command (for this example, this would be
-the exact same command, i.e. a <command><link linkend='g_vertex_set_real32_xyz'>g_vertex_set_real32_xyz</link></command>),
+the exact same command, i.e. a <command><link linkend='g_vertex_set_xyz_real32'>g_vertex_set_xyz_real32</link></command>),
 and sending it out to all known subscribers.
 </para></listitem>
 <listitem><para>
@@ -2365,7 +2419,7 @@ more values filled in that only the host knows about.
 </para>
 <para>
 The descriptive texts for the commands in the following sections are written from <emphasis>the client's
-perspective</emphasis> almost always. This means that e.g. the <xref linkend='g_vertex_set_real32_xyz'/> command
+perspective</emphasis> almost always. This means that e.g. the <xref linkend='g_vertex_set_xyz_real32'/> command
 is described as <quote>setting the position of the vertex</quote>, rather than <quote>informing a client
 about the position of a vertex</quote>, and so on.
 </para>
@@ -2565,7 +2619,7 @@ there are functions for working with <emphasis>callbacks</emphasis>, which are a
   </listitem>
  </varlistentry>
  <varlistentry>
-  <term><link linkend='api-ref-data'>Data Utility Functions</link></term>
+  <term><link linkend='api-ref-data'>Pack/Unpack Helper Functions</link></term>
   <listitem>
    <para>These are functions that help deal with complex data representations. Rather than have the
 sending function (see below) do any required data conversions, it is left to an auxiliary function
@@ -2578,7 +2632,7 @@ for the efficient implementation of hosts (or multi-session clients).</para>
   <listitem>
    <para>This is the largest group, by a large margin. It is basically a 1:1 mapping of
 <link linkend="command-reference">commands</link> to functions, with one function to send each of the
-defined commands for all node types. At the time of writing, there are roughly 80 such functions.</para>
+defined commands for all node types. At the time of writing, there are roughly 90 such functions.</para>
   </listitem>
  </varlistentry>
 </variablelist>
@@ -2671,30 +2725,6 @@ connection attempt was successful and that it now has established a session with
 </refsect1>
 </refentry>
 
-<refentry id='verse_send_connect_deny'>
-<refnamediv>
-<refname>verse_send_connect_deny</refname>
-<refpurpose>Deny a client from connecting to a Verse host</refpurpose>
-</refnamediv>
-<refsynopsisdiv>
-<funcsynopsis>
-<funcprototype>
-<funcdef>void <function>verse_send_connect_deny</function></funcdef>
-<paramdef>
- <parameter><type>const char *</type> address</parameter>
-</paramdef>
-</funcprototype>
-</funcsynopsis>
-</refsynopsisdiv>
-<refsect1><title>Description</title>
-<para>
-This function sends the connect_deny command to a client, informing it that its connection attempt
-failed. It takes a whole host address as an argument, since it is not sent though an established
-connection.
-</para>
-</refsect1>
-</refentry>
-
 <refentry id='verse_send_connect_terminate'>
 <refnamediv>
 <refname>verse_send_connect_terminate</refname>
@@ -2745,7 +2775,7 @@ for <quote>well-known</quote> applications.
 </refsect1>
 </refentry>
 
-<refentry id='verse_session_get'>
+<refentry id='verse_session_set'>
 <refnamediv>
 <refname>verse_session_set</refname>
 <refpurpose>Make a session the current one, through which commands are sent</refpurpose>
@@ -2765,6 +2795,55 @@ for <quote>well-known</quote> applications.
 This function changes the current session. All callbacks are executed in the current session,
 so to serve multiple connections a client must manually iterate through its sessions and call
 <xref linkend='verse_callback_update'/>() in each.
+</para>
+</refsect1>
+</refentry>
+
+<refentry id='verse_session_get'>
+<refnamediv>
+<refname>verse_session_get</refname>
+<refpurpose>Return the current session</refpurpose>
+</refnamediv>
+<refsynopsisdiv>
+<funcsynopsis>
+<funcprototype>
+<funcdef>VSession <function>verse_session_get</function></funcdef>
+<paramdef>
+ <parameter>void</parameter>
+</paramdef>
+</funcprototype>
+</funcsynopsis>
+</refsynopsisdiv>
+<refsect1><title>Description</title>
+<para>
+This function returns the current session, i.e. the session that is currently processed by
+calls to <xref linkend='verse_callback_update'/>. It can be useful if your application is
+processing multiple connections.
+</para>
+</refsect1>
+</refentry>
+
+<refentry id='verse_session_get_avatar'>
+<refnamediv>
+<refname>verse_session_get_avatar</refname>
+<refpurpose>Get host-side node ID for current session's avatar node</refpurpose>
+</refnamediv>
+<refsynopsisdiv>
+<funcsynopsis>
+<funcprototype>
+<funcdef>VNodeID <function>verse_session_get_avatar</function></funcdef>
+<paramdef>
+ <parameter>void</parameter>
+</paramdef>
+</funcprototype>
+</funcsynopsis>
+</refsynopsisdiv>
+<refsect1><title>Description</title>
+<para>
+This function returns the host-side node identifier for the current session's avatar node. The avatar node
+is an <xref linkend='n-object'/> that acts as the client's representation on the
+Verse host. This ID is also delivered to the application as an argument in the
+<xref linkend='verse_send_connect_accept'/>() callback.
 </para>
 </refsect1>
 </refentry>
@@ -2794,6 +2873,48 @@ of how well the network connection is working; if it is monotonically increasing
 <para>
 An application can use the value returned by this function to make a decision to drop the connection altogether,
 if it exceeds some specific threshold. Such a threshold should be configurable.
+</para>
+</refsect1>
+</refentry>
+
+<refentry id='verse_session_get_time'>
+<refnamediv>
+<refname>verse_session_get_time</refname>
+<refpurpose>Get current time for active session</refpurpose>
+</refnamediv>
+<refsynopsisdiv>
+<funcsynopsis>
+<funcprototype>
+<funcdef>void <function>verse_session_get_time</function></funcdef>
+<paramdef>
+ <parameter><type>uint32 *</type>seconds</parameter>,
+ <parameter><type>uint32 *</type>fractions</parameter>
+</paramdef>
+</funcprototype>
+</funcsynopsis>
+</refsynopsisdiv>
+<refsect1><title>Description</title>
+<para>
+This function returns the session's current time. The time is computed based on an initial value sent by
+the host during the connection-establishment handshaking, and then kept up to date by the client.
+</para>
+<para>
+The time is expressed as a fixed-point number of seconds since some arbitrary point in the past; there
+is no definition of what the time shall be immediately following a connection. It is represented as two
+32-bit integers; one holds the number of seconds, and the other holds a fraction for extra precision. The
+fraction is expressed in 1/4,294,967,296:ths of a second, so that for instance the time <quote>16.75
+seconds</quote> would be reported by setting <varname>seconds</varname>=<literal>16</literal> and
+<varname>fractions</varname>=<literal>3,221,225,472</literal>.
+</para>
+<para>
+The allocation of the above-mentioned 64 bits means that Verse can accurately represent any timestamp
+from 0.0 seconds and up to about 49,710 full days, while keeping the precision of approximately
+0.00000000023 seconds over the full range.
+</para>
+<para>
+The current time is useful for determining when the translation of an object, since position and
+rotation are expressed with velocity and acceleration parameters, playing object animations, and
+also for deciding when to replay audio sent through an audio stream.
 </para>
 </refsect1>
 </refentry>
@@ -2879,7 +3000,7 @@ a function with the expected prototype, things can go horribly wrong if the wron
 <funcprototype>
 <funcdef>void <function>verse_callback_update</function></funcdef>
 <paramdef>
- <parameter><type>uint32</type> milliseconds</parameter>
+ <parameter><type>uint32</type> microseconds</parameter>
 </paramdef>
 </funcprototype>
 </funcsynopsis>
@@ -2887,20 +3008,31 @@ a function with the expected prototype, things can go horribly wrong if the wron
 <refsect1><title>Description</title>
 <para>
 This function reads any incoming packets from the network, parses them (splits them into commands) and issues
-calls to any callbacks that are registered for the found commands. It will block for at most <parameter>milliseconds</parameter>
-milliseconds and wait for something to arrive.
+calls to any callbacks that are registered for the found commands. It will block for at most <parameter>microseconds</parameter>
+microseconds and wait for something to arrive.
 </para>
-<note><para>An application must call this function periodically in order to service the connection with the other end
-of the Verse link; failure to do so will cause the other end's packet buffer to grow which might cause the
-connection to terminate.</para></note>
+<note><para>An application <emphasis>must</emphasis> call this function periodically in order to service the connection
+with the other end of the Verse link; failure to do so will cause the other end's packet buffer to grow monotonically,
+which in turn might cause the connection to be terminated.</para></note>
+<para>This function really is <quote>the heart</quote> of Verse clients; any client programmer must figure out a way to get
+his/her client to regularly call this funtion, to keep the Verse traffic flowing as required.</para>
 </refsect1>
 </refentry>
 
 </sect1>
 
 <sect1 id='api-ref-data'>
-<title>Data Processing Functions</title>
-<para>Cool stuff.</para>
+<title>Pack/Unpack Helper Functions</title>
+<para>These are functions for dealing with packing and unpacking data to and from the network representation.
+Normally, the Verse API hides all data pack/unpack operations, delivering already-unpacked parameters directly
+to an application's callback functions. However, object method calls require extraneous information that is
+not buffered by the API, so to properly unpack a call's parameters, the application needs to be in control.
+</para>
+<para>
+Also, the separation of packing a call from actually sending it, can help improve performance if a single call
+needs to be sent multiple times, since it makes it possible to buffer the packed representation and re-use it
+for any number of calls.
+</para>
 
 <refentry id='verse_method_call_pack'>
 <refnamediv>
@@ -2963,55 +3095,6 @@ This function unpacks a memory block holding method call parameter values, as pa
 <xref linkend='verse_method_call_pack'/>() above, and fills in the supplied array of
 <xref linkend='type-VNOParam'/> unions with the proper values. The <varname>param_type</varname>
 array is used to determine the type of each argument, no such data is contained in the data block.
-</para>
-</refsect1>
-</refentry>
-
-<refentry id='verse_audo_compress'>
-<refnamediv>
-<refname>verse_audio_compress</refname>
-<refpurpose>Compress audio data for network transmission</refpurpose>
-</refnamediv>
-<refsynopsisdiv>
-<funcsynopsis>
-<funcprototype>
-<funcdef>void * <function>verse_audio_compress</function></funcdef>
-<paramdef>
- <parameter><type>uint32</type> length</parameter>,
- <parameter><type>VNALayerType</type> type</parameter>,
- <parameter><type>const void *</type> data</parameter>,
-</paramdef>
-</funcprototype>
-</funcsynopsis>
-</refsynopsisdiv>
-<refsect1><title>Description</title>
-<para>
-This function compresses a sequence of raw audio samples into a more compact form, suitable for transmission using
-a compressed audio layer.
-</para>
-</refsect1>
-</refentry>
-
-<refentry id='verse_audio_uncompress'>
-<refnamediv>
-<refname>verse_audio_uncompress</refname>
-<refpurpose>Uncompress audio data for playback</refpurpose>
-</refnamediv>
-<refsynopsisdiv>
-<funcsynopsis>
-<funcprototype>
-<funcdef>void * <function>verse_audio_uncompress</function></funcdef>
-<paramdef>
- <parameter><type>uint32</type> length</parameter>,
- <parameter><type>VNALayerType</type> type</parameter>,
- <parameter><type>const void *</type> data</parameter>,
-</paramdef>
-</funcprototype>
-</funcsynopsis>
-</refsynopsisdiv>
-<refsect1><title>Description</title>
-<para>This function decompresses a block of compressed audio data, restoring it to raw sample form which is
-suitable for playback.
 </para>
 </refsect1>
 </refentry>
