@@ -47,14 +47,10 @@ this is a per-node value and not per-buffer.</para>
     <param>
      <name>buffer_id</name>
      <type>&bufferidtype;</type>
-     <desc>The ID of the buffer. In a client-to-host transaction, sent as 0 to request a new buffer to
+     <desc>The ID of the buffer. In a client-to-host transaction, sent as ~0 to request a new buffer to
 be created. The host-assigned ID is then indicated in the host's response.</desc>
     </param>
    </address>
-   <param>
-    <name>index</name>
-    <type>uint16</type>
-   </param>
    <param>
     <name>name</name>
     <type>string16</type>
