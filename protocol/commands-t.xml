@@ -76,7 +76,7 @@ existing buffer, this field can be used to rename it. Names must be kept unique 
   </alias>
   <desc>
    <para>This command is used to create new, and rename existing, text buffers. To create a new one, set the ID
-to zero and the name to the desired name. To rename an existing buffer, set the ID to the buffer's known ID and
+to ~0 and the name to the desired name. To rename an existing buffer, set the ID to the buffer's known ID and
 the name to the new name. The server will respond with the result on success.</para>
   </desc>
  </command>
