@@ -97,7 +97,7 @@ losing all data stored therein.
 
  <command id="50">
   <meta>
-   <name>vertex_set_real32_xyz</name>
+   <name>vertex_set_xyz_real32</name>
    <purpose>Set absolute position of a vertex, in 32-bit precision.</purpose>
   </meta>
   <params>
@@ -168,7 +168,7 @@ refer to the same piece of data, only with different precision.
 
  <command id="51">
   <meta>
-   <name>vertex_set_real64_xyz</name>
+   <name>vertex_set_xyz_real64</name>
    <purpose>Set absolute position of a vertex, in 64-bit precision.</purpose>
   </meta>
   <params>
