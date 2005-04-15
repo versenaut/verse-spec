@@ -1,0 +1,48 @@
+<?xml version="1.0" standalone="no"?>
+
+<!--
+ An audio node illustration, showing the sequence of audio blocks in a
+ buffer. the Verse spec, by Emil Brink April 2005.
+-->
+
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" 
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="666px" height="195px" version="1.1" xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 150 40">
+
+<defs>
+ <marker id='arrow' markerUnits='strokeWidth' markerWidth='4' markerHeight='4'
+   orient='auto' viewBox='0 0 10 10' refX='6' refY='5'>
+  <path d='M 0 0 L 10 5 0 10'/>
+ </marker>
+</defs>
+
+<!-- Axis not used at the moment.
+<g id='axis' stroke='black'>
+ <line x1='0' y1='30' x2='140' y2='80' stroke-width='1' marker-end='url(#arrow)'/>
+</g> -->
+
+<g id='block0' stroke='black'>
+ <rect x='0' y='10' width='30' height='15' stroke-width='.5' fill='none'/>
+ <text x='14' y='30' stroke-width='.1' font-size='4'>0</text>
+</g>
+
+<g id='block1' stroke='black'>
+ <rect x='30' y='10' width='30' height='15' stroke-width='.5' fill='none'/>
+ <text x='44' y='30' stroke-width='.1' font-size='4'>1</text>
+</g>
+
+<g id='block2' stroke='black'>
+ <line x1='60' y1='17.5' x2='90' y2='17.5' stroke-width='.5'/>
+</g>
+
+<g id='block3' stroke='black'>
+ <rect x='90' y='10' width='30' height='15' stroke-width='.5' fill='none'/>
+ <text x='104' y='30' stroke-width='.1' font-size='4'>3</text>
+</g>
+
+<g id='block4' stroke='black'>
+ <line x1='120' y1='17.5' x2='150' y2='17.5' stroke-width='.5'/>
+</g>
+
+</svg>
