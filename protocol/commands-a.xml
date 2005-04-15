@@ -6,81 +6,86 @@
                    <desc>The ID of the node being accessed.</desc>
                    <alias><desc>The ID of the node being accessed.</desc></alias>
                   </param>">
- <!ENTITY layeridtype "uint16">
- <!ENTITY LAYERDESC "<desc>The ID of the layer being accessed.</desc>">
- <!ENTITY LAYERBODY "<name>layer_id</name><type>&layeridtype;</type>&LAYERDESC;">
- <!ENTITY layerid      "<param>&LAYERBODY;</param>">
- <!ENTITY layeridalias "<param>&LAYERBODY;<alias>&LAYERDESC;</alias></param>">
+ <!ENTITY bufferidtype "VBufferID">
+ <!ENTITY BUFFERDESC "<desc>The ID of the buffer being accessed.</desc>">
+ <!ENTITY BUFFERBODY "<name>buffer_id</name><type>&bufferidtype;</type>&BUFFERDESC;">
+ <!ENTITY bufferid      "<param>&BUFFERBODY;</param>">
+ <!ENTITY bufferidalias "<param>&BUFFERBODY;<alias>&BUFFERDESC;</alias></param>">
 ]> -->
 
 <commands node="audio" prefix="a">
  <command id="160">
   <meta>
-   <name>layer_create</name>
-   <purpose>Create a new audio layer (a channel where audio can be transferred).</purpose>
+   <name>buffer_create</name>
+   <purpose>Create a new audio buffer (a container where audio can be stored and edited).</purpose>
   </meta>
   <params>
    <address>
     &nodeid;
-    &layerid;
+    &bufferid;
    </address>
    <param>
     <name>name</name>
     <type>string16</type>
-    <desc>The name of the layer.</desc>
+    <desc>The name of the buffer.</desc>
+   </param>
+   <param>
+    <name>type</name>
+    <type>VNABlockType</type>
+    <desc>Type of the sample data stored in this buffer.</desc>
+   </param>
+   <param>
+    <name>frequency</name>
+    <type>real64</type>
+    <desc>The sampling frequency used for data stored in this buffer.</desc>
    </param>
   </params>
   <alias>
    <meta>
-    <name>layer_destroy</name>
-    <purpose>Destroy an audio layer.</purpose>
+    <name>buffer_destroy</name>
+    <purpose>Destroy an audio buffer.</purpose>
    </meta>
-   <desc><para>This command destroys an existing audio layer.</para></desc>
+   <desc><para>This command destroys an existing audio buffer.</para></desc>
   </alias>
   <desc>
-   <para>This command creates a new audio layer, where audio data can be sent or stored.</para>
+   <para>This command creates a new audio buffer, where audio data can be sent or stored.</para>
   </desc>
  </command>
 
  <command id="161">
   <meta>
-   <name>layer_subscribe</name>
-   <purpose>Subscribe to an audio layer.</purpose>
+   <name>buffer_subscribe</name>
+   <purpose>Subscribe to an audio buffer.</purpose>
   </meta>
   <params>
    <address>
     &nodeid;
-    &layerid;
+    &bufferid;
    </address>
-   <param>
-    <name>transfer</name>
-    <type>VNATransferType</type>
-    <desc>The desired transfer mode to use for this subscription.</desc>
-   </param>
   </params>
   <alias>
    <meta>
-    <name>layer_unsubscribe</name>
-    <purpose>Stop subscribing to an audio layer.</purpose>
+    <name>buffer_unsubscribe</name>
+    <purpose>Stop subscribing to an audio buffer.</purpose>
    </meta>
    <desc>
-    <boilerplate context="unsubscribe" what="audio layer"/>
+    <boilerplate context="unsubscribe" what="audio buffer"/>
    </desc>
   </alias>
   <desc>
-   <boilerplate context="subscribe" what="audio layer"/>
+   <boilerplate context="subscribe" what="audio buffer"/>
   </desc>
  </command>
 
  <command id="162">
   <meta>
    <name>block_set</name>
-   <purpose>Send and receive audio layer data.</purpose>
+   <purpose>Send and receive audio buffer data.</purpose>
   </meta>
   <params>
    <address>
     &nodeid;
-    &layerid;
+    &bufferid;
     <param>
      <name>id</name>
      <type>uint16</type>
@@ -93,13 +98,8 @@
     <desc>Size of block transferred.</desc>
    </param>
    <param>
-    <name>transfer</name>
-    <type>VNATransferType</type>
-    <desc>The transfer mode used for the subsequent data.</desc>
-   </param>
-   <param>
     <name>type</name>
-    <type>VNALayerType</type>
+    <type>VNABlockType</type>
     <desc>The type of the audio samples.</desc>
    </param>
    <param>
@@ -113,4 +113,111 @@
    <para>This text needs to be far longer.</para>
   </desc>
  </command>
+
+ <command id="163">
+  <meta>
+   <name>stream_create</name>
+   <purpose>Create a new audio stream or rename an existing.</purpose>
+  </meta>
+  <params>
+   <address>
+    &nodeid;
+    &bufferid;
+   </address>
+   <param>
+    <name>name</name>
+    <type>string16</type>
+    <desc>The name of the stream to create.</desc>
+    <alias>
+     <value>""</value>
+    </alias>
+   </param>
+  </params>
+  <alias>
+   <meta>
+    <name>stream_destroy</name>
+    <purpose>Destroy an audio stream.</purpose>
+   </meta>
+   <desc>
+    <para>This command destroys an existing audio stream. The server will respond with an echo of the command.</para>
+   </desc>
+  </alias>
+  <desc>
+   <para>This command is used to create new, and rename existing, audio buffers. Audio buffers are
+containers where audio data can be stored for editing.</para>
+   <para>To create a new buffer, set the ID to ~0 and the name to the desired name.</para>
+   <para>To rename an existing buffer, set the ID to the buffer's known server-assigned ID, and the
+name to the new desired name.</para>
+   <para>In either case, the server will respond with the result on success.</para>
+  </desc>
+ </command>
+
+ <command id="164">
+  <meta>
+   <name>stream_subscribe</name>
+   <purpose>Subscribe to an audio stream, so that any data sent through it is received.</purpose>
+  </meta>
+  <params>
+   <address>
+    &nodeid;
+    &bufferid;
+   </address>
+  </params>
+  <alias>
+   <meta>
+    <name>stream_unsubscribe</name>
+    <purpose>Stop subscribing to an audio stream.</purpose>
+   </meta>
+   <desc>
+    <boilerplate context="unsubscribe" what="audio stream"/>
+   </desc>
+  </alias>
+  <desc>
+   <boilerplate context="subscribe" what="audio stream"/>
+  </desc>
+ </command>
+
+ <command id="165">
+  <meta>
+   <name>stream</name>
+   <purpose>Send a block of streaming audio sample data.</purpose>
+  </meta>
+  <params>
+   <address>
+    &nodeid;
+    &bufferid;
+   </address>
+   <param>
+    <name>time_s</name>
+    <type>uint32</type>
+    <desc>Whole-seconds part of timestamp for when this audio data is to be played.</desc>
+   </param>
+   <param>
+    <name>time_f</name>
+    <type>uint32</type>
+    <desc>Fractional-seconds part of timestamp for when this audio data is to be played.</desc>
+   </param>
+   <param>
+    <name>type</name>
+    <type>VNABlockType</type>
+    <desc>The sample type of the data being transferred.</desc>
+   </param>
+   <param>
+    <name>frequency</name>
+    <type>real64</type>
+    <desc>Sampling frequency of this block of data.</desc>
+   </param>
+   <param>
+    <name>data</name>
+    <type>VNABlock</type>
+    <desc>A block of samples, in the specified format.</desc>
+   </param>
+  </params>
+  <desc>
+   <para>This command sends a block of streaming audio sample data. The block is timestamped with
+the time when it should be played back, and consists of a number of individual samples. The number
+of samples depends on the type of the data.</para>
+  </desc>
+ </command>
+
 </commands>
