@@ -82,34 +82,6 @@ to this client, rather than having to find out after the fact that it has discon
   </desc>
  </command>
 
- <command id="4">
-  <meta>
-   <name>get_time</name>
-   <purpose>Get system time.</purpose>
-  </meta>
-  <params>
-   <param>
-    <name>time_high</name>
-    <type>uint32</type>
-    <desc>The high (most significant) part of the host's current time. Only valid in replies from hosts,
-sent as zero by clients.</desc>
-   </param>
-   <param>
-    <name>time_low</name>
-    <type>uint32</type>
-    <desc>The low (least significant) part of the host's current time. Only valid in replies from hosts,
-sent as zero by clients.</desc>
-   </param>
-  </params>
-  <desc>
-   <para>This command is sent by a client to a host, requesting it to tell the client the current system
-time. This time is monotonically increasing, and expressed as a 64-bit unsigned integer giving the number
-of microseconds since the host was started. Since Verse lacks a 64-bit unsigned integer data type, two
-32-bit unsigned integers are used to hold the high and low parts of the quantity. Time is guaranteed not
-to wrap around, so clients need not worry about that.</para>
-  </desc>
- </command>
-
  <command id="5">
   <meta>
    <name>ping</name>
