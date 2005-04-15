@@ -131,22 +131,22 @@ positions only. It is not possible to mask out the absolute value and specify e.
    </param>
    <param>
     <name>rot</name>
-    <type array-length="4">real32</type>
+    <type>VNQuat32</type>
     <desc><para>Object rotation, expressed as a quaternion.</para></desc>
    </param>
    <param mask="mask:0">
     <name>speed</name>
-    <type array-length="4">real32</type>
+    <type>VNQuat32</type>
     <desc><para>Speed of change in object's rotation, expressed as a quaternion.</para></desc>
    </param>
    <param mask="mask:1">
     <name>accelerate</name>
-    <type array-length="4">real32</type>
+    <type>VNQuat32</type>
     <desc><para>Acceleration of object's rotation, expressed as a quaternion.</para></desc>
    </param>
    <param mask="mask:2">
     <name>drag_normal</name>
-    <type array-length="4">real32</type>
+    <type>VNQuat32</type>
     <desc><para>Drag normal for rotation, expressed as a quaternion.</para></desc>
    </param>
    <param mask="mask:3">
@@ -180,22 +180,22 @@ which conserves network bandwidth.</para>
    </param>
    <param>
     <name>rot</name>
-    <type array-length="4">real64</type>
+    <type>VNQuat64</type>
     <desc><para>Object rotation, expressed as a quaternion.</para></desc>
    </param>
    <param mask="mask:0">
     <name>speed</name>
-    <type array-length="4">real64</type>
+    <type>VNQuat64</type>
     <desc><para>Speed of change in object's rotation, expressed as a quaternion.</para></desc>
    </param>
    <param mask="mask:1">
     <name>accelerate</name>
-    <type array-length="4">real64</type>
+    <type>VNQuat64</type>
     <desc><para>Acceleration of object's rotation, expressed as a quaternion.</para></desc>
    </param>
    <param mask="mask:2">
     <name>drag_normal</name>
-    <type array-length="4">real64</type>
+    <type>VNQuat64</type>
     <desc><para>Drag normal for rotation, expressed as a quaternion.</para></desc>
    </param>
    <param mask="mask:3">
@@ -542,36 +542,72 @@ information from the method_create command.</para>
    <param>
     <name>link_id</name>
     <type>uint16</type>
+    <desc>Link ID of a link to a curve node, that holds the curve(s) to be played.</desc>
    </param>
    <param>
     <name>time_s</name>
     <type>uint32</type>
+    <desc>Seconds part of timestamp when animation playback is to begin.</desc>
    </param>
    <param>
-    <name>time_t</name>
+    <name>time_f</name>
     <type>uint32</type>
+    <desc>Fractions part of timestamp when animation playback is to begin.</desc>
    </param>
    <param>
     <name>start</name>
     <type>real64</type>
+    <desc>Position in curve where playback is to start.</desc>
    </param>
    <param>
     <name>speed</name>
     <type>real64</type>
+    <desc>Initial playback speed, in units per second.</desc>
    </param>
    <param>
     <name>speed_ramp</name>
     <type>real64</type>
+    <desc>Change of playback speed, in units per second per second.</desc>
    </param>
    <param>
     <name>factor</name>
     <type>real64</type>
+    <desc>Influence factor for the curve; the entire curve is scaled by this number. Use 1.0 to let the
+curve affect the target directly. This is a unit-less number.</desc>
    </param>
    <param>
     <name>factor_ramp</name>
     <type>real64</type>
+    <desc>Change of influence factor, in units per second. Use 0.0 for a constant influence.</desc>
    </param>
   </params>
+  <desc>
+   <para>This command starts an animation in an object. Animation in Verse is described using curve nodes,
+which can hold one or more curves. Starting an animation involves indicating not which curve node to use,
+but which object link to use. That object link must then point at a curve node, and all curves in that node
+will be played back.</para>
+<para>
+As an example, consider a human character model, represented by a top-level object node. That node might
+have links to several different curve nodes, describing various animations such as a walk cycle, a run cycle,
+a jump, a crouch, and so on. The links can be labelled accordingly, although labels here are mostly for
+human use during editing; playback is by link ID.
+</para>
+<para>
+In addition to the link ID, the command includes a timestamp, in the customary 64-bit fixed-point format
+of whole and fractional seconds. This time is when the animation playback is to begin; it can be in the
+future, in which case a receving client should probably enqueue the command for processing when the session
+time has reached the indicated starting time.
+</para>
+<para>
+The next three parameters control where in the animation curve playback is to begin, and how the position
+moves through the curve with time.
+</para>
+<para>
+The last two parameters allow the specification of an influence scale factor, and its change over time.
+This can be used to do soft start of an animation, by specifying an initial scale below 1.0, and then
+having it increase over time.
+</para>
+  </desc>
  </command>
 
 </commands>
