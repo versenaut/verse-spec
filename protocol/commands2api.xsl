@@ -42,7 +42,6 @@
       <paramdef>
        <xsl:for-each select="descendant::param">
         <xsl:call-template name="do-param"/>
-        <xsl:if test="position() &lt; last()"><xsl:text>, </xsl:text></xsl:if>
        </xsl:for-each>
       </paramdef>
      </funcprototype>
@@ -76,7 +75,6 @@ function to register a callback for handling the reception of that command.</par
       <paramdef>
        <xsl:for-each select="../params//param[child::alias]">
         <xsl:if test="not(alias/value)">
-         <xsl:if test="position() &gt; 1">,<xsl:text> </xsl:text></xsl:if>
          <xsl:call-template name="do-param"/>
         </xsl:if>
        </xsl:for-each>
@@ -101,6 +99,8 @@ the <xref linkend='verse_callback_set'/> function to register a callback for han
  <!-- Format a parameter for a function prototype. -->
  <xsl:template match="param" name="do-param">
   <xsl:if test="not(@mask='yes')">
+   <!-- Emit commas between parameters. -->
+   <xsl:if test="position() &gt; 1">,<xsl:text> </xsl:text></xsl:if>
    <parameter>
     <xsl:call-template name="do-type"/>
     <xsl:value-of select="name"/>
