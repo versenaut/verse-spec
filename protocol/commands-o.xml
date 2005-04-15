@@ -22,22 +22,22 @@
     <type array-length="3">real32</type>
     <desc><para>Translation from world origin, as an array of three real32s representing x, y and z respectively.</para></desc>
    </param>
-   <param mask="mask:0">
+   <param masked="mask:0">
     <name>speed</name>
     <type array-length="3">real32</type>
     <desc><para>Speed of movement, the first derivative with respect to time of the pos parameter. Same format as pos.</para></desc>
    </param>
-   <param mask="mask:1">
+   <param masked="mask:1">
     <name>accel</name>
     <type array-length="3">real32</type>
     <desc><para>The movement's acceleration, the second derivative with respect to time of the pos parameter. Same format as pos.</para></desc>
    </param>
-   <param mask="mask:2">
+   <param masked="mask:2">
     <name>drag_normal</name>
     <type array-length="3">real32</type>
     <desc><para>Friction component.</para></desc>
    </param>
-   <param mask="mask:3">
+   <param masked="mask:3">
     <name>drag</name>
     <type>real32</type>
     <desc><para>The friction constant for this movement.</para></desc>
@@ -73,7 +73,7 @@ positions only. It is not possible to mask out the absolute value and specify e.
     <type>uint8</type>
     <desc><para>A mask that indicates which of the following fields are actually present.</para></desc>
    </param>
-   <param mask="mask:0">
+   <param masked="mask:0">
     <name>pos</name>
     <type array-length="3">real64</type>
     <desc><para>Translation from world origin, as an array of three real64s representing x, y and z respectively.</para></desc>
@@ -83,17 +83,17 @@ positions only. It is not possible to mask out the absolute value and specify e.
     <type array-length="3">real64</type>
     <desc><para>Speed of movement, the first derivative with respect to time of the pos parameter. Same format as pos.</para></desc>
    </param>
-   <param mask="mask:1">
+   <param masked="mask:0">
     <name>accel</name>
     <type array-length="3">real64</type>
     <desc><para>The movement's acceleration, the second derivative with respect to time of the pos parameter. Same format as pos.</para></desc>
    </param>
-   <param mask="mask:2">
+   <param masked="mask:1">
     <name>drag_normal</name>
     <type array-length="3">real64</type>
     <desc><para>Friction component.</para></desc>
    </param>
-   <param mask="mask:3">
+   <param masked="mask:2">
     <name>drag</name>
     <type>real32</type>
     <desc><para>The friction constant for this movement.</para></desc>
@@ -134,22 +134,22 @@ positions only. It is not possible to mask out the absolute value and specify e.
     <type>VNQuat32</type>
     <desc><para>Object rotation, expressed as a quaternion.</para></desc>
    </param>
-   <param mask="mask:0">
+   <param masked="mask:0">
     <name>speed</name>
     <type>VNQuat32</type>
     <desc><para>Speed of change in object's rotation, expressed as a quaternion.</para></desc>
    </param>
-   <param mask="mask:1">
+   <param masked="mask:1">
     <name>accelerate</name>
     <type>VNQuat32</type>
     <desc><para>Acceleration of object's rotation, expressed as a quaternion.</para></desc>
    </param>
-   <param mask="mask:2">
+   <param masked="mask:2">
     <name>drag_normal</name>
     <type>VNQuat32</type>
     <desc><para>Drag normal for rotation, expressed as a quaternion.</para></desc>
    </param>
-   <param mask="mask:3">
+   <param masked="mask:3">
     <name>drag</name>
     <type>real32</type>
     <desc><para>Drag value, the frictional constant.</para></desc>
@@ -183,22 +183,22 @@ which conserves network bandwidth.</para>
     <type>VNQuat64</type>
     <desc><para>Object rotation, expressed as a quaternion.</para></desc>
    </param>
-   <param mask="mask:0">
+   <param masked="mask:0">
     <name>speed</name>
     <type>VNQuat64</type>
     <desc><para>Speed of change in object's rotation, expressed as a quaternion.</para></desc>
    </param>
-   <param mask="mask:1">
+   <param masked="mask:1">
     <name>accelerate</name>
     <type>VNQuat64</type>
     <desc><para>Acceleration of object's rotation, expressed as a quaternion.</para></desc>
    </param>
-   <param mask="mask:2">
+   <param masked="mask:2">
     <name>drag_normal</name>
     <type>VNQuat64</type>
     <desc><para>Drag normal for rotation, expressed as a quaternion.</para></desc>
    </param>
-   <param mask="mask:3">
+   <param masked="mask:3">
     <name>drag</name>
     <type>real64</type>
     <desc><para>Drag value, the frictional constant.</para></desc>
