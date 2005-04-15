@@ -293,22 +293,52 @@ pixels.</para></desc>
    <enumitem name="VN_B_LAYER_REAL64" value="4"/>
   </enumeratedtype>
 
-  <enumeratedtype name="VNALayerType" using="uint8">
-   <desc><para>Identifies the data representation used for audio samples. Note that 24-bit integers are
-supported.</para></desc>
-   <enumitem name="VN_A_LAYER_INTEGER8" value="0"/>
-   <enumitem name="VN_A_LAYER_INTEGER16" value="1"/>
-   <enumitem name="VN_A_LAYER_INTEGER24" value="2"/>
-   <enumitem name="VN_A_LAYER_INTEGER32" value="3"/>
-   <enumitem name="VN_A_LAYER_REAL32" value="4"/>
-   <enumitem name="VN_A_LAYER_REAL64" value="5"/>
+  <enumeratedtype name="VNABlockType" using="uint8">
+   <desc><para>Identifies the data representation used for blocks of audio samples. Note that 24-bit integers are
+supported.</para>
+<para>
+24-bit samples are represented at the application level as uint32s, with the 24-bit sample left-adjusted,
+thus occupying the topmost 24 bits. The bottom eight bits contain a copy of the topmost eight. This means that
+24-bit and 32-bit samples can be used interchangably, and if you really need the true 24-bit data, just
+shift the value Verse gave you right by eight bits. In network transmissions, these duplicate bits are not
+transmitted, which is why the block size (see below) for 24-bit integer data is larger than for 32-bit.
+</para>
+<para>
+As an example, consider a sample value of <literal>0.7</literal>. As an 8-bit integer, this would be
+<literal>0.7</literal> * <literal>2<superscript>7</superscript>-1</literal> = <literal>0.7 * 127</literal> =
+<literal>88</literal>. As a 24-integer, taking the above rules into account, we get: <literal>0.7</literal> *
+<literal>2<superscript>23</superscript>-1</literal> = <literal>0.7 * 8388607</literal> = <literal>5872024</literal>.
+If we convert this decimal number to hexadecimal, to see the individual bytes, we get <literal>0x00599998</literal>.
+Now, we shift this to the left 8 bits, which gives <literal>0x59999800</literal>. Finally, copying the top byte
+into the least significant place gives us the final result, which is <literal>0x59999859</literal>. As a reference,
+the same sample value as a 32-bit integer is: <literal>0.7</literal> * <literal>2<superscript>31</superscript>-1</literal> =
+<literal>0.7</literal> * <literal>2147483647</literal> = <literal>1503238552</literal>. This value converted to
+hexadecimal is <literal>0x59999998</literal>. The difference between the 24- and 32-bit representations here is
+on the order of 0.00002%.
+
+</para>
+</desc>
+   <enumitem name="VN_A_BLOCK_INTEGER8" value="0"/>
+   <enumitem name="VN_A_BLOCK_INTEGER16" value="1"/>
+   <enumitem name="VN_A_BLOCK_INTEGER24" value="2"/>
+   <enumitem name="VN_A_BLOCK_INTEGER32" value="3"/>
+   <enumitem name="VN_A_BLOCK_REAL32" value="4"/>
+   <enumitem name="VN_A_BLOCK_REAL64" value="5"/>
   </enumeratedtype>
 
-  <enumeratedtype name="VNATransferType" using="uint8">
-   <enumitem name="VN_A_UNCOMPRESSED_SUSTAINED" value="0"/>
-   <enumitem name="VN_A_COMPRESSED_SUSTAINED" value="1"/>
-   <enumitem name="VN_A_UNCOMPRESSED_UNSUSTAINED" value="2"/>
-   <enumitem name="VN_A_COMPRESSED_UNSUSTAINED" value="3"/>
+  <enumeratedtype name="VNAConstants">
+   <desc><para>Values needed to work with the audio node. The VN_A_BLOCK_ symbols specify the number of
+individual samples in a block of the indicated type.</para><para>It is important to note that these are
+not maximums; they are the <emphasis>only</emphasis> valid block sizes used in Verse. There is no such
+thing as a shorter block, the full block size according to the table is always used. Set any un-used
+samples to 0.</para>
+</desc>
+   <enumitem name="VN_A_BLOCK_SIZE_INT8"   value="1024"/>
+   <enumitem name="VN_A_BLOCK_SIZE_INT16"  value="512"/>
+   <enumitem name="VN_A_BLOCK_SIZE_INT24"  value="384"/>
+   <enumitem name="VN_A_BLOCK_SIZE_INT32"  value="256"/>
+   <enumitem name="VN_A_BLOCK_SIZE_REAL32" value="256"/>
+   <enumitem name="VN_A_BLOCK_SIZE_REAL64" value="128"/>
   </enumeratedtype>
 
   <enumeratedtype name="VNTConstants" using="uint8">
@@ -326,12 +356,14 @@ supported.</para></desc>
    <name>Arrays</name>
    <desc><para>All datatypes can be formed into arrays, which are simply linear sequences of values of one type.</para>
 <para>The notation for an array is type[length] (where type is a type name and length an integer literal) for an array
-of known length, type[min..max] (where min and max are integer literals) for an array whose length can vary, and
-type[] for an array whose length is not known. Extraneous information is needed to resolve how long a variable-length
-array is in each case; no length information is stored in the array itself.</para>
+of known length, type[min..max] (where min and max are integer literals) for an array whose length can vary,
+type[SYMBOL] (where SYMBOL is a symbolic constant defined elsewhere) and type[] for an array whose length is not known.
+Extraneous information is needed to resolve how long a variable-length array is in each case; no length information is
+ever stored in the array itself.</para>
 <para>Sometimes, an array length needs to be dynamic and not known in advance. In such cases, there is always
 some related (adjacent in a structure, for instance) field that gives the length, and the notation type[fieldname]
-is used to indicate this condition.
+is used to indicate this condition. Such a fieldname is in lower-case characters, to make it distinct from the case
+of a symbolic (upper-case) constant.
 </para>
 <para>When a union type (see below) is made into an array, it is not defined if each element in the array has the
 same type, or if the type can vary between slots. This needs to be specified for each such use. This has consequences
@@ -350,6 +382,35 @@ the structure. </para>
 by themselves "know" which of the members is the one in use.</para>
    </desc>
   </meta>
+
+  <structtype name="VNQuat32" union="no">
+   <desc>
+    <para>This type describes a quaternion, a way to represent an arbitrary rotation. It uses 32-bit precision
+for all its floating point members.</para>
+    <para>The first three fields, x y and z, is the vector part of the quaternion, while the final field w
+represents the cosine of half the angle of rotation.</para>
+<para>
+A good description of quaternions and operations on them is the
+<ulink url="http://www.j3d.org/matrix_faq/matrfaq_latest.html">Matrix and Quaternion FAQ</ulink> (external link).
+</para>
+   </desc>
+   <structitem name="x" type="real32"/>
+   <structitem name="y" type="real32"/>
+   <structitem name="z" type="real32"/>
+   <structitem name="w" type="real32"/>
+  </structtype>
+
+  <structtype name="VNQuat64" union="no">
+   <desc>
+    <para>This type describes a quaternion, a way to represent an arbitrary rotation. See the description of
+VNQuat32 above, the only difference is that this type is used when 64-bit precision is desired.</para>
+   </desc>
+   <structitem name="x" type="real64"/>
+   <structitem name="y" type="real64"/>
+   <structitem name="z" type="real64"/>
+   <structitem name="w" type="real64"/>
+  </structtype>
+
   <structtype name="VNOParam" union="yes">
    <desc><para>A union type that can hold a single value for a method parameter.</para>
 <para>The vector and matrix members (vreal32_vec, vreal32_mat, vreal64_vec and vreal64_mat)
@@ -571,6 +632,30 @@ and vreal64). For one-bit tiles, the pixel is tested by the C expression (vuint1
    </structitem>
    <structitem name="vuint8">
     <arraytype type="real64" length="64"/>
+   </structitem>
+  </structtype>
+
+  <structtype name="VNABlock" union="yes">
+   <desc><para>A union that holds a the samples for a block of audio. The number of samples held depends on the
+sample type; knowledge of the union's intended type is always needed in order to correctly interpret it.</para>
+   </desc>
+   <structitem name="vint8">
+    <arraytype type="int8" length="VN_A_BLOCK_SIZE_INT8"/>
+   </structitem>
+   <structitem name="vint16">
+    <arraytype type="int16" length="VN_A_BLOCK_SIZE_INT16"/>
+   </structitem>
+   <structitem name="vint24">
+    <arraytype type="int32" length="VN_A_BLOCK_SIZE_INT24"/>
+   </structitem>
+   <structitem name="vint32">
+    <arraytype type="int32" length="VN_A_BLOCK_SIZE_INT32"/>
+   </structitem>
+   <structitem name="vreal32">
+    <arraytype type="real32" length="VN_A_BLOCK_SIZE_REAL32"/>
+   </structitem>
+   <structitem name="vreal64">
+    <arraytype type="real64" length="VN_A_BLOCK_SIZE_REAL64"/>
    </structitem>
   </structtype>
  </typegroup>
