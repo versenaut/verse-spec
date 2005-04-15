@@ -261,9 +261,23 @@ bytes.</para>
  </xsl:template>
 
  <xsl:template match="desc">
-  <xsl:for-each select="para">
-   <para><xsl:value-of select="."/></para>
-  </xsl:for-each>
+  <xsl:apply-templates/>
+ </xsl:template>
+
+ <xsl:template match="para">
+  <para>
+   <xsl:apply-templates/>
+  </para>
+ </xsl:template>
+
+ <xsl:template match="literal">
+  <literal>
+   <xsl:apply-templates/>
+  </literal>
+ </xsl:template>
+
+ <xsl:template match="superscript">
+  <superscript><xsl:apply-templates/></superscript>
  </xsl:template>
 
 
