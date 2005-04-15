@@ -191,6 +191,10 @@ the command should be interpreted as a <link linkend="{$alink}"><xsl:value-of se
      </xsl:if>
     </xsl:if>
    </xsl:if>
+   <xsl:if test="@masked">
+    This parameter is only present if bit <literal><xsl:value-of select="substring-after(@masked, ':')"/></literal> of the
+<varname><xsl:value-of select="substring-before(@masked, ':')"/></varname> parameter is set.
+   </xsl:if>
   </entry>
  </xsl:template>
 
