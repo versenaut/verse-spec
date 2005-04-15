@@ -280,6 +280,10 @@ bytes.</para>
   <superscript><xsl:apply-templates/></superscript>
  </xsl:template>
 
+ <xsl:template match="ulink">
+  <ulink url="{@url}"><xsl:apply-templates/></ulink>
+ </xsl:template>
+
 
  <!--
     Utility template to "compute" 2^x. Only works for some x. True computational method
