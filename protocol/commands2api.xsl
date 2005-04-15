@@ -111,6 +111,8 @@ the <xref linkend='verse_callback_set'/> function to register a callback for han
  <!-- Format a parameter type. Converts various magical things to C. -->
  <xsl:template match="type" name="do-type">
   <xsl:variable name="typename"><xsl:value-of select="type"/></xsl:variable>
+  <!-- Emit array prelude ("const"). -->
+  <xsl:if test='type[@array-length]'>const </xsl:if>
   <xsl:choose>
    <xsl:when test="type='string16'">const char *</xsl:when>
    <xsl:when test="type='string500'">const char *</xsl:when>
@@ -121,6 +123,8 @@ the <xref linkend='verse_callback_set'/> function to register a callback for han
      <link linkend='type-{$typename}'><xsl:value-of select="type"/></link><xsl:text> </xsl:text>
    </xsl:otherwise>
   </xsl:choose>
+  <!-- Emit array postlude ("*"). -->
+  <xsl:if test='type[@array-length]'> *</xsl:if>
  </xsl:template>
 
 </xsl:stylesheet>
