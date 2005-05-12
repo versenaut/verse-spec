@@ -665,7 +665,7 @@ crease values should be the same, without creating a rather redundant layer sayi
    </param>
   </params>
   <desc>
-   <para>Bones are used for skeleton animation of e.g. characters. Assosicating bones with
+   <para>Bones are used for skeleton animation of e.g. characters. Associating bones with
 vertices is done through the use of layers that provide the weights.</para>
   </desc>
 
