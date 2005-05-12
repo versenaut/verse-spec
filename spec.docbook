@@ -1332,24 +1332,29 @@ numerical ID, just as with layers and buffers. Curves also have names, that must
 node.
 </para>
 <para>
-Curves are two-dimensional entities, existing in a special <quote>curve plane</quote>. The X (or <quote>pos</quote>)
-dimension is time, while the Y (or <quote>value</quote>) dimension is unit-less. The way curves are used is
-that the value from a curve is injected into some context to control something. For example, curves can be
-used to control <link linkend='geometry-bones'>bone transformations</link>, creating smooth animation that
-is easily controlled by editing curves rather than complex transforms directly. Or, they can be used to
-control aspects of materials, or the light emitted by an object.
+A curves expresses how a variable changes over time, by specifying control points to interpolate between. The
+variable can be of one, two, three or four dimensions. Most examples below show the case for a one-dimensional
+variable, in which case the entire curve can be visualized as an ordinary flat curve. Visualizing it for
+more than one dimension can be done for instance by overlapping several such flat curves.
+</para>
+<para>
+The way curves are used is by taking the value from a curve, and injecting it into some context to control
+some parameter. For example, curves can be used to control <link linkend='geometry-bones'>bone transformations</link>,
+creating smooth animation that is easily controlled by editing curves rather than complex transforms directly.
+Or, they can be used to control aspects of materials, or the light emitted by an object.
 </para>
 <sect3>
 <title>Keys</title>
 <para>
 Each curve is made up of a set of <emphasis>key points</emphasis>, or keys for short. Taken all together,
 the keys define the curve. A key is identified by the combination of the ID of the curve to which it belongs,
-and an ID number for the key itself. A key is defined by three pairs of values; one actual absolute point
-in the curve coordinate system, and two helper <quote>wings</quote> that define the angles at which the
-curve enters and leaves the point:
+and an ID number for the key itself. A key is defined at a single position along the curve, and specifies
+both the value and two helper <quote>wings</quote> that define how the value is changing before and after
+they key. For a 2D curve, the wings specify the angle at which the curve enters and leaves the key point.
+To summarize, we have:
 <variablelist>
 <varlistentry>
-<term>(<type>real64</type> <varname>pos</varname>,<type>real64</type> <varname>value</varname>)</term>
+<term>(<type>real64</type> <varname>pos</varname>,<type>real64[DIM]</type> <varname>value</varname>)</term>
 <listitem><para>
 The key's position on the curve. This is an actual point, that the curve passes through. No two keys can
 have the same <varname>pos</varname> value, they must all be unique. Keys can occur in any order, there
@@ -1358,7 +1363,7 @@ is no relation between the value of a key's numerical ID and its <varname>pos</v
 </varlistentry>
 
 <varlistentry>
-<term>(<type>uint32</type> <varname>pre_pos</varname>,<type>real64</type> <varname>pre_delta</varname>)</term>
+<term>(<type>uint32[DIM]</type> <varname>pre_pos</varname>,<type>real64[DIM]</type> <varname>pre_delta</varname>)</term>
 <listitem><para>
 Specification for one of the <quote>wings</quote> of the curve point. This wing gives the direction of the
 curve as it approaches the point from the left. In relative format, see below for how to compute actual
@@ -1367,13 +1372,18 @@ control point.
 </varlistentry>
 
 <varlistentry>
-<term>(<type>uint32</type> <varname>post_pos</varname>,<type>real64</type> <varname>post_delta</varname>)</term>
+<term>(<type>uint32[DIM]</type> <varname>post_pos</varname>,<type>real64[DIM]</type> <varname>post_delta</varname>)</term>
 <listitem><para>
 Specification for the other <quote>wing</quote> on the curve point. This wing gives the direction in which
 the curve exits the point, to the right. In relative format, see below for how to compute actual control point.
 </para></listitem>
 </varlistentry>
 </variablelist>
+In the above, a type name followed by <symbol>[DIM]</symbol> indicates that the field being described is
+a vector, with <varname>DIM</varname> dimensions. All fields of a key are such, except the position. The
+absolute position of a key is the same for all of its value's dimensions.
+</para>
+<para>
 With these basic definitions out of the way, it is time to discuss how a curve is actually evaluated.
 </para>
 </sect3>
@@ -1386,7 +1396,7 @@ of the curve (between two key points) needs two additional <emphasis>control poi
 be evaluated as a &Bez; curve.
 </para>
 <para>
-The following figure illustrates a part of a curve, showing three adjacent keys:
+The following figure illustrates a part of a one-dimensional curve, showing three adjacent keys:
 <figure id='curve' pgwide='0'>
  <title>Keys in a Curve</title>
  <mediaobject>
@@ -1409,7 +1419,7 @@ system, a few simple computations are needed.
 <para>
 The position part of a wing should be interpreted as a fraction between 0 and 1, encoded as a 32-bit unsigned
 integer where 0 represents 0 and <literal>0xFFFFFFFF</literal> represents 1. This fraction is used to scale the
-distance between the previous or next key, and the resulting value is subtracted (for the prev-wing) or added
+distance to the previous or next key, and the resulting value is subtracted (for the prev-wing) or added
 (for the post-wing) to the key's position to end up with the actual control point coordinate.
 </para>
 <para>
@@ -1433,14 +1443,19 @@ by <literal>0xFFFFFFFF</literal>. This is in the range [0,1].</para>
 </listitem>
 </itemizedlist>
 The post-control point is computed in a similar fashion but with <varname>d</varname> positive. Once this has been done,
-we have the four points needed to compute a A single &Bez; curve segment: the curve from e.g. p1 to p2 uses p1 as its
-starting position, p2 as its end, and uses p1's post-point and p2's prev-point as its two control points.
+we have the four points needed to compute a single &Bez; curve segment: the curve from e.g. p<subscript>1</subscript>
+to p<subscript>2</subscript> uses p<subscript>1</subscript> as its
+starting position, p<subscript>2</subscript> as its end, and uses p<subscript>1</subscript>'s post-point and
+p<subscript>2</subscript>'s prev-point as its two control points.
 </para>
 <para>
 The relative way in which the control points are defined, using the wings, guarantees that the curve reacts nicely
 to having new keys inserted between existing ones, and that the two wings can never be on the wrong side of their
 parent key point. It is not possible to construct a curve with an <quote>S-shape</quote> using this system, which
-keeps the curves well defined for all X values.
+keeps the curves well-defined for all X-values.
+</para>
+<para>
+The above computations are simply repeated for all the dimensions of the curve.
 </para>
 </sect3>
 
