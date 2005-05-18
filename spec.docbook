@@ -1289,12 +1289,12 @@ to an auxiliary standard or set of guidelines).
 The intended use for text nodes is to store programs in source code format, that can be linked to objects in order
 to provide them with scripted <quote>behaviors</quote> through the use of <link linkend="o-methods">object methods</link>.
 </para>
+
 <sect2>
-<title>Buffers</title>
+<title>Language</title>
 <para>
-Data in a text node is arranged into <emphasis>buffers</emphasis>. A buffer can be thought of as simply a named
-text file; it consists of lines of text. Each buffer has a <emphasis>language</emphasis> field, which is simply
-a text string that names the language used for the content of that buffer.
+Each text node has a <emphasis>language</emphasis> field, which is simply a text string that names the language used
+for the content of that node.
 </para>
 <para>
 There is no default or <quote>native</quote> language specified in Verse; you are free to write clients to support
@@ -1311,7 +1311,59 @@ For programming language names, it is advised that the name is chosen to include
 identifies the kind of Verse application programming interface used. This is because there may be multiple APIs
 defined for a single language, and interpreter clients need to determine if they should attempt to interpret a
 buffer or not. For instance, a file written in C and using the reference API might have a language string of
-<quote><literal>C/std</literal></quote>.
+<quote><literal>C/std</literal></quote>. Text in XML as used by the <quote>Purple</quote> plug-in scripting
+engine is given a langauge starting with <quote><literal>XML/purple</literal></quote>.
+</para>
+</sect2>
+
+<sect2>
+<title>Buffers</title>
+<para>
+Data in a text node is arranged into <emphasis>buffers</emphasis>. A buffer can be thought of as simply a named
+text file; it consists of a linear sequence of characters. The sequence can be indexed, beginning from 0 which is
+the first character (if present).
+</para>
+<para>
+Changing the content if a text buffer is done through a single command, called <link linkend='t_text_set'>t_text_set</link>.
+This command is fairly powerful, it combines two operations into one:
+<itemizedlist>
+<listitem><para>Deleting a range of text.</para></listitem>
+<listitem><para>Inserting new text.</para></listitem>
+</itemizedlist>
+Deleting text moves any text after the removed range closer to the start of the buffer, effectively replacing the range
+with nothing. The new text is inserted at the beginning of the range that was deleted, moving any text following the range further
+towards the end of the buffer. If no new text is specified, the command acts as a pure deletion. Likewise, if the
+the size of the range to delete is 0, the command acts as a pure text-insertion operation. This command has been designed to support
+the implementation of online text editing, which typically needs both deletion and insertion.
+</para>
+<para>
+Here is an example showing the contents of a text buffer during the execution of a sequence of <symbol>t_text_set</symbol> commands:
+<example>
+ <title>The t_text_set Command</title>
+ <para>
+ Initially, the buffer is empty. We will show the text between square brackets, in an attempt to indicate the start and end clearly:
+  <screen>[]</screen>
+ At this point, we execute the command <literal>t_text_set</literal> with range <literal>[0,0)</literal>
+<footnote>
+<para>
+Ranges are given in <literal>[start,end)</literal> notation. The interpretation is <quote>all characters from index
+<varname>start</varname> up to, but not including, index <varname>end</varname></quote>.
+</para>
+</footnote>
+ and new text equal to <quote><literal>foorag</literal></quote>. Since the range is empty, this ends up being a straight
+ insert, leaving the new state as simply the new text:
+  <screen>[foorag]</screen>
+ The next command to execute has range <literal>[3,3)</literal>, i.e. an empty range, and the text <quote><literal>ba</literal></quote>. We get:
+ <screen>[foobarag]</screen>
+ Finally, execute a command with range <literal>[6,7)</literal> and en empty new text, to delete the last two characters. Result:
+ <screen>[foobar]</screen>
+ </para>
+</example>
+</para>
+<para>
+It is important to realize that a single command is generally not enough to send the entire contents of a text buffer.
+There is an inherent limit on the amount of data in a single command, for network efficiency reasons. For such buffers,
+a sequence of commands will be required to send over the full content.
 </para>
 </sect2>
 </sect1>
@@ -1381,7 +1433,8 @@ the curve exits the point, to the right. In relative format, see below for how t
 </variablelist>
 In the above, a type name followed by <symbol>[DIM]</symbol> indicates that the field being described is
 a vector, with <varname>DIM</varname> dimensions. All fields of a key are such, except the position. The
-absolute position of a key is the same for all of its value's dimensions.
+absolute position of a key is the same for all of its value's dimensions. The value of DIM is set when the
+curve is created.
 </para>
 <para>
 With these basic definitions out of the way, it is time to discuss how a curve is actually evaluated.
@@ -2295,7 +2348,9 @@ the command received by the host and the command emitted by it in response to ex
 commands have a one-to-many relation instead; a client sends a single command, and the server responds with
 a burst of many commands in return. This is common when requesting for a subscription to some data, for
 example; the request is a single command, but the description of the data, which needs to be send to the
-new subscriber, often requires several commands.
+new subscriber, often requires several commands. In such cases, of course, there is no 1:1 relationship
+between what gets sent by the client and what gets sent in response by the server. However, the individual
+commands used to describe the data are still the same in both directions.
 </para>
 </sect2>
 </sect1>
