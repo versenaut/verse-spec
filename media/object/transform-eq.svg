@@ -12,8 +12,8 @@
 <g id='eq' stroke='black'>
  <text x='0' y='28' stroke-width='.5' font-size='18'>
   p(t)=p<tspan style='baseline-shift:sub; font-size:10'
- >0</tspan>+t*v<tspan style='baseline-shift:sub; font-size:10'
- >0</tspan>+t*a<tspan style='baseline-shift:super; font-size:10'>2</tspan>/2+drag
+ >0</tspan>+v<tspan style='baseline-shift:sub; font-size:10'
+ >0</tspan>*t+a*t<tspan style='baseline-shift:super; font-size:10'>2</tspan>/2+drag
  </text>
 </g>
 
