@@ -17,7 +17,7 @@
   <params>
    <address>
     &nodeid;
-    &bufferid;
+    &bufferidalias;
    </address>
    <param>
     <name>name</name>
@@ -112,7 +112,7 @@
   <params>
    <address>
     &nodeid;
-    &bufferid;
+    &streamidalias;
    </address>
    <param>
     <name>name</name>
@@ -150,7 +150,7 @@ name to the new desired name.</para>
   <params>
    <address>
     &nodeid;
-    &bufferid;
+    &streamidalias;
    </address>
   </params>
   <alias>
@@ -175,7 +175,7 @@ name to the new desired name.</para>
   <params>
    <address>
     &nodeid;
-    &bufferid;
+    &streamid;
    </address>
    <param>
     <name>time_s</name>
@@ -190,23 +190,30 @@ name to the new desired name.</para>
    <param>
     <name>type</name>
     <type>VNABlockType</type>
-    <desc>The sample type of the data being transferred.</desc>
+    <desc><para>The type of the audio samples contained in the command. All samples are always of the same
+type, and the number of samples present is controlled by the type as well. Please see the
+<link target="type-VNAConstants">VNAConstants</link> type.</para></desc>
    </param>
    <param>
     <name>frequency</name>
     <type>real64</type>
-    <desc>Sampling frequency of this block of data.</desc>
+    <desc>Sampling frequency of this block of data. Does not affect the amount of data (the number
+of samples) in the command, only the length of time that data needs to play.</desc>
    </param>
    <param>
     <name>data</name>
     <type>VNABlock</type>
-    <desc>A block of samples, in the specified format.</desc>
+    <desc>A block of samples, of the specified type.</desc>
    </param>
   </params>
   <desc>
-   <para>This command sends a block of streaming audio sample data. The block is timestamped with
-the time when it should be played back, and consists of a number of individual samples. The number
-of samples depends on the type of the data.</para>
+   <para>This command is used to send streaming audio data, meant for almost-instant playback. The data
+itself is simply a linear (in time and memory) sequence of samples of a given type.</para>
+<para>The timestamp is expressed as a pair of integers, with an imagined decimal point in between.
+As stated above, the <variable>time_s</variable> parameter is in whole seconds, while <variable>time_f</variable> is in
+fractions. To convert these two into a timestamp as a floating-point number in C, do something like this:
+double t = time_s + (double) time_f / 4294957295.0. The timestamp "10.5" (ten and a half seconds) is
+expressed by setting time_s to 10 and time_f to 2,147,483,648.</para>
   </desc>
  </command>
 
