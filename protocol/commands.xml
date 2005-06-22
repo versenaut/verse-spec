@@ -29,7 +29,7 @@
  <!ENTITY methid    "<param><name>method_id</name><type>uint16</type>
                      <desc>The ID of the method being accessed.</desc>
                     </param>">
- <!ENTITY LAYERBODY "<name>layer_id</name><type>uint16</type>
+ <!ENTITY LAYERBODY "<name>layer_id</name><type>VLayerID</type>
                     <desc>The ID of the layer being accessed.</desc>">
  <!ENTITY layerid      "<param>&LAYERBODY;</param>">
  <!ENTITY layeridalias "<param>&LAYERBODY;<alias><desc>The ID of the layer being accessed.</desc></alias></param>">
@@ -54,6 +54,12 @@
  <!ENTITY curveidalias "<param>&CURVEBODY;<alias><desc>The ID of the curve being accessed.</desc></alias></param>">
  <!ENTITY curveidtype "uint16">
  <!ENTITY Bez "Bezier">
+
+ <!ENTITY STREAMDESC "<desc>The ID of the stream being accessed.</desc>">
+ <!ENTITY STREAMBODY "<name>stream_id</name><type>VLayerID</type>&STREAMDESC;">
+ <!ENTITY streamid      "<param>&STREAMBODY;</param>">
+ <!ENTITY streamidalias "<param>&STREAMBODY;<alias>&STREAMDESC;</alias></param>">
+
 
  <!ENTITY commands-system   SYSTEM "commands-s.xml">
  <!ENTITY commands-object   SYSTEM "commands-o.xml">
