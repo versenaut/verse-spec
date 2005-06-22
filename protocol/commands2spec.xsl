@@ -117,8 +117,11 @@
        <row>
         <entry><link linkend="type-uint8"><type>uint8</type></link></entry>
         <entry><varname>alias</varname> = <literal>0</literal></entry>
-        <entry>If this field is non-zero (<literal>TRUE</literal>), <emphasis>aliasing</emphasis> is activated, and
-the command should be interpreted as a <link linkend="{$alink}"><xsl:value-of select="$alink"/></link> instead.
+        <entry>If this field is zero (<literal>FALSE</literal>), <emphasis>aliasing</emphasis> is activated, and
+the command should be interpreted as a <link linkend="{$alink}"><xsl:value-of select="$alink"/></link> instead. It
+is encoded as one (TRUE) to indicate
+<xsl:value-of select="ancestor::*[command]/@prefix"/><xsl:if test="ancestor::*[command]/@prefix">_</xsl:if>
+<xsl:value-of select="ancestor::command[1]/meta/name/text()"/>.
         </entry>
        </row>
       </xsl:if>
@@ -189,7 +192,12 @@ the command should be interpreted as a <link linkend="{$alink}"><xsl:value-of se
       Reserved value used for alias-detection in the encoding.
      </xsl:if>
      <xsl:if test="not(alias/value)">
-      (Ignored for this aliased command, but must still be present.)
+      <xsl:if test="alias[@skip='yes']">
+       (Ignored for this aliased command, not present in encoded form.)
+      </xsl:if>
+      <xsl:if test="not(alias[@skip='yes'])">
+        (Ignored for this aliased command, but must still be present.)
+      </xsl:if>
      </xsl:if>
     </xsl:if>
    </xsl:if>
@@ -210,6 +218,8 @@ the command should be interpreted as a <link linkend="{$alink}"><xsl:value-of se
    </type>
   </link>
   <xsl:if test="@array-length">[<xsl:value-of select="@array-length"/>]</xsl:if>
+  <xsl:if test="@array-lengths">
+  </xsl:if>
  </xsl:template>
 
  <xsl:template match="commands/command/desc">
