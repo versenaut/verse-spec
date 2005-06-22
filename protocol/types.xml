@@ -341,7 +341,7 @@ samples to 0.</para>
    <enumitem name="VN_A_BLOCK_SIZE_REAL64" value="128"/>
   </enumeratedtype>
 
-  <enumeratedtype name="VNTConstants" using="uint8">
+  <enumeratedtype name="VNTConstants">
    <desc><para>Constants used with the text node.</para></desc>
    <enumitem name="VN_T_BUFFER_NAME_SIZE" value="16"/>
    <enumitem name="VN_T_CONTENT_LANGUAGE_SIZE" value="32"/>
@@ -549,15 +549,10 @@ structures, since each fragment requires multiple values to define it.</para></d
      <structitem name="mapping" type="VNMFragmentID"/>
     </structtype>
    </structitem>
-   <structitem name="tag">
-    <structtype>
-     <structitem name="name" type="string16"/>
-     <structitem name="group" type="string16"/>
-    </structtype>
-   </structitem>
    <structitem name="noise">
     <structtype>
      <structitem name="type" type="uint8"/>
+     <structitem name="mapping" type="VNMFragmentID"/>
     </structtype>
    </structitem>
    <structitem name="blender">
@@ -596,7 +591,7 @@ structures, since each fragment requires multiple values to define it.</para></d
    </structitem>
    <structitem name="output">
     <structtype>
-     <structitem name="type" type="string16"/>
+     <structitem name="label" type="string16"/>
      <structitem name="front" type="VNMFragmentID"/>
      <structitem name="back"  type="VNMFragmentID"/>
     </structtype>
