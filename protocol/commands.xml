@@ -26,7 +26,7 @@
                      <desc>The ID of the method group being accessed.</desc>
                      <alias><desc>The ID of the method group being accessed.</desc></alias>
                     </param>">
- <!ENTITY methid    "<param><name>method_id</name><type>uint8</type>
+ <!ENTITY methid    "<param><name>method_id</name><type>uint16</type>
                      <desc>The ID of the method being accessed.</desc>
                     </param>">
  <!ENTITY LAYERBODY "<name>layer_id</name><type>uint16</type>
@@ -42,7 +42,7 @@
                    <alias><desc>The ID of the fragment being destroyed.</desc></alias>
                   </param>">
 
- <!ENTITY bufferidtype "uint16">
+ <!ENTITY bufferidtype "VBufferID">
  <!ENTITY BUFFERBODY "<name>buffer_id</name><type>&bufferidtype;</type>
                     <desc>The ID of the buffer being accessed.</desc>">
  <!ENTITY bufferid      "<param>&BUFFERBODY;</param>">
