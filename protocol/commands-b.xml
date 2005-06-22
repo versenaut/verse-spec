@@ -153,7 +153,7 @@ should probably subscribe there.</desc>
      <type>uint16</type>
      <desc>The x-coordinate of this tile of pixels. Tile (0,0) is the tile in the upper-left corner of
 a bitmap layer, tile (1,0) is the next one to the right, and so on. Pixel (0,0) of tile (1,0) is pixel
-(4,0) of the bitmap as a whole.</desc>
+(8,0) of the bitmap as a whole.</desc>
     </param>
     <param>
      <name>tile_y</name>
@@ -163,7 +163,8 @@ a bitmap layer, tile (1,0) is the next one to the right, and so on. Pixel (0,0) 
     <param>
      <name>z</name>
      <type>uint16</type>
-     <desc>The z-coordinate for this tile of pixels.</desc>
+     <desc>The z-coordinate for this tile of pixels. Note that there is no tiling in the Z dimension, tiles
+are flat and have a depth of just one pixel.</desc>
     </param>
    </address>
    <param>
@@ -175,13 +176,13 @@ has buffered this information from the layer creation command.</desc>
    <param>
     <name>data</name>
     <type union-control="type">VNBTile</type>
-    <desc>The actual pixel data. The union holds an array of 16 pixels (in the relevant format), that are
-interpreted as the contents of a 4x4 pixel square. Pixels are listed in row-major order. For 1-bit-per-pixel
-data, the entire data payload is a single uint16. See the VNBTile type description for details.</desc>
+    <desc>The actual pixel data. The union holds an array of 64 pixels (in the relevant format), that are
+interpreted as the contents of a 8x8 pixel square. Pixels are listed in row-major order. For 1-bit-per-pixel
+data, the data payload is an array of uint8, one per row. See the VNBTile type description for details.</desc>
    </param>
   </params>
   <desc>
-   <para>This command transfers a tile's worth (4x4 pixels) of pixel data into a bitmap layer. The addressed
+   <para>This command transfers a tile's worth (8x8 pixels) of pixel data into a bitmap layer. The addressed
 pixels are simply overwritten with the new data, no compositing is supported.</para>
   </desc>
  </command>
