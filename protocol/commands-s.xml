@@ -19,6 +19,18 @@ is used by the receiving host.</desc>
     <type>string16</type>
     <desc>Password associated with the user. Used to prove identity.</desc>
    </param>
+   <param>
+    <name>address</name>
+    <type>string500</type>
+    <desc>Host name or dotted-IP address of the Verse server to connect to.</desc>
+   </param>
+   <param>
+    <name>expected_host_id</name>
+    <type array-length="">uint8</type>
+    <desc>The expected host ID for the server. Verse will compare this ID to the one presented by the
+host, and deny the connection if they do not match. If you do not have a host ID from a previous connection,
+specify NULL here.</desc>
+   </param>
   </params>
   <desc>
    <para>This command is generally the first to be sent when a client wishes to connect to a host in order
@@ -94,7 +106,7 @@ to this client, rather than having to find out after the fact that it has discon
     <desc>Network address of host to ping, in textual format.</desc>
    </param>
    <param>
-    <name>text</name>
+    <name>message</name>
     <type>string500</type>
     <desc>Ping data payload, delivered to the host.</desc>
    </param>
@@ -103,23 +115,6 @@ to this client, rather than having to find out after the fact that it has discon
    <para>The ping command is used to send arbitrary data to a computer that is assumed to be running
 a Verse host service. It is sent without first establishing a connection, so the data is sent without
 authorization or data security.</para>
-  </desc>
- </command>
-
- <command id="6">
-  <meta>
-   <name>error_message</name>
-   <purpose>Send an error message.</purpose>
-  </meta>
-  <params>
-   <param>
-    <name>message</name>
-    <type>string500</type>
-    <desc>The error message.</desc>
-   </param>
-  </params>
-  <desc>
-   <para>Deliver an error message.</para>
   </desc>
  </command>
 
