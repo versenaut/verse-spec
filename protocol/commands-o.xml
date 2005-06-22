@@ -411,7 +411,7 @@ to another node.</para>
   </alias>
   <desc>
    <para>This command is used to create a new method group. Method groups are containers for object methods;
-a method must exist in exactly one group. It can be used to either create a new group, by sending the ID as zero
+a method must exist in exactly one group. It can be used to either create a new group, by sending the ID as ~0
 and letting the name be the desired name of the new group, or to rename an existing group by setting the ID to
 that group's ID and the name to the new name.</para>
   </desc>
@@ -552,7 +552,7 @@ information from the method_create command.</para>
     <desc>Fractions part of timestamp when animation playback is to begin.</desc>
    </param>
    <param>
-    <name>start</name>
+    <name>pos</name>
     <type>real64</type>
     <desc>Position in curve where playback is to start.</desc>
    </param>
@@ -562,24 +562,25 @@ information from the method_create command.</para>
     <desc>Initial playback speed, in units per second.</desc>
    </param>
    <param>
-    <name>speed_ramp</name>
+    <name>accel</name>
     <type>real64</type>
-    <desc>Change of playback speed, in units per second per second.</desc>
+    <desc>Acceleration of playback speed, in units per second squared.</desc>
    </param>
    <param>
-    <name>factor</name>
+    <name>scale</name>
     <type>real64</type>
-    <desc>Influence factor for the curve; the entire curve is scaled by this number. Use 1.0 to let the
-curve affect the target directly. This is a unit-less number.</desc>
+    <desc>Scaling of incoming curves, allows animations to be replayed at different levels of influence
+with the same source data. A dimensionless scalar, use 1.0 to not do any scaling.</desc>
    </param>
    <param>
-    <name>factor_ramp</name>
+    <name>scale_speed</name>
     <type>real64</type>
-    <desc>Change of influence factor, in units per second. Use 0.0 for a constant influence.</desc>
+    <desc>Change of scale of curve, in units per second. Use 0.0 for a constant influence.</desc>
    </param>
   </params>
   <desc>
-   <para>This command starts an animation in an object. Animation in Verse is described using curve nodes,
+   <para>This command starts an animation in an object. Animation in Verse is described using
+<link target="n-curve">curve nodes</link>,
 which can hold one or more curves. Starting an animation involves indicating not which curve node to use,
 but which object link to use. That object link must then point at a curve node, and all curves in that node
 will be played back.</para>
