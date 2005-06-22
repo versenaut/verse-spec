@@ -44,7 +44,8 @@ unique within the node.</desc>
    <param>
     <name>dimensions</name>
     <type>uint8</type>
-    <desc>The number of dimensions the created curve should have. This must be between one and four, inclusive.</desc>
+    <desc>The number of dimensions the created curve should have. This must be between one and four, inclusive. All
+keys belonging to the same curve must be defined with a matching number of dimensions, or they will be ignored.</desc>
    </param>
   </params>
   <alias>
@@ -98,13 +99,14 @@ unique within the node.</desc>
     <param>
      <name>key_id</name>
      <type>uint32</type>
-     <desc>The ID of the key to set. Sent as 0 to create a new key, otherwise refers to an existing one.</desc>
+     <desc>The ID of the key to set. Sent as ~0 to create a new key, otherwise refers to an existing one.</desc>
     </param>
    </address>
    <param>
     <name>dimensions</name>
     <type>uint8</type>
-    <desc>The number of dimensions this curve uses; from 1 to 4 inclusive.</desc>
+    <desc>The number of dimensions this curve uses; from one to four inclusive. Must match value given when the
+curve was created, otherwise the command will be ignored.</desc>
    </param>
    <param>
     <name>pre_value</name>
