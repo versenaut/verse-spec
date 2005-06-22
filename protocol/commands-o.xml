@@ -95,7 +95,7 @@ positions only. It is not possible to mask out the absolute value and specify e.
    </param>
    <param masked="mask:2">
     <name>drag</name>
-    <type>real32</type>
+    <type>real64</type>
     <desc><para>The friction constant for this movement.</para></desc>
    </param>
   </params>
@@ -504,6 +504,7 @@ no method with the supplied ID exists, it is created.</para>
    <address>
     &nodeid;
     &mgroupid;
+    &methid;
    </address>
    <param>
     <name>sender</name>
@@ -513,7 +514,7 @@ fill in the proper value as the call is re-sent to the method group subscribers.
    </param>
    <param>
     <name>params</name>
-    <type>VNOParam</type>
+    <type>VNOPackedParams</type>
     <desc>Block of packed parameter values.</desc>
    </param>
   </params>
@@ -534,10 +535,6 @@ information from the method_create command.</para>
   <params>
    <address>
     &nodeid;
-    <param>
-     <name>anim_id</name>
-     <type>uint16</type>
-    </param>
    </address>
    <param>
     <name>link_id</name>
