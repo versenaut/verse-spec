@@ -11,7 +11,7 @@
   <params>
    <address>
     &nodeid;
-    &layerid;
+    &layeridalias;
    </address>
    <param>
     <name>name</name>
@@ -41,9 +41,11 @@ created slot.</desc>
   </params>
 
   <desc>
-   <para>This command is used to ask a host to create a new vertex node layer, or to notify a client of the
-existance of a vertex layer. Almost all geometry nodes will have two layers; layers 0 and 1, that are the
-base layers for vertex and polygon data, respectively.
+   <para>This command is used to create new, or rename existing geometry layers. To create a new layer,
+set the ID to ~0 and the name to the desired name. To rename an existing layer, set the ID to the layer's
+ID and the name to the new desired name. The server will respond with the result on success.
+</para><para>Almost all geometry nodes will have at least two layers; layers 0 and 1, that are the base layers for
+vertex and polygon data, respectively. They are created by the server when the node is created.
    </para>
   </desc>
 
