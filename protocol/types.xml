@@ -96,9 +96,9 @@ prototypes) makes them a lot more information-dense and useful.</para>
    <type>uint16</type>
    <desc><para>Used to identify fragments in material nodes.</para></desc>
   </aliasedtype>
-  <aliasedtype name="VNTBufferID">
+  <aliasedtype name="VBufferID">
    <type>uint16</type>
-   <desc><para>Used to identify buffers in text nodes.</para></desc>
+   <desc><para>Used to identify buffers in audio and text nodes.</para></desc>
   </aliasedtype>
  </typegroup>
 
