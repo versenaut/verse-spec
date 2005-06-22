@@ -2756,21 +2756,38 @@ or that is to be sent.</para>
 <refsynopsisdiv>
 <funcsynopsis>
 <funcprototype>
-<funcdef>void <function>verse_send_connect</function></funcdef>
+<funcdef>
+<function>
+<returnvalue>
+VSession
+</returnvalue>
+verse_send_connect</function></funcdef>
 <paramdef>
  <parameter><type>const char *</type> name</parameter>,
- <parameter><type>const char *</type> pass</parameter>
- <parameter><type>const char *</type> address</parameter>
+ <parameter><type>const char *</type> pass</parameter>,
+ <parameter><type>const char *</type> address</parameter>,
+ <parameter><type>const uint8 *</type> expected_host_id</parameter>
 </paramdef>
 </funcprototype>
 </funcsynopsis>
 </refsynopsisdiv>
 <refsect1><title>Description</title>
 <para>
-This function sends the connect command to a host, asking it to establish a new session.
+This function sends the connect command to a host, asking it to establish a new session. The parameters are used
+to give the connecting user's identity to the host, in the form of a name and a password. How these were obtained
+is currently outside the scope of this text. The third argument is simply the address, in either textual or
+dotted-IP form, of the host to which the client is to connect. The fourth argument is a pointer to a buffer holding
+a cached copy of that host's ID key, so that the connection can be verified to be to the same host as previously.
+If no such cached key is available, specify <symbol>NULL</symbol> here.
+</para>
+<para>
+This function returns a <type>VSession</type> value that represents the session created for the new connectioin,
+or <symbol>NULL</symbol> on failure. The new session is also made the current one. Applications can switch between
+sessions by using the <xref linkend='verse_session_set'/>() function.
 </para>
 </refsect1>
 </refentry>
+
 
 <refentry id='verse_send_connect_accept'>
 <refnamediv>
@@ -2783,7 +2800,8 @@ This function sends the connect command to a host, asking it to establish a new 
 <funcdef>void <function>verse_send_connect_accept</function></funcdef>
 <paramdef>
  <parameter><type>VNodeID</type> avatar</parameter>,
- <parameter><type>const char *</type> address</parameter>
+ <parameter><type>const char *</type> address</parameter>,
+ <parameter><type>const uint8 *</type> host_id</parameter>
 </paramdef>
 </funcprototype>
 </funcsynopsis>
@@ -2792,6 +2810,16 @@ This function sends the connect command to a host, asking it to establish a new 
 <para>
 This function sends the connect_accept command, which informs a connecting client that the
 connection attempt was successful and that it now has established a session with the host.
+</para>
+<para>
+This function is normally only used in hosts, a client need never call this function. A client
+will, however, always need to set a callback for this command anyway, in order to learn when
+its connection attempt has succeeded.
+</para>
+<para>
+The callback for this function, which has the same signature plus the leading user pointer,
+provides a way for the client to know the ID key of the host it has connected to. This key
+can be stored locally, for use in subsequent <xref linkend='verse_send_connect'/>() calls.
 </para>
 </refsect1>
 </refentry>
@@ -2806,7 +2834,8 @@ connection attempt was successful and that it now has established a session with
 <funcprototype>
 <funcdef>void <function>verse_send_connect_terminate</function></funcdef>
 <paramdef>
- <parameter><type>const char *</type> bye</parameter>
+ <parameter><type>const char *</type> address</parameter>,
+ <parameter><type>const char *</type> message</parameter>
 </paramdef>
 </funcprototype>
 </funcsynopsis>
@@ -2816,6 +2845,11 @@ connection attempt was successful and that it now has established a session with
 This function sends the connect_terminate command, which is used to disconnect from a host in a controlled
 manner. It is sent by a client before destroying the session, to let the host know the client is about
 to disconnect.
+</para>
+<para>
+This is a <quote>session-less</quote> command, meaning it does not need an established session to work.
+This is why the first argument is the address, in domain name or dotted-IP form, to which the command
+should be sent.
 </para>
 </refsect1>
 </refentry>
