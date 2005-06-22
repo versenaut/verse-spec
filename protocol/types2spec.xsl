@@ -167,8 +167,8 @@ bytes.</para>
     <xsl:if test="@using!='uint8'">
       This enumeration is represented in the network as values of type <type><xsl:value-of select="@using"/></type>
     </xsl:if>
-    <table align="center">
-     <title>Enumeration <xsl:value-of select="@name"/></title>
+    <informaltable align="center">
+<!--     <title>Enumeration <xsl:value-of select="@name"/></title> -->
      <tgroup cols="2" align="center">
      <thead>
       <row><entry>Symbol</entry><entry>Value</entry></row>
@@ -182,7 +182,7 @@ bytes.</para>
      </xsl:for-each>
      </tbody>
      </tgroup>
-    </table>
+    </informaltable>
    </para>
   </sect3>
  </xsl:template>
@@ -193,13 +193,13 @@ bytes.</para>
    <title><xsl:value-of select="@name"/></title>
    <xsl:apply-templates select="desc"/>
    <para>
-    <table class="{$pclass}">
+    <informaltable class="{$pclass}">
      <xsl:if test="@name">
-      <title>
+<!--      <title>
        <xsl:if test="@union='yes'">Union </xsl:if>
        <xsl:if test="not(@union='yes')">Structure </xsl:if>
        <xsl:value-of select="@name"/>
-      </title>
+      </title> -->
      </xsl:if>
      <tgroup cols="2" align="center">
       <thead>
@@ -222,7 +222,7 @@ bytes.</para>
        </xsl:for-each>
       </tbody>
      </tgroup>
-    </table>
+    </informaltable>
    </para>
   </sect3>
  </xsl:template>
@@ -287,7 +287,7 @@ bytes.</para>
 
  <!--
     Utility template to "compute" 2^x. Only works for some x. True computational method
-    risks overflow, so a cut down table-based approach was used instead.
+    risks overflow, so a cut-down table-based approach was used instead.
   -->
  <xsl:template name="power-of-two">
   <xsl:param name="x" select="0"/>
