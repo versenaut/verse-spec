@@ -2602,7 +2602,7 @@ is not the goal of this text. Still, below are some of the reasons why we feel C
 <term>Systems Programming</term>
 <listitem><para>
 The Verse API is intended to be the bottom-most layer between an application and the Verse network protocol,
-and therefore it makes sense to use C, which is a traditional <quote>systems</quote> programming language task.
+and therefore it makes sense to use C, which is a traditional <quote>systems</quote> programming language.
 </para></listitem>
 </varlistentry>
 
@@ -2625,6 +2625,7 @@ is often used to <emphasis>implement</emphasis> other (primarily higher-level) l
 </varlistentry>
 
 </variablelist>
+
 </para>
 </sect2>
 
