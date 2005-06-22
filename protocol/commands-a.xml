@@ -6,11 +6,6 @@
                    <desc>The ID of the node being accessed.</desc>
                    <alias><desc>The ID of the node being accessed.</desc></alias>
                   </param>">
- <!ENTITY bufferidtype "VBufferID">
- <!ENTITY BUFFERDESC "<desc>The ID of the buffer being accessed.</desc>">
- <!ENTITY BUFFERBODY "<name>buffer_id</name><type>&bufferidtype;</type>&BUFFERDESC;">
- <!ENTITY bufferid      "<param>&BUFFERBODY;</param>">
- <!ENTITY bufferidalias "<param>&BUFFERBODY;<alias>&BUFFERDESC;</alias></param>">
 ]> -->
 
 <commands node="audio" prefix="a">
@@ -87,16 +82,11 @@
     &nodeid;
     &bufferid;
     <param>
-     <name>id</name>
-     <type>uint16</type>
-     <desc>Probably used to serialize packets. A bit uncertain, however.</desc>
+     <name>block_index</name>
+     <type>uint32</type>
+     <desc>The location of this block in the buffer as a whole.</desc>
     </param>
    </address>
-   <param>
-    <name>length</name>
-    <type>uint16</type>
-    <desc>Size of block transferred.</desc>
-   </param>
    <param>
     <name>type</name>
     <type>VNABlockType</type>
@@ -104,8 +94,8 @@
    </param>
    <param>
     <name>data</name>
-    <type array-length="128">real32</type>	<!-- FIXME: This is a placeholder only. -->
-    <desc>Actual audio data. This text is not final.</desc>
+    <type>VNABlock</type>
+    <desc>Actual audio data.</desc>
    </param>
   </params>
   <desc>
