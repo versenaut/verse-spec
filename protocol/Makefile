@@ -11,6 +11,8 @@ CMDS=commands-s.xml commands-o.xml commands-g.xml commands-m.xml commands-b.xml 
 
 ALL:	types.snip cmd.snip cmd-indx.snip api.snip
 
+VERSEH=../../verse/verse.h
+
 types.snip:	$(TYPESTYLE) types.xml
 		xsltproc $^ >$@
 
@@ -25,5 +27,19 @@ api.snip:	$(APISTYLE) commands.xml $(CMDS)
 
 # ---------------------------------------------------------
 
+test:		test.c test.h
+		gcc test.c
+
+test.c:		test.h
+		echo -e "#include \"test.h\"\n\nint main(void)\n{\n\treturn 0;\n}" >test.c
+
+test.h:		verse.h-auto $(VERSEH)
+		cat $(VERSEH) $^ >$@ && echo >>$@
+
+verse.h-auto:	commands2header.xsl commands.xml $(CMDS)
+		xsltproc commands2header.xsl commands.xml >$@
+
+# ---------------------------------------------------------
+
 clean:
-	rm -f *.html *.snip
+	rm -f *.html *.snip test.[ch] verse.h-auto
