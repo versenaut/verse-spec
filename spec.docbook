@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
-"/usr/share/sgml/docbook/xml-dtd-4.2/docbookx.dtd" [
+"/usr/share/sgml/docbook/xml-dtd-4.3/docbookx.dtd" [
  <!ENTITY Bez           "B&eacute;zier">
 
  <!ENTITY Types         SYSTEM "protocol/types.snip">
@@ -1599,17 +1599,17 @@ Verse supports samples in the following formats:
 <row><entry>Format</entry><entry>Description</entry></row>
 </thead>
 <tbody>
-<row><entry>VN_A_LAYER_INT8</entry><entry>8-bit signed integers. The most space-efficient format supported,
+<row><entry>VN_A_BLOCK_INT8</entry><entry>8-bit signed integers. The most space-efficient format supported,
 but not a very high-quality one.</entry></row>
-<row><entry>VN_A_LAYER_INT16</entry><entry>16-bit signed integers. Perhaps the format that is most commonly
+<row><entry>VN_A_BLOCK_INT16</entry><entry>16-bit signed integers. Perhaps the format that is most commonly
 used in low to medium-end audio applications, such as typical games on PCs and consoles.</entry></row>
-<row><entry>VN_A_LAYER_INT24</entry><entry>24-bit signed integers. Since most general-purpose CPUs don't have
+<row><entry>VN_A_BLOCK_INT24</entry><entry>24-bit signed integers. Since most general-purpose CPUs don't have
 a native 24-bit integer data type, these are represented as three unsigned 8-bit bytes, stored in big-endian
 order without any padding.</entry></row>
-<row><entry>VN_A_LAYER_INT32</entry><entry>32-bit signed integers, for added precision.</entry></row>
-<row><entry>VN_A_LAYER_REAL32</entry><entry>32-bit floating point numbers, stored in IEEE-754 big-endian
+<row><entry>VN_A_BLOCK_INT32</entry><entry>32-bit signed integers, for added precision.</entry></row>
+<row><entry>VN_A_BLOCK_REAL32</entry><entry>32-bit floating point numbers, stored in IEEE-754 big-endian
 format. For high-end processing applications.</entry></row>
-<row><entry>VN_A_LAYER_REAL64</entry><entry>64-bit floating point numbers, stored in IEEE-754 big-endian
+<row><entry>VN_A_BLOCK_REAL64</entry><entry>64-bit floating point numbers, stored in IEEE-754 big-endian
 format. For very high-end processing applications.</entry></row>
 </tbody>
 </tgroup>
@@ -1627,12 +1627,12 @@ following table:
 <row><entry>Format</entry><entry>Block Size</entry></row>
 </thead>
 <tbody>
-<row><entry><symbol>VN_A_LAYER_INT8</symbol></entry><entry>1024</entry></row>
-<row><entry><symbol>VN_A_LAYER_INT16</symbol></entry><entry>512</entry></row>
-<row><entry><symbol>VN_A_LAYER_INT24</symbol></entry><entry>384</entry></row>
-<row><entry><symbol>VN_A_LAYER_INT32</symbol></entry><entry>256</entry></row>
-<row><entry><symbol>VN_A_LAYER_REAL32</symbol></entry><entry>256</entry></row>
-<row><entry><symbol>VN_A_LAYER_REAL64</symbol></entry><entry>128</entry></row>
+<row><entry><symbol>VN_A_BLOCK_INT8</symbol></entry><entry>1024</entry></row>
+<row><entry><symbol>VN_A_BLOCK_INT16</symbol></entry><entry>512</entry></row>
+<row><entry><symbol>VN_A_BLOCK_INT24</symbol></entry><entry>384</entry></row>
+<row><entry><symbol>VN_A_BLOCK_INT32</symbol></entry><entry>256</entry></row>
+<row><entry><symbol>VN_A_BLOCK_REAL32</symbol></entry><entry>256</entry></row>
+<row><entry><symbol>VN_A_BLOCK_REAL64</symbol></entry><entry>128</entry></row>
 </tbody>
 </tgroup>
 </informaltable>
@@ -1642,7 +1642,7 @@ corresponds to the layer type. Pad with zeroes towards the end to create silence
 </para>
 <para>
 The sampling frequency associated with audio data is specified using a 64-bit floating point number,
-and is expressed in Herz (Hz). So, for CD-quality audio, you would use a VN_A_LAYER_INT16-type layer
+and is expressed in Herz (Hz). So, for CD-quality audio, you would use a VN_A_BLOCK_INT16-type layer
 at a frequency of 44,100.0 Hz.
 </para>
 </sect2>
