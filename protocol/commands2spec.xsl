@@ -139,11 +139,13 @@ the command should be interpreted as a <link linkend="{$alink}"><xsl:value-of se
   </xsl:if>
  </xsl:template>
 
- <xsl:template match="commands/command/params//param">
+ <xsl:template match="commands/command/params//param[not(@send='no')]">
   <row>
    <xsl:call-template name="do-param"/>
   </row>
  </xsl:template>
+
+ <xsl:template match="param[@send='no']"/>	<!-- Suppress non-sending parameters. -->
 
  <!-- Emit a single parameter, as table entries. -->
  <xsl:template name="do-param">
