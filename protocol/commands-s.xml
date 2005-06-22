@@ -19,12 +19,12 @@ is used by the receiving host.</desc>
     <type>string16</type>
     <desc>Password associated with the user. Used to prove identity.</desc>
    </param>
-   <param>
+   <param send="no">
     <name>address</name>
     <type>string500</type>
     <desc>Host name or dotted-IP address of the Verse server to connect to.</desc>
    </param>
-   <param>
+   <param send="no">
     <name>expected_host_id</name>
     <type array-length="">uint8</type>
     <desc>The expected host ID for the server. Verse will compare this ID to the one presented by the
@@ -36,9 +36,8 @@ specify NULL here.</desc>
    <para>This command is generally the first to be sent when a client wishes to connect to a host in order
 to start up a Verse session. It has parameters that let a client identify itself to the host, which can
 use the information to accept or deny the connection attempt.</para>
-<para>While Verse network connections are currently (R2, June 2004) non-encrypted, this is a planned step
-to take and will mean that no passwords are sent in the clear.
-</para>
+   <para>The command is sent using the special connection-phase encryption (RSA-based), so the name and
+password information is not sent in the clear.</para>
   </desc>
  </command>
 
@@ -62,19 +61,6 @@ modify it as desired.</para>
   </desc>
  </command>
 
- <command id="2" api="no">
-  <meta>
-   <name>connect_deny</name>
-   <purpose>Sent by a host when it denies a connection request.</purpose>
-  </meta>
-  <!-- This hack tricks the template into generating the parameter table. -->
-  <params></params>
-  <desc><para>This command is used by a host to deny a client a connection. Reasons for denying a connection
-vary, but the most typical is an authorization failure, i.e. a problem with the name/password combination sent
-in the connect-command.</para>
-  </desc>
- </command>
-
  <command id="3" api="no">
   <meta>
    <name>connect_terminate</name>
@@ -82,15 +68,20 @@ in the connect-command.</para>
   </meta>
   <params>
    <param>
-    <name>bye</name>
+    <name>message</name>
     <type>string500</type>
-    <desc>The reason that the client is terminating the connection.</desc>
+    <desc>The reason that the connection is being terminated.</desc>
    </param>
   </params>
   <desc>
    <para>Sent by a client that wishes to disconnect from a host, before actually going ahead and
 severing the connection. This gives the host a chance to gracefully free any resources dedicated
 to this client, rather than having to find out after the fact that it has disconnected.</para>
+<para>
+This command needs to be sent even when there is no established connection, so it also requires
+the address of the machine to send it to. This information is implementation/API-level though,
+it does not appear in the command's network representation.
+</para>
   </desc>
  </command>
 
@@ -100,7 +91,7 @@ to this client, rather than having to find out after the fact that it has discon
    <purpose>General-purpose unconnected "ping" command.</purpose>
   </meta>
   <params>
-   <param>
+   <param send="no">
     <name>address</name>
     <type>string500</type>
     <desc>Network address of host to ping, in textual format.</desc>
