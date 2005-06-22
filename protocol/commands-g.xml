@@ -92,6 +92,13 @@ losing all data stored therein.
   </alias>
   <desc>
    <boilerplate context="subscribe" what="geometry layer"/>
+   <para>
+    The type parameter is important; it controls the precision at which the host will send your
+client any floating-point data. This in turn controls which callback you need to use in order
+to receive the data. If you specify VN_FORMAT_REAL32, any vertex data will be sent in 32-bit
+format, and you must register the <link target='g_vertex_set_xyz_real32'>g_vertex_set_xyz_real32</link>
+callback. For non-floating point layers, the value of the type parameter has no effect.
+   </para>
   </desc>
  </command>
 
@@ -212,8 +219,8 @@ refer to the same piece of data, only with different precision.
 
   <desc>
    <para>
-   This command sets the position of a vertex, using 64-bit floating point numbers.
-   There is also a command to set a vertex using 32-bit precision.
+This command sets the position of a vertex, using 64-bit floating point numbers. There is also a command to
+set a vertex using 32-bit precision. Which one of these is used to deliver layer data depends on how you subscribed.
    </para>
   </desc>
 
@@ -271,14 +278,17 @@ refer to the same piece of data, only with different precision.
    </param>
   </params>
   <desc>
-   <para>This command lets you set the value of a slot in a real-valued vertex layer.</para>
+   <para>This command lets you set the value of a slot in a real-valued vertex layer. The
+actual precision stored in the host end is always 64 bits, but this command lets you set (not
+recommended) or receive (if subscribed to the layer with precision VN_FORMAT_REAL32) data
+in the more space-efficient 32-bit format.</para>
   </desc>
  </command>
 
  <command id="53">
   <meta>
    <name>vertex_set_real64</name>
-   <purpose>Set 64-bit floating point value associated with a vertex.</purpose>
+   <purpose>Set floating point value associated with a vertex, using 64-bit precision.</purpose>
   </meta>
   <params>
    <address>
@@ -293,7 +303,9 @@ refer to the same piece of data, only with different precision.
    </param>
   </params>
   <desc>
-   <para>This command lets you set the value of a vertex real64 layer.</para>
+   <para>This command lets you set the value of a vertex real64 layer. It is also used to deliver
+layer data back to the client, if the client <link target='g_layer_subscribe'>subscribed</link> to
+the layer with a type of VN_FORMAT_REAL64.</para>
   </desc>
  </command>
 
@@ -504,7 +516,7 @@ single value in such a slot, being associated with the polygon face itself.</par
    </address>
    <param>
     <name>value</name>
-    <type>real64</type>
+    <type>real32</type>
     <desc>The number.</desc>
    </param>
   </params>
@@ -649,19 +661,9 @@ crease values should be the same, without creating a rather redundant layer sayi
     <desc>The Z component of the bone's position.</desc>
    </param>
    <param>
-    <name>rot_x</name>
-    <type>real64</type>
-    <desc>The X component of the bone's rotation.</desc>
-   </param>
-   <param>
-    <name>rot_y</name>
-    <type>real64</type>
-    <desc>The Y component of the bone's rotation.</desc>
-   </param>
-   <param>
-    <name>rot_z</name>
-    <type>real64</type>
-    <desc>The Z component of the bone's rotation.</desc>
+    <name>rot</name>
+    <type>VNQuat64</type>
+    <desc>The rotation of the bone.</desc>
    </param>
   </params>
   <desc>
