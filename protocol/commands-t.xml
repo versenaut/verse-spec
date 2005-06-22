@@ -49,6 +49,9 @@ this is a per-node value and not per-buffer.</para>
      <type>&bufferidtype;</type>
      <desc>The ID of the buffer. In a client-to-host transaction, sent as ~0 to request a new buffer to
 be created. The host-assigned ID is then indicated in the host's response.</desc>
+     <alias>
+      <desc>The ID of the buffer to destroy.</desc>
+     </alias>
     </param>
    </address>
    <param>
