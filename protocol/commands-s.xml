@@ -181,7 +181,7 @@ first command to send over a new connection.</para>
     <param>
      <name>node_id</name>
      <type>&nodeid-type;</type>
-     <desc>Always sent as 0 in client-to-host transaction when requesting a node to be created. Filled-in by the
+     <desc>Always sent as ~0 in client-to-host transaction when requesting a node to be created. Filled-in by the
 host in responses and list results.</desc>
     </param>
     <param>
@@ -283,7 +283,7 @@ is independent of any actual session with that host.</para>
     <param>
      <name>group_id</name>
      <type>&taggroupid-type;</type>
-     <desc>In a client-to-host transaction, this should be set to zero to request a new tag group to be
+     <desc>In a client-to-host transaction, this should be set to ~0 to request a new tag group to be
 created, or set to the ID of an existing group to do a rename. The proper host-assigned ID will then appear
 in the host's response.</desc>
      <alias>
@@ -357,7 +357,7 @@ reside in a group. Tag groups do not nest.</para>
     <param>
      <name>tag_id</name>
      <type>&tagid-type;</type>
-     <desc>Set to 0 in a client-to-host request to create a new tag, and then filled in by the host in the reponse.
+     <desc>Set to ~0 in a client-to-host request to create a new tag, and then filled in by the host in the reponse.
 Can be set to the value of an existing tag to work as a rename or just to re-set a tag to a new value.</desc>
      <alias>
       <desc>The ID of the tag to destroy.</desc>
