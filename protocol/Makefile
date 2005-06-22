@@ -27,6 +27,17 @@ api.snip:	$(APISTYLE) commands.xml $(CMDS)
 
 # ---------------------------------------------------------
 
+# Testing framework is based on a simple approach:
+#
+# 1) Use XSLT to transform command definitions into C header format.
+# 2) Concatenate actual verse.h header with what 1) generated.
+# 3) Create silly C program that includes the header generated in step 2).
+# 4) Try to compile the C program, letting the compiler catch conflicts.
+#
+# This should protect against cases where the specification says one thing,
+# and the API says another. Obviously, it would be better to generate the
+# actual API from the spec, too.
+
 test:		test.c test.h
 		gcc test.c
 
