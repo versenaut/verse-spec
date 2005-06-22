@@ -41,6 +41,11 @@ unique within the node.</desc>
      <value>""</value>
     </alias>
    </param>
+   <param>
+    <name>dimensions</name>
+    <type>uint8</type>
+    <desc>The number of dimensions the created curve should have. This must be between one and four, inclusive.</desc>
+   </param>
   </params>
   <alias>
    <meta>
