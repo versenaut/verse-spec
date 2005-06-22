@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
-"/usr/share/sgml/docbook/xml-dtd-4.3/docbookx.dtd" [
+"/usr/share/sgml/docbook/xml-dtd-4.2/docbookx.dtd" [
  <!ENTITY Bez           "B&eacute;zier">
 
  <!ENTITY Types         SYSTEM "protocol/types.snip">
  <!ENTITY Commands      SYSTEM "protocol/cmd.snip">
  <!ENTITY Command-Index SYSTEM "protocol/cmd-indx.snip">
  <!ENTITY API           SYSTEM "protocol/api.snip">
- <!ENTITY GNUFDL        SYSTEM "fdl.xml">]
->
+ <!ENTITY GNUFDL        SYSTEM "fdl.xml">
+ <!ENTITY time_s	"<varname>time_s</varname>">
+ <!ENTITY time_f	"<varname>time_f</varname>">
+]>
 
 <book lang="en">
 
@@ -184,6 +186,25 @@ through the Verse protocol. In this regard, Verse hosts are very similar to the 
 system, such as a web server for instance. It stores content, and makes it available to clients through a well-defined
 communications protocol.
 </para>
+<sect2>
+<title>Time</title>
+<para>
+Many operations in Verse are independent of time, they happen <emphasis>now</emphasis>, which is as soon as
+the data arrives at is assumed to be valid. Some operations, however, do not make sense without a concept of
+time. As we'll see later, it is possible for a client to read out the current time, and receive a value
+which is (more or less) in sync with the host's idea of what time it is.
+</para>
+<para>
+Time counted in seconds, with a precision of 64 bits. Of these, 32 bits are the number of seconds since some
+unspecified previous event (such as the starting of the host), while the remaining 32 bits are fractions so
+that times less than one second can be expressed. So, time is a pair of unsigned 32-bit integers, one called
+&time_s; (the whole seconds) and the other &time_f; (the fractional part).
+</para>
+<para>
+The &time_f; fractional part is in units of 1/4,294,967,296:th of a second. This means that the time
+<quote>four and a half seconds</quote> is expressed as the pair of values (&time_s;=4, &time_f;=2,147,483,648).
+</para>
+</sect2>
 </sect1>
 
 <sect1 id="subscription">
@@ -257,7 +278,8 @@ intricate ones.
 <para>
 To ease management, tags are collected into <emphasis>tag groups</emphasis>. Tag groups are simply named containers
 for tags, that allow related tags to be grouped together. Also, tag groups can be subscribed to which gives better
-subscription granularity than if individual tags could be.
+subscription granularity than if individual tags could be. Tag groups do not nest, it is not possible to have
+groups within groups within groups.
 </para>
 <para>
 These are the types of tag values supported:
@@ -1544,9 +1566,20 @@ moment; we have some ideas that will appear in the spec and implementation soon.
 <sect1 id="n-audio">
 <title>The Audio Node</title>
 <para>
-The audio node provides support for streaming audio between Verse clients. It does not offer support for
-storing audio permanently on a host, only for having layers (channels) of audio that one can subscribe to
-and send/receive streaming audio content in.
+The audio node adds the possibility to work with digital audio in Verse applications. Audio in Verse is
+represented as raw, uncompressed, pulse-code modulated (PCM) samples. This simply means that audio is
+described by providing a linear sequence of amplitude values, called <emphasis>samples</emphasis>, and a
+desired replay <emphasis>frequency</emphasis>. This way of describing audio digitally is fairly standardized
+and well supported by typical hardware.
+<note><title>Terminology</title><para>The word <emphasis>sample</emphasis> is used to denote a single
+numerical value in a PCM sequence; it is not used to refer to the whole sound.</para>
+</note>
+</para>
+<para>
+Verse audio is always monoaural, a single sound cannot be in stereo. This better mimics the properties
+of real-world audio sources, which are considered to be points in space from which audio is emitted. It
+is up to whatever software is used to <quote>render</quote>, i.e. play, the audio to create different
+versions for a human listener's left and right ears, if so desired.
 </para>
 <para>
 Audio, in both buffers and streams, is represented as uncompressed PCM (pulse-code modulation) data, meaning
@@ -1557,79 +1590,132 @@ supports arbitrary sampling frequences, and a six different sample formats of bo
 floating-point varieties.
 </para>
 <sect2>
-<title>Buffers</title>
+<title>Audio Data Organization</title>
 <para>
-Buffers are simply independent containers where audio data is stored, for editing. They very much
-resemble other such storage places in Verse, such as text node buffers or geometry layers.
+Verse supports samples in the following formats:
+<informaltable>
+<tgroup cols='2'>
+<thead>
+<row><entry>Format</entry><entry>Description</entry></row>
+</thead>
+<tbody>
+<row><entry>VN_A_LAYER_INT8</entry><entry>8-bit signed integers. The most space-efficient format supported,
+but not a very high-quality one.</entry></row>
+<row><entry>VN_A_LAYER_INT16</entry><entry>16-bit signed integers. Perhaps the format that is most commonly
+used in low to medium-end audio applications, such as typical games on PCs and consoles.</entry></row>
+<row><entry>VN_A_LAYER_INT24</entry><entry>24-bit signed integers. Since most general-purpose CPUs don't have
+a native 24-bit integer data type, these are represented as three unsigned 8-bit bytes, stored in big-endian
+order without any padding.</entry></row>
+<row><entry>VN_A_LAYER_INT32</entry><entry>32-bit signed integers, for added precision.</entry></row>
+<row><entry>VN_A_LAYER_REAL32</entry><entry>32-bit floating point numbers, stored in IEEE-754 big-endian
+format. For high-end processing applications.</entry></row>
+<row><entry>VN_A_LAYER_REAL64</entry><entry>64-bit floating point numbers, stored in IEEE-754 big-endian
+format. For very high-end processing applications.</entry></row>
+</tbody>
+</tgroup>
+</informaltable>
+Verse does not support unsigned samples, and neither does it support the compression of audio data.
 </para>
 <para>
-Data in buffers is represented (and transported) as numbered blocks. The number of samples in a block depends
-on the data type used, see the <xref linkend='type-VNAConstants'/> type definition.  The playback time
-represented by a single such block thus depends on the type, too.
+Samples are always transmitted and received collected into <emphasis>blocks</emphasis>; it is not possible
+to send a single sample value. This coarser granularity helps reduce the overhead of transmitting bulk data
+such as audio. The number of samples in a single block depends on the chosen sample format, according to the
+following table:
+<informaltable>
+<tgroup cols='2'>
+<thead>
+<row><entry>Format</entry><entry>Block Size</entry></row>
+</thead>
+<tbody>
+<row><entry><symbol>VN_A_LAYER_INT8</symbol></entry><entry>1024</entry></row>
+<row><entry><symbol>VN_A_LAYER_INT16</symbol></entry><entry>512</entry></row>
+<row><entry><symbol>VN_A_LAYER_INT24</symbol></entry><entry>384</entry></row>
+<row><entry><symbol>VN_A_LAYER_INT32</symbol></entry><entry>256</entry></row>
+<row><entry><symbol>VN_A_LAYER_REAL32</symbol></entry><entry>256</entry></row>
+<row><entry><symbol>VN_A_LAYER_REAL64</symbol></entry><entry>128</entry></row>
+</tbody>
+</tgroup>
+</informaltable>
+These numbers have been chosen to optimize packet sizes for the network transmission of audio. There is
+no way to send a partially full packet; you must always provide (and expect) the number of samples that
+corresponds to the layer type. Pad with zeroes towards the end to create silence, if needed.
 </para>
 <para>
-Audio buffers are <quote>passive</quote>, meaning that they in themselves do not produce any audible sound.
-They can store samples needed to reproduce sound, but the intent is not to play back that data directly (unlike
-e.g. geometry, which is intended to be directly rendered). There is a second mechanism for transmitting data
-for playback: streams.</para>
-<para>
-Audio blocks are identified by numbers, but these numbers are not actually <quote>IDs</quote> like in other
-nodes, that the server has assigning authority over. Instead, the numbers are called <emphasis>indices</emphasis>
-because they simply index into a (virtual, very large) array of audio blocks. The idea is that there are
-blocks for all valid values of the index parameter (a 32-bit integer), but that blocks can be either set
-or clear. Clear blocks read as all zeros, i.e. represent silence. This means that, for example, a 64-bit floating
-point buffer can store up to 2<superscript>32</superscript> * <symbol>VN_A_BLOCK_SIZE_REAL64</symbol> =
-2<superscript>32</superscript> * 128 values at 8 bytes each, which evaluates to 4 TB of data.
-</para>
-<para>
-<figure id="a-buffer-blocks">
-<title>Blocks in an Audio Buffer</title>
-<mediaobject>
- <imageobject>
-  <imagedata fileref="media/audio/audio.png" format="PNG"/>
- </imageobject>
-</mediaobject>
-</figure>
-Figure <xref linkend='a-buffer-blocks'/> shows a schematic view of an audio buffer's first few blocks. Only
-blocks 0, 1, and 3 are present. Things to note are:
-<itemizedlist>
-<listitem><para>Blocks are positioned based on their indices. Block 0 is always the first, is always followed
-by block 1, and so on.</para></listitem>
-<listitem><para>Blocks that are absent still occupy their place in the indexing space. The third block
-shown has index 3, although an index of 2 might be expected based on counting.</para></listitem>
-<listitem><para>Absent blocks are rendered as a flat <quote>zero line</quote>, indicating that the value
-of the samples there is considered to be zero.</para></listitem>
-</itemizedlist>
-</para>
-<para>
-This index definition means that storing audio blocks can be a challenge. It's perfectly okay for a client
-to create an audio layer, and then set the
-first (<varname>index</varname>=<literal>0</literal>)
-and
-last (<varname>index</varname>=<literal>2<superscript>32</superscript>-1</literal>)
-blocks in the array. A receving party (the host,
-or another client) that uses a simple array to store the blocks would then need to allocate the full block space,
-which would use up a rather inconvenient amount of memory.
-</para>
-<para>
-There is no automatic way of <quote>shunting</quote> audio data from a buffer to a
-stream for playback, if such a feature is desired, some client needs to read from the buffer and send the data
-to a stream.
+The sampling frequency associated with audio data is specified using a 64-bit floating point number,
+and is expressed in Herz (Hz). So, for CD-quality audio, you would use a VN_A_LAYER_INT16-type layer
+at a frequency of 44,100.0 Hz.
 </para>
 </sect2>
-
 <sect2>
+<title>Node Structure</title><para>
+The audio node provides two distinct kinds of support for handling audio data:
+<itemizedlist>
+<listitem><para>Buffers, that store but cannot play audio samples.</para></listitem>
+<listitem><para>Streams, that play but cannot efficiently store audio samples.</para></listitem>
+</itemizedlist>
+These two variants of support complement each other, and make the overall audio support richer
+than having just one would. The buffer and stream mechanisms are described in more detail below.
+</para>
+<para>
+Because the number of samples per block varies with the block's type, and the duration of playback
+of a single sample varies with the frequency (as 1:1, i.e. at N Hz, you need N samples per second),
+it is not possible to specify the duration of playback of a single block of audio.
+</para>
+<sect3>
+<title>Buffers</title>
+<para>
+Buffers, like in the text node node, are used to store audio data for editing. A buffer is simply a named
+container that can hold blocks of samples. Each such block is given an index, simply an integer that
+tells you the location of the block in the buffer as a whole. There can be gaps in the index sequence,
+that represent silence.
+</para>
+<para>
+The intended use for audio buffers is creating audio editing applications; they provide a host-side
+<quote>back end</quote> for audio storage. By storing the samples as blocks of the same size used
+by streams (see below), the transition from passive storage to active playback can be made easier.
+</para>
+<para>
+The following image (<xref linkend='audioblocks'/>) illustrates how buffer blocks form a sequence,
+and that there can be gaps where the data is <quote>clear</quote>, i.e. the amplitude is zero and
+the audio silent. The vertical lines at regular intervals illustrate block boundaries (these blocks
+are 128 samples each), and the digits below are the block indices of each. Note how they start off at
+zero, and how the index of the silent block is still a valid index.
+<figure id='audioblocks'>
+<title>Audio Buffer Blocks</title>
+<mediaobject>
+<imageobject>
+<imagedata fileref='media/audio/buffer.png'/>
+</imageobject>
+</mediaobject>
+</figure>
+</para>
+</sect3>
+
+<sect3>
 <title>Streams</title>
 <para>
-Streams are used to send audio data in real-time, for playback. It might be helpful to think of each stream
-as a channel of a <quote>radio</quote> (the node), each of which can be subscribed to individually.</para>
-<para>
-Data for streams is delivered in blocks, which have the same size as those used when storing audio data in
-buffers. Each block is timestamped with the time when it is supposed to be played back; it is the responsibility
-of receiving clients to queue up incoming stream blocks, sort them on their timestamps, and then play them
-back when the correct time arrives. To learn the current time, use the <xref linkend='verse_session_get_time'/>()
-API call.
+Streams are simply independent <quote>places</quote> where audio data can be sent for playback. It might be
+helpful to think of them as channels of a <quote>radio</quote> (the node), each of which can be subscribed
+to individually.
 </para>
+<para>
+Unlike almost all other data in Verse, stream data is transferred in an unreliable way; any dropped
+audio commands will not be resent. This is because the intent is for the commands to contain data
+to be replayed imminently, there should not be enough time to do a resend.
+</para>
+<para>
+Data in streams arrives in time-stamped blocks, one per command. The size of the blocks, in number of
+samples, varies with the data type chosen as per the table above. For network data encoding/decoding
+reasons, each block specifies its data type and sample frequency, although it is not recommended that
+these are actually varied in the same stream as that creates rather complex problems during replay.
+</para>
+<para>
+The timestamp in each block lets the receiver know when that block is supposed to start playing. A typical
+stream playing client will put the block in a queue, sorted on the timestamp. Blocks are then de-queued
+and played, possibly employing some kind of double buffering scheme, as the current time reaches that of
+the block's timestamp.
+</para>
+</sect3>
 </sect2>
 
 </sect1>
