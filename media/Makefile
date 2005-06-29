@@ -12,7 +12,7 @@ BATIKRASTER="/usr/share/$(BATIK)/lib/batik-rasterizer.jar"
 SVG2PNG=$(JAVA) -Xbootclasspath/p:`java-config -p xerces-2` -jar $(BATIKRASTER)
 export SVG2PNG
 
-DIRS=audio bitmap curve material object subscription
+DIRS=audio bitmap curve geometry material object subscription
 
 ALL:
 	for d in $(DIRS) ; do $(MAKE) -C $$d ; done
