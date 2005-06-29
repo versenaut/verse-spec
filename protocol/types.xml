@@ -608,8 +608,8 @@ scanline of the tile, and bit 7 of that uint8 holds the topmost leftmost pixel o
 </para>
 <para>
 Pixels in tiles can be indexed by a coordinate pair (x,y), with x and y both in the range [0,7] inclusive. Then,
-(0,0) is the topmost leftmost pixel, and (7,7) is the pixel at the bottom right corner of the tile. For non-uint8
-tiles, a pixel is referenced as simply a[y * 8 + x], where a is the union member (one of vuint8, vuint16, vreal32
+(0,0) is the topmost leftmost pixel, and (7,7) is the pixel at the bottom right corner of the tile. For multi-bit pixel
+types, a pixel is referenced as simply a[y * 8 + x], where a is the union member (one of vuint8, vuint16, vreal32
 and vreal64). For one-bit tiles, the pixel is tested by the C expression (vuint1[y] &amp; (128 &gt;&gt; x)).
 </para>
 </desc>
