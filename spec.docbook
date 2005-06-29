@@ -436,8 +436,6 @@ stored, the <emphasis>intent</emphasis> is that they should in order to approach
 artist but they do not have to. Verse's subdivision surfaces support <emphasis>creases</emphasis> with which
 one can control the degree of subdivision allowed for each vertex and edge.
 </para>
-<sect2>
-<title>Structure</title>
 <para>
 The data held by a geometry node can be divided into vertex and polygon definitions. Vertex data describe positions
 in a local 3D space, and polygons are created by referencing the vertices. All polygons have exactly three or four
@@ -446,7 +444,7 @@ four corners for a given polygon; if the three first references are valid and th
 triangle. If also the fourth reference is to a valid vertex, it is a quadrillion. All polygons are two-sided, and
 the front side references its vertices in a clockwise manner.
 </para>
-<sect3>
+<sect2>
 <title>Layers</title>
 <para>
 The geometry data is stored in <emphasis>layers</emphasis>, where each layer has a well-defined type. There are
@@ -547,8 +545,8 @@ or the vertex references, respectively) are placed in a slot in the base layer, 
 provide a slot of data space of whatever type the layer has for the new addition. This slot is typically initialized
 with a default value, to make it well-defined until explicitly set.
 </para>
-</sect3>
-<sect3>
+</sect2>
+<sect2>
 <title>Creases</title>
 <para>
 Crease information is used to control the subdivision algorithm, by specifying how sharp a crease a vertex
@@ -559,19 +557,164 @@ information can be stored in a layer and referenced that way. If a layer is used
 for edges. These values are given the following interpretation: zero represents a smooth surface (no crease),
 while <literal>MAX_UINT32</literal> should give the maximum amount of crease to the vertex or edge.
 </para>
-</sect3>
-<sect3 id='geometry-bones'>
+</sect2>
+<sect2 id='geometry-bones'>
 <title>Bones</title>
 <para>
-The geometry node can also store local transformations known as <emphasis>bones</emphasis>. Each bone has a name
-and a numerical ID, a parent ID, a position, and a rotation. The name is used to reference a layer that defines the
-influence of that particular bone on each vertex of the model. Such layers must be of type
-<symbol>G_LAYER_VERTEX_UINT32</symbol> or <symbol>G_LAYER_VERTEX_REAL</symbol>. Integer layers are interpreted
-as being in the range 0..1 by dividing each value by 4,294,967,295. The parent link defines hierarchies of bones,
-i.e. <emphasis>skeletons</emphasis>. It can be set to a non-existing bone to indicate that no parent exists, and the
-bone will then be at root level.
+The geometry node can also store local transformations known as <emphasis>bones</emphasis>. Bones are fairly complex in
+their definition, with each bone having a numerical ID, a parent ID, weight and reference layer pointers, a position,
+a position curve pointer, a rotation and a rotation curve pointer.
 </para>
-</sect3>
+<para>
+The numerical ID simply identifies each bone in the node, as with layer IDs. Bones are typically numbered from zero and
+upwards, and the sequence of IDs will typically be kept <quote>tight</quote>, with as few gaps of unused IDs as possible.
+</para>
+<para>
+The weight layer pointer is used to reference a layer that defines the influence of that particular bone on each vertex of
+the model. Such layers must be of type <symbol>G_LAYER_VERTEX_UINT32</symbol> or <symbol>G_LAYER_VERTEX_REAL</symbol>.
+Integer layers are interpreted as being in the range 0..1 by dividing each value by 4,294,967,295. The value in each slot
+says how much the bone's transform affects the corresponding vertex.
+</para>
+<para>
+The reference layer pointer is used to optimize space usage for large skeletons. Since the weights system above needs
+one layer of weights for each bone, it ends up using a lot of storage space. This is especially true since skeletons
+are typically local; the number of vertices influenced by each bone is typically small, and does not increase with
+the number of bones or the number of vertices. Having to <quote>pay</quote> for them anyway adds a lot of overhead,
+which is something to be avoided. The method used is to add another layer of indirection to the bone system. By
+specifying the name of a <symbol>G_LAYER_VERTEX_UINT32</symbol> layer in the reference field of a bone, this secondary
+system is triggered. The layer should contain bone IDs, and the effect is that the weight values for the bone carrying
+the reference are applied to the bones being referenced, rather than directly to the vertices. In this case, the
+weight value carried in the bone definition no longer applies to the bone itself, but to any number of bones, as defined
+by the reference layer.
+</para>
+<para>
+The parent link defines hierarchies of bones, i.e. <emphasis>skeletons</emphasis>. It can be set to a non-existing bone to
+indicate that no parent exists, and the bone will then be at root level.
+</para>
+<para>
+The position and rotation properties of a bone can also be animated by linking them to <link linkend='n-curve'>curve node curves</link>.
+This is done by specifiying the name of the desired curves directly in the bone definition. When the named curve is
+animated using the <link linkend='n-object'>object node</link> command, the bone referencing that curve will update.
+</para>
+</sect2>
+<sect2>
+<title>Examples</title>
+<para>
+Because the geometry node is fairly complex, yet used for a very central and important purpose, it is helpful to illustrate
+how it is used with the help of some simple examples. Such examples almost have to be very simple, since listing in full
+the geometry for any <quote>realistic</quote> scene would swamp this document and still be unreadable.
+</para>
+<example>
+<title>Cube Geometry</title>
+<para>
+One of the simplest 3D objects that is still interesting is the cube. A minimal cube consists of eight vertices and six
+polygons (if using quadrilaterals, which is always recommended with Verse). To be well-defined in Verse, a cube also needs
+its crease information set in a way that makes all edges and corners sharp. So, to summarize:
+<itemizedlist>
+<listitem><para>Eight vertices</para></listitem>
+<listitem><para>Six quadrilaterals</para></listitem>
+<listitem><para>Sharp creasing</para></listitem>
+</itemizedlist>
+That's all there is to building a cube. Let's attack these one at a time:
+</para>
+<para>
+The vertices are stored in the standard <quote>vertex</quote> layer, with ID zero. They can be listed in any order,
+but using the first eight slots is natural and the most space-efficient way to do it. Here is a table showing one possible
+solution:
+<informaltable>
+<tgroup cols='9'>
+<thead>
+ <row>
+  <entry align='center'>Layer</entry>
+  <entry align='center'>0</entry>
+  <entry align='center'>1</entry>
+  <entry align='center'>2</entry>
+  <entry align='center'>3</entry>
+  <entry align='center'>4</entry>
+  <entry align='center'>5</entry>
+  <entry align='center'>6</entry>
+  <entry align='center'>7</entry>
+ </row>
+</thead>
+<tbody>
+ <row>
+  <entry>0 (<quote>vertex</quote>)</entry>
+  <entry>(-1,1,-1)</entry>
+  <entry>(1,1,-1)</entry>
+  <entry>(1,1,1)</entry>
+  <entry>(-1,1,1)</entry>
+  <entry>(-1,-1,1)</entry>
+  <entry>(1,-1,1)</entry>
+  <entry>(1,-1,-1)</entry>
+  <entry>(-1,-1,-1)</entry>
+ </row>
+</tbody>
+</tgroup>
+</informaltable>
+Here, the four first vertices outline the top quadrilateral, in clock-wise order when seen from the outside. The last four
+do the same for the bottom quadrilateral. Note how each cell (<quote>slot</quote> in the layer) contains three values,
+this is because the layer has type <symbol>G_LAYER_XYZ</symbol>.
+</para>
+<para>
+Next, we need to define the polygons. This is done in the layer with ID=1, called <symbol>polygon</symbol>. Here is
+how it could look, in tabular form:
+<informaltable>
+<tgroup cols='7'>
+<thead>
+ <row>
+  <entry align='center'>Layer</entry>
+  <entry align='center'>0</entry>
+  <entry align='center'>1</entry>
+  <entry align='center'>2</entry>
+  <entry align='center'>3</entry>
+  <entry align='center'>4</entry>
+  <entry align='center'>5</entry>
+ </row>
+</thead>
+<tbody>
+ <row>
+  <entry>1 (<quote>polygon</quote>)</entry>
+  <entry>0,1,2,3</entry>
+  <entry>4,5,6,7</entry>
+  <entry>3,2,5,4</entry>
+  <entry>2,1,6,5</entry>
+  <entry>1,0,7,6</entry>
+  <entry>0,3,4,7</entry>
+ </row>
+</tbody>
+</tgroup>
+</informaltable>
+Each slot contains four integer values, since the type of the polygon layer is <symbol>G_POLYGON_CORNER_UINT32</symbol>.
+The first two polygons are the top and bottom surfaces, respectively. They are followed by the front, right, back
+and left surfaces of the cube (when viewed along the negative Z-axis, with positive Y being upwards). Each quadrilateral
+is defined in clock-wise order, with the top left vertex first (when applicable).
+</para>
+<para>
+Note how the vertex and polygon layers have different sizes. Although they are part of the same physical layer ID space
+inside the node, they really do form two separate <quote>stacks</quote> of layers. All vertex layers will have the same
+size as the base (ID=0) vertex layer, while all polygon layers will have the same size as the base (ID=1) polygon layer.
+</para>
+<para>
+To help visualize the above, here is a figure showing a simple cube, with vertices labelled according to the order used above:
+<figure id="g-ex-cube" float='1' floatstyle='right' pgwide='0'>
+<title>A Cube</title>
+<mediaobject>
+ <imageobject>
+  <imagedata fileref="media/geometry/cube.png" format="PNG"/>
+ </imageobject>
+</mediaobject>
+</figure>
+The polygons are not marked in this figure, to reduce the clutter. The cube is viewed as described above, and the
+XYZ axes use red, green and blue colors, respectively.
+</para>
+<para>
+The final point we need to take care of is the creasing. To make sure the cube is not interpreted as a smooth
+shape, we need to explicitly set the creasing to <quote>sharp</quote> for all vertices and edges. Crease information
+can be stored in vertex and polygon layers, when finer control is needed, but there is also a way to set the default
+to use for corners and edges, respectively. In this case, we need all the crease values to be the same, so we can use
+the defaults and set them to <literal>0xffffffff</literal> which means <quote>maximum sharpness</quote>.
+</para>
+</example>
 </sect2>
 </sect1>
 
