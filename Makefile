@@ -20,7 +20,7 @@ dist:
 		mkdir -p verse-spec && cp -r media *.html verse-spec && tar czf verse-spec.tgz verse-spec && rm -r verse-spec
 
 # Upload (publish) spec on the Blender project site where it lives. Requires password, of course.
-dist2:		dist
+publish:	dist
 		scp verse-spec.tgz www.blender.org:www/ && ssh www.blender.org "cd www && rm -r verse-spec && tar xzf verse-spec.tgz && rm verse-spec.tgz"
 
 # ---------------------------------------------------------
