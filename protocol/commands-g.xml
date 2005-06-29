@@ -629,7 +629,8 @@ crease values should be the same, without creating a rather redundant layer sayi
    <param>
     <name>weight</name>
     <type>string16</type>
-    <desc></desc>
+    <desc>Points (by name) at a geometry layer, in the same node, that contains the bone's weights. Weights
+are used to control the influence of this bone on each of the vertices of the node.</desc>
     <alias>
      <value>""</value>
     </alias>
@@ -637,7 +638,7 @@ crease values should be the same, without creating a rather redundant layer sayi
    <param>
     <name>reference</name>
     <type>string16</type>
-    <desc></desc>
+    <desc>Optional alternate way of indicating bone weights. See the node description for details.</desc>
     <alias>
      <value>""</value>
     </alias>
@@ -663,14 +664,32 @@ crease values should be the same, without creating a rather redundant layer sayi
     <desc>The Z component of the bone's position.</desc>
    </param>
    <param>
+    <name>pos_label</name>
+    <type>string16</type>
+    <desc>Curve to use when animating this bone's position. Can be empty for no animation.</desc>
+   </param>
+   <param>
     <name>rot</name>
     <type>VNQuat64</type>
     <desc>The rotation of the bone.</desc>
+   </param>
+   <param>
+    <name>rot_label</name>
+    <type>string16</type>
+    <desc>Curve to use when animating this bone's rotation. Can be empty for no animation.</desc>
    </param>
   </params>
   <desc>
    <para>Bones are used for skeleton animation of e.g. characters. Associating bones with
 vertices is done through the use of layers that provide the weights.</para>
+   <para>
+    The pos_label and rot_label parameters are used to point out (by name) curve nodes that animate the bone.
+Animating a bone also needs the link_id parameter in the o_anim_run command, that is where a curve is animated,
+and all bones that depend on that curve through either pos_label or rot_label will then move.
+</para>
+ <para>In theory, it would be possible to animate a bone by simply updating it through many g_bone_create commands,
+but doing so would be very inefficient and prone to timing problems this since command is not timestamped.
+   </para>
   </desc>
 
   <alias>
