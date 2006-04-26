@@ -1160,7 +1160,7 @@ fourth element with the value zero for these purposes.
  <entry>Ramp</entry>
  <entry align="left">
   <anchor id="m-f-ramp"/><para>A one-dimensional ramp (or curve) defined as an array of (position,color) tuples.
-It takes a color as input, and selects a single channel. The value of that channel is then to do an interpolating
+It takes a color as input, and selects a single channel. The value of that channel is then used to do an interpolating
 look-up in the ramp, and the resulting color is emitted.
 <table id='m-f-ramp-type'>
  <title>Ramp Fragment Types</title>
