@@ -30,6 +30,16 @@
    <link linkend='gfdl'>GNU Free Documentation License</link>.
   </para>
  </legalnotice>
+
+ <!-- For reasons unknown, this log isn't actually rendered in the final HTML. -->
+ <revhistory>
+  <revision>
+   <revnumber>R6</revnumber>
+   <date>June 2006</date>
+   <authorinitials>eb</authorinitials>
+   <revremark>Updated for Verse R6 release.</revremark>
+  </revision>
+ </revhistory>
 </bookinfo>
 
 <preface id='preface'>
@@ -145,7 +155,7 @@ allowing subdivision algorithms to intelligently split the single polygon into s
 3:rd degree curved surface that is smooth. This means that you may display the graphics as
 simple, planar, polygons, but you can also subdivide them to increase the smoothness of the surfaces.
 Subdivision is compatible with a lot of existing 3D software, since you can convert polygons, B-splines,
-patches and NURBs into subdivision surfaces without loss of precision.
+patches and NURBS into subdivision surfaces without loss of precision.
 </para>
 <para>
 The Verse data model has many features such as:
@@ -305,6 +315,10 @@ These are the types of tag values supported:
   <entry>64-bit floating point value.</entry>
  </row>
  <row>
+  <entry>VN_TAG_STRING</entry>
+  <entry>A textual string.</entry>
+ </row>
+ <row>
   <entry>VN_TAG_REAL64_VEC3</entry>
   <entry>Vector of three 64-bit floating point values.</entry>
  </row>
@@ -340,8 +354,9 @@ represent <quote>objects</quote> in a virtual world. All data in nodes of other 
 to a tree rooted in an object node. The object node itself does not hold much actual data, but it provides
 a transform and various other features.
 </para>
+
 <sect2 id='obj-link'>
-<title>Linking</title>
+<title>Links</title>
 <para>
 The object node has the ability to link to other nodes, specifying different properties (geometry, materials,
 associated scripts and so son) of the represented object. Multiple object nodes may all link to the same geometry
@@ -349,11 +364,65 @@ node, to share the data and thus create several identical copies of an object.
 </para>
 <para>
 Links are unidirectional, going <emphasis>from</emphasis> an object node and <emphasis>to</emphasis> the link
-target which can be a node of any type. Links have textual names, which are used to denote the purpose of
-the link (for instance, the main geometry link from an object node to a geometry node is named
-<quote><literal>geometry</literal></quote>).
+target which can be a node of any type. Links have textual labels, which are used to denote the purpose of
+the link (for instance, the main geometry link from an object node to a geometry node is labelled
+<quote><literal>geometry</literal></quote>). Link labels need not be unique; there can be several links sharing a
+single label. There is also an integer field in the link definition, called target. This field is used to refer to some
+part of the source or destination node.
 </para>
+<para>
+These are the currently defined standard link labels, with their use:
+</para>
+<variablelist>
+<varlistentry>
+<term><literal>child</literal></term>
+<listitem>
+<para>
+Links to a child object, that resides in the parent node's coordinate space. This is used to define hierarchical
+transform graphs. The <literal>target</literal> should be set to the numerical ID of the <link linkend='geometry-bones'>bone</link>
+to which the child is to be attached, or the special value ~0 (<literal>4,294,967,295</literal>) to indicate that the child
+resides at the root of the parent's transform. It is valid to link to the same object from several different parent
+objects. Transform hierarchies, however, cannot include circular links (a node cannot be its own child, at any level).
+It is not guaranteed that a Verse host will not send out circular links, however. Clients need to be careful when
+parsing the child link data.
+</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>geometry</literal></term>
+<listitem>
+<para>
+The object's geometry. The referenced node, which should really be a <link linkend='n-geometry'>geometry node</link>,
+defines the object's geometry in the world. The geometry will be translated to the object's position, rotated,
+scaled, and also given any defined material. This link type does not use the <literal>target</literal> field.
+</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>light</literal></term>
+<listitem>
+<para>
+This specifies how light is emitted by the object. The referenced node should be a <link linkend='n-geometry'>geometry node</link>,
+and it defines the shape of the light source. Each polygon of the geometry is taken to be an area light.
+</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>material</literal></term>
+<listitem>
+<para>
+The object's material. The referenced node, which should really be a <link linkend='n-material'>material node</link>,
+defines the material to apply to the surface of the object during rendering. There can be more than one such link,
+for objects that need more than one material. They are then all given the label <literal>material</literal>, and
+assigned unique <literal>target</literal> values. A face integer layer is then added to the geometry, and populated
+with integers from the set of <literal>target</literal> values to pick one of the available materials for each
+of the faces.
+</para>
+</listitem>
+</varlistentry>
+</variablelist>
 </sect2>
+
 <sect2 id='obj-transform'>
 <title>Transform</title>
 <para>
@@ -418,6 +487,14 @@ in nature.
 Once created, method calls can be emitted by any client and any client is free to respond to a method being
 called. This mechanism allows clients to create representations of their interfaces inside the world held on
 the host.
+</para>
+</sect2>
+<sect2 id="o-hide">
+<title>Hiding</title>
+<para>
+Object nodes can be selectively <emphasis>hidden</emphasis>. Hiding an object makes it invisible in the 3D
+world. This is useful to cut down on latency and round-trips, by pre-defining content which can then be
+rapidly made visible by just toggling the hidden status of the root object node.
 </para>
 </sect2>
 </sect1>
@@ -516,7 +593,7 @@ is a table that summarizes the available layer formats.
 </table>
 </para>
 <para>
-The first layer, named <quote><literal>vertex</literal></quote> but sometimes refered to as the
+The first layer, named <quote><literal>vertex</literal></quote> but sometimes refereed to as the
 <quote>base layer</quote>, is always of type <symbol>G_LAYER_VERTEX_XYZ</symbol>. The second layer is always
 used to define the polygons of the subdivision mesh, and must have type <symbol>G_LAYER_POLYGON_CORNER_UINT32</symbol>
 and be named <quote><literal>polygon</literal></quote>. These two layers are rigidly defined since a host must be
@@ -593,9 +670,19 @@ indicate that no parent exists, and the bone will then be at root level.
 </para>
 <para>
 The position and rotation properties of a bone can also be animated by linking them to <link linkend='n-curve'>curve node curves</link>.
-This is done by specifiying the name of the desired curves directly in the bone definition. When the named curve is
+This is done by specifying the name of the desired curves directly in the bone definition. When the named curve is
 animated using the <link linkend='n-object'>object node</link> command, the bone referencing that curve will update.
 </para>
+<para>
+Regarding the overall bone structure, the following simple <quote>algorithm</quote> might be helpful to illustrate how
+they work. To draw a bone structure:
+<itemizedlist>
+<listitem><para>Take all the bone positions, and mark them out in 3D space.</para></listitem>
+<listitem><para>Draw a line from every point to its parent, if it has one.</para></listitem>
+</itemizedlist>
+</para>
+<para>Now you have something that looks like a bone structure, with the important (and typical) property that
+if you rotate any bone, all bones <quote>downstream</quote> of it will rotate, too.</para>
 </sect2>
 <sect2>
 <title>Examples</title>
@@ -695,7 +782,7 @@ inside the node, they really do form two separate <quote>stacks</quote> of layer
 size as the base (ID=0) vertex layer, while all polygon layers will have the same size as the base (ID=1) polygon layer.
 </para>
 <para>
-To help visualize the above, here is a figure showing a simple cube, with vertices labelled according to the order used above:
+To help visualize the above, here is a figure showing a simple cube, with vertices labeled according to the order used above:
 <figure id="g-ex-cube" float='1' floatstyle='right' pgwide='0'>
 <title>A Cube</title>
 <mediaobject>
@@ -761,40 +848,48 @@ with each one. This number is used to identify a fragment type in the network pr
     <entry><literal>4</literal></entry>
     <entry align="left">Represents a volume diffusion.</entry>
   </row>
-  <row><entry><link linkend="m-f-geometry"><symbol>VN_M_FT_GEOMETRY</symbol></link></entry>
+  <row><entry><link linkend="m-f-view"><symbol>VN_M_FT_VIEW</symbol></link></entry>
     <entry><literal>5</literal></entry>
+    <entry align="left">Represents the vector between camera and surface.</entry>
+  </row>
+  <row><entry><link linkend="m-f-geometry"><symbol>VN_M_FT_GEOMETRY</symbol></link></entry>
+    <entry><literal>6</literal></entry>
     <entry align="left">Uses data from a geometry layer to create color.</entry>
   </row>
   <row><entry><link linkend="m-f-texture"><symbol>VN_M_FT_TEXTURE</symbol></link></entry>
-    <entry><literal>6</literal></entry>
+    <entry><literal>7</literal></entry>
     <entry align="left">Does look-ups in a bitmap node.</entry>
   </row>
   <row><entry><link linkend="m-f-noise"><symbol>VN_M_FT_NOISE</symbol></link></entry>
-    <entry><literal>7</literal></entry>
+    <entry><literal>8</literal></entry>
     <entry align="left">Generates random noise.</entry>
   </row>
   <row><entry><link linkend="m-f-blender"><symbol>VN_M_FT_BLENDER</symbol></link></entry>
-    <entry><literal>8</literal></entry>
+    <entry><literal>9</literal></entry>
     <entry align="left">Blends two inputs together.</entry>
   </row>
+  <row><entry><link linkend="m-f-clamp"><symbol>VN_M_FT_CLAMP</symbol></link></entry>
+    <entry><literal>10</literal></entry>
+    <entry align="left">Clamps input to a minimum or maximum value.</entry>
+  </row>
   <row><entry><link linkend="m-f-matrix"><symbol>VN_M_FT_MATRIX</symbol></link></entry>
-    <entry><literal>9</literal></entry>
+    <entry><literal>11</literal></entry>
     <entry align="left">Transforms input through a matrix.</entry>
   </row>
   <row><entry><link linkend="m-f-ramp"><symbol>VN_M_FT_RAMP</symbol></link></entry>
-    <entry><literal>10</literal></entry>
+    <entry><literal>12</literal></entry>
     <entry align="left">Interpolates in a table.</entry>
   </row>
   <row><entry><link linkend="m-f-animation"><symbol>VN_M_FT_ANIMATION</symbol></link></entry>
-    <entry><literal>11</literal></entry>
+    <entry><literal>13</literal></entry>
     <entry align="left">Interpolates in a table.</entry>
   </row>
-  <row><entry><link linkend="m-f-alternative"><symbol>VN_M_FT__ALTERNATIVE</symbol></link></entry>
-    <entry><literal>12</literal></entry>
+  <row><entry><link linkend="m-f-alternative"><symbol>VN_M_FT_ALTERNATIVE</symbol></link></entry>
+    <entry><literal>14</literal></entry>
     <entry align="left">Allows implementation to select between two alternatives.</entry>
   </row>
   <row><entry><link linkend="m-f-output"><symbol>VN_M_FT_OUTPUT</symbol></link></entry>
-    <entry><literal>13</literal></entry>
+    <entry><literal>15</literal></entry>
     <entry align="left">The root of each material fragment graph, the final output.</entry>
   </row>
  </tbody>
@@ -980,14 +1075,20 @@ fall-off describes the micro-geometry just as in the <link linkend="m-f-light">l
     <term><type>real64</type> <varname>col_b</varname></term>
     <listitem><para></para></listitem>
    </varlistentry>
-   <varlistentry>
-    <term><type>VNMFragmentID</type> <varname>color</varname></term>
-    <listitem><para></para></listitem>
-   </varlistentry>
   </variablelist>
  </entry>
 </row>
 
+<row>
+ <entry>View</entry>
+ <entry align="left">
+  <anchor id="m-f-view"/><para>This fragment simply generates a vector pointing from the point at the surface,
+directly towards the viewing position.</para>
+<para>
+The fragment itself is empty, i.e. it has no parameters.
+</para>
+ </entry>
+</row>
 
 <row>
  <entry>Geometry</entry>
@@ -1046,6 +1147,10 @@ fragment</link>, to express plain old texture-mapping. It has the following fiel
     <listitem><para>Which layer to use as source of blue-channel values.</para></listitem>
    </varlistentry>
    <varlistentry>
+    <term><type>boolean</type> <varname>filtered</varname></term>
+    <listitem><para>Is the texture to be filtered when viewed up close?</para></listitem>
+   </varlistentry>
+   <varlistentry>
     <term><type>fragment</type> <varname>control</varname></term>
     <listitem><para>The ID of a fragment whose output is used as the mapping, see above.</para></listitem>
    </varlistentry>
@@ -1069,6 +1174,10 @@ noise function. These are the types of noise currently supported:
 numerical range [0,1] inclusive.</entry></row>
    <row><entry><symbol>M_NOISE_PERLIN_MINUS_ONE_TO_ONE</symbol></entry><entry><literal>1</literal></entry>
   <entry>Noise distributed in the numerical range [-1,1] inclusive.</entry></row>
+   <row><entry><symbol>M_NOISE_POINT_ZERO_TO_ONE</symbol></entry><entry><literal>2</literal></entry>
+  <entry>Noise, in range [0,1] inclusive.</entry></row>
+   <row><entry><symbol>M_NOISE_POINT_MINUS_ONE_TO_ONE</symbol></entry><entry><literal>2</literal></entry>
+  <entry>Noise in range [-1,1] inclusive.</entry></row>
   </tbody>
  </tgroup>
 </table>
@@ -1109,8 +1218,6 @@ input), and blends them using a function chosen from the following list:
        <entry>A * B</entry></row>
       <row><entry><symbol>M_BLEND_DIVIDE</symbol></entry><entry align="center">4</entry>
        <entry>A / B</entry></row>
-      <row><entry><symbol>M_BLEND_DOT</symbol></entry><entry align="center">5</entry>
-       <entry>A.red * B.red + A.green * B.green + A.blue * B.blue</entry></row>
      </tbody>
      </tgroup>
    </table>
@@ -1137,6 +1244,38 @@ input), and blends them using a function chosen from the following list:
 </row>
 
 <row>
+ <entry>Clamp</entry>
+ <entry align="left">
+  <anchor id="m-f-clamp"/><para>The clamp fragment limits its input value, either by ensuring that it is
+lower than a set maximum, or higher than a set minimum. It is useful for instance to eliminate negative
+numbers from blending equations.</para>
+ <variablelist>
+  <varlistentry>
+   <term><type>boolean</type> <varname>min</varname></term>
+   <listitem><para>Selects whether the clamping is to be done against a minimum (when true) or a maximum
+(when false).</para></listitem>
+  </varlistentry>
+  <varlistentry>
+   <term><type>real64</type> <varname>red</varname></term>
+   <listitem><para>Red component of limit value.</para></listitem>
+  </varlistentry>
+  <varlistentry>
+   <term><type>real64</type> <varname>green</varname></term>
+   <listitem><para>Green component of limit value.</para></listitem>
+  </varlistentry>
+  <varlistentry>
+   <term><type>real64</type> <varname>blue</varname></term>
+   <listitem><para>Blue component of limit value.</para></listitem>
+  </varlistentry>
+   <varlistentry>
+    <term><type>fragment</type> <varname>data</varname></term>
+    <listitem><para>The input data that is to be clamped.</para></listitem>
+   </varlistentry>
+ </variablelist>
+ </entry>
+</row>
+
+<row>
  <entry>Matrix</entry>
  <entry align="left">
   <anchor id="m-f-matrix"/><para>The matrix fragment runs its input values through a 4x4 transformation matrix.
@@ -1159,9 +1298,10 @@ fourth element with the value zero for these purposes.
 <row>
  <entry>Ramp</entry>
  <entry align="left">
-  <anchor id="m-f-ramp"/><para>A one-dimensional ramp (or curve) defined as an array of (position,color) tuples.
-It takes a color as input, and selects a single channel. The value of that channel is then used to do an interpolating
-look-up in the ramp, and the resulting color is emitted.
+  <anchor id="m-f-ramp"/><para>A ramp (or curve) defined as an array of (position,color) tuples.
+It takes a color as input, and selects a single channel. The value of that channel is then used to do
+an interpolating look-up in the ramp, and the resulting color is emitted. A ramp essentially maps a
+one-dimensional input value into the three-dimensional color space.
 <table id='m-f-ramp-type'>
  <title>Ramp Fragment Types</title>
  <tgroup cols='3'>
@@ -1174,7 +1314,7 @@ look-up in the ramp, and the resulting color is emitted.
    <row><entry><symbol>M_RAMP_LINEAR</symbol></entry><entry><literal>1</literal></entry>
     <entry>Interpolate linearly between neighboring ramp values.</entry></row>
    <row><entry><symbol>M_RAMP_SMOOTH</symbol></entry><entry><literal>2</literal></entry>
-    <entry>Interpolate bilinearly between ramp elements.</entry></row>
+    <entry>Interpolate bi-linearly between ramp elements.</entry></row>
   </tbody>
  </tgroup>
 </table>
@@ -1198,7 +1338,7 @@ look-up in the ramp, and the resulting color is emitted.
   <variablelist>
    <varlistentry>
     <term><type>enum</type> <varname>type</varname></term>
-    <listitem><para>The type of interpolation desired in this ramp. Must be either a value from
+    <listitem><para>The type of interpolation desired in this ramp. Must be a value from
 <xref linkend='m-f-ramp-type'/> above.</para></listitem>
    </varlistentry>
    <varlistentry>
@@ -1307,6 +1447,7 @@ can be used together to create various actual materials.
 <xref linkend="m-ex-plain-gray"/> shows a simple two-fragment material. This is about as simple as a material
 can become, since a lone <link linkend="m-f-output">output</link> fragment is of little use. The added
 <link linkend="m-f-color">color</link> fragment provides a constant medium-gray color for the entire surface.
+This material will not be very realistic, for example it will not react to incoming light at all.
 </para>
 <para>
 The output fragment does not specify a value for the <varname>back</varname> field; meaning it's single-sided
@@ -1335,7 +1476,7 @@ the bitmap itself.
 <title>Bitmap Coordinates</title>
 <para>
 In their most general form, Verse bitmaps are three-dimensional <quote>cubes</quote> of samples (often called
-<quote>pixels</quote>), with indepedent sizes in each of the three dimensions: width, height, and depth. They
+<quote>pixels</quote>), with independent sizes in each of the three dimensions: width, height, and depth. They
 can be restricted to only two or one dimension(s), which is frequently useful. Such a restriction is done by
 setting the size in the required dimension(s) to one, and must be done from the end of dimension list. So, a
 2D bitmap can only be created by setting the depth to one, not e.g. the height.
@@ -1438,7 +1579,8 @@ is at all required.
 </para>
 <para>
 Each tile is addressed using its tile coordinates in 2D, plus a Z coordinate that locates the tile in the
-third dimension if applicable. For a 2D bitmap, Z will always be zero.
+third dimension if applicable. For a 2D bitmap, Z will always be zero. Note that there is no tiling in the
+Z direction; a tile is a 2D flat 8x8 square, with depth=1.
 </para>
 </sect2>
 </sect1>
@@ -1477,7 +1619,7 @@ identifies the kind of Verse application programming interface used. This is bec
 defined for a single language, and interpreter clients need to determine if they should attempt to interpret a
 buffer or not. For instance, a file written in C and using the reference API might have a language string of
 <quote><literal>C/std</literal></quote>. Text in XML as used by the <quote>Purple</quote> plug-in scripting
-engine is given a langauge starting with <quote><literal>XML/purple</literal></quote>.
+engine is given a language starting with <quote><literal>XML/purple</literal></quote>.
 </para>
 </sect2>
 
@@ -1719,17 +1861,17 @@ numerical value in a PCM sequence; it is not used to refer to the whole sound.</
 </note>
 </para>
 <para>
-Verse audio is always monoaural, a single sound cannot be in stereo. This better mimics the properties
+Verse audio is always monaural, a single sound cannot be in stereo. This better mimics the properties
 of real-world audio sources, which are considered to be points in space from which audio is emitted. It
 is up to whatever software is used to <quote>render</quote>, i.e. play, the audio to create different
 versions for a human listener's left and right ears, if so desired.
 </para>
 <para>
 Audio, in both buffers and streams, is represented as uncompressed PCM (pulse-code modulation) data, meaning
-linear sequences of digitial values that represent the audio amplitude at some point in time. The two main
+linear sequences of digital values that represent the audio amplitude at some point in time. The two main
 parameters that control the quality of the sound then become the sampling frequency, i.e. how many such values
 exist per unit of time, and the sampling resolution, i.e. how many bits are used to represent the value. Verse
-supports arbitrary sampling frequences, and a six different sample formats of both fixed-point (integer) and
+supports arbitrary sampling frequencies, and a six different sample formats of both fixed-point (integer) and
 floating-point varieties.
 </para>
 <sect2>
@@ -1785,7 +1927,7 @@ corresponds to the layer type. Pad with zeroes towards the end to create silence
 </para>
 <para>
 The sampling frequency associated with audio data is specified using a 64-bit floating point number,
-and is expressed in Herz (Hz). So, for CD-quality audio, you would use a VN_A_BLOCK_INT16-type layer
+and is expressed in Hertz (Hz). So, for CD-quality audio, you would use a VN_A_BLOCK_INT16-type layer
 at a frequency of 44,100.0 Hz.
 </para>
 </sect2>
@@ -1892,9 +2034,11 @@ the state. The list below describes each of the states for common node data:
 <listitem>
 <para>
 The initial status, symbolized by the upper-most node labeled <quote>None</quote> is that the client knows
-nothing about the available nodes. By sending a <xref linkend='node_list'/> command, the client can request
-information about available nodes of a set of types (expressed as a mask, M). This request is a kind of
-subscription, too, as the host must remember the mask and act according to it until it is changed.
+nothing about the available nodes. By sending a <xref linkend='node_index_subscribe'/> command, the client can
+request information about available nodes of a set of types (expressed as a mask, M). This request is a kind of
+subscription, too, as the host must remember the mask and act according to it until it is changed. However, note
+that there is no corresponding unsubscribe command; instead use a different mask value to request that information
+no longer is sent.
 </para>
 </listitem>
 <listitem>
@@ -1994,7 +2138,16 @@ client to chose a desired precision for any floating-point numbers in the layers
 Once subscribed to a layer, the client receives the layer's contents and any changes done for as long as it is
 subscribed. Vertex data is delivered using ether <xref linkend='g_vertex_set_xyz_real32'/> or
 <xref linkend='g_vertex_set_xyz_real64'/> depending on the requested precision. Polygon data is delivered using
-one of the g_polygon_set commands, depending on the layer type.
+one of the g_polygon_set commands, depending on the layer type. The command names indicated in the lower ellipse
+in the graph above are simplified; they should be read as ending with the proper suffix depending on the type
+of the layer. For instance, for a VN_G_LAYER_VERTEX_REAL layer, the actual command in question is either
+<xref linkend='g_vertex_set_real32'/> or <xref linkend='g_vertex_set_real64'/> depending on the precision at
+which the client is operating.
+</para>
+<para>
+Any client that is subscribed to the base layers for vertices and polygons (layers 0 and 1, respectively) will
+also receive the g_vertex_delete and g_polygon_delete commands, when deletions occur. This distinction is not
+visualized in the above graph.
 </para>
 </sect2>
 
@@ -2254,8 +2407,8 @@ the array.
 </para>
 <para>
 For arrays of unions, it must be specified where the information needed to resolve which union member is present
-is stored, and if it is shared by all slots or not. This is unlike programming languges such as C and C++, where
-unions always occupy enough space to accomodate their largest possible member.
+is stored, and if it is shared by all slots or not. This is unlike programming languages such as C and C++, where
+unions always occupy enough space to accommodate their largest possible member.
 </para>
 </sect2>
 
@@ -2957,7 +3110,7 @@ relevant for each step):
   </para>
  </listitem>
  <listitem>
-  <para>Send initial list-command to learn about nodes on the host: <xref linkend='verse_send_node_list'/>.
+  <para>Send initial index subscription-command to learn about nodes on the host: <xref linkend='verse_send_node_index_subscribe'/>.
   </para>
  </listitem>
  <listitem>
@@ -3010,7 +3163,7 @@ a cached copy of that host's ID key, so that the connection can be verified to b
 If no such cached key is available, specify <symbol>NULL</symbol> here.
 </para>
 <para>
-This function returns a <type>VSession</type> value that represents the session created for the new connectioin,
+This function returns a <type>VSession</type> value that represents the session created for the new connection,
 or <symbol>NULL</symbol> on failure. The new session is also made the current one. Applications can switch between
 sessions by using the <xref linkend='verse_session_set'/>() function.
 </para>
@@ -3349,7 +3502,7 @@ microseconds and wait for something to arrive.
 with the other end of the Verse link; failure to do so will cause the other end's packet buffer to grow monotonically,
 which in turn might cause the connection to be terminated.</para></note>
 <para>This function really is <quote>the heart</quote> of Verse clients; any client programmer must figure out a way to get
-his/her client to regularly call this funtion, to keep the Verse traffic flowing as required.</para>
+his/her client to regularly call this function, to keep the Verse traffic flowing as required.</para>
 </refsect1>
 </refentry>
 
