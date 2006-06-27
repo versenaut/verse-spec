@@ -17,11 +17,11 @@ media:
 
 # Kludgy dist-builder.
 dist:
-		mkdir -p verse-spec && cp -r media/ *.html verse-spec && tar cz --exclude CVS --exclude Makefile --exclude "*.svg" --exclude "*.dot" --file verse-spec.tgz verse-spec && rm -r verse-spec
+		mkdir -p spec && cp -r media/ *.html spec && tar cz --exclude CVS --exclude Makefile --exclude "*.svg" --exclude "*.dot" --file verse-spec.tgz spec && rm -fr spec
 
 # Upload (publish) spec on the Blender project site where it lives. Requires password, of course.
 publish:	dist
-		scp verse-spec.tgz www.blender.org:www/ && ssh www.blender.org "cd www && rm -fr verse-spec && tar xzf verse-spec.tgz && rm verse-spec.tgz"
+		scp verse-spec.tgz www.blender.org:www/ && ssh www.blender.org "cd www && rm -fr spec && tar xzf verse-spec.tgz && rm verse-spec.tgz"
 
 # ---------------------------------------------------------
 
