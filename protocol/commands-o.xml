@@ -15,7 +15,7 @@
    <param mask="yes">
     <name>mask</name>
     <type>uint8</type>
-    <desc><para>A mask that indicates which of the following fields are actually present.</para></desc>
+    <desc><para>A mask that indicates which of the fields after 'pos' are actually present.</para></desc>
    </param>
    <param>
     <name>pos</name>
@@ -53,7 +53,8 @@ the number of commands per unit of time that need to be sent.
    <para>
     The mask parameter is a bit-mask that indicates which of the parameters below pos are actually present in
 the command, and helps keep the size of the command down if, for instance, an application works with absolute
-positions only. It is not possible to mask out the absolute value and specify e.g. acceleration only.
+positions only. It is not possible to mask out the absolute value and specify e.g. acceleration only. In a
+client callback, parameters that were not present in a command will be represented by NULL pointers.
    </para>
   </desc>
  </command>
@@ -71,7 +72,7 @@ positions only. It is not possible to mask out the absolute value and specify e.
    <param mask="yes">
     <name>mask</name>
     <type>uint8</type>
-    <desc><para>A mask that indicates which of the following fields are actually present.</para></desc>
+    <desc><para>A mask that indicates which of the fields after 'pos' are actually present.</para></desc>
    </param>
    <param masked="mask:0">
     <name>pos</name>
@@ -109,7 +110,8 @@ the number of commands per unit of time that need to be sent.
    <para>
     The mask parameter is a bit-mask that indicates which of the parameters below pos are actually present in
 the command, and helps keep the size of the command down if, for instance, an application works with absolute
-positions only. It is not possible to mask out the absolute value and specify e.g. acceleration only.
+positions only. It is not possible to mask out the absolute value and specify e.g. acceleration only. In a
+client callback, parameters that were not present in a command will be represented by NULL pointers.
    </para>
   </desc>
  </command>
@@ -127,7 +129,7 @@ positions only. It is not possible to mask out the absolute value and specify e.
    <param mask="yes">
     <name>mask</name>
     <type>uint8</type>
-    <desc><para>A mask that indicates which of the following fields are actually present.</para></desc>
+    <desc><para>A mask that indicates which of the fields after 'rot' are actually present.</para></desc>
    </param>
    <param>
     <name>rot</name>
@@ -160,6 +162,12 @@ positions only. It is not possible to mask out the absolute value and specify e.
 an array of four floating point numbers. It also provides parameters for specifying the rate of change (speed)
 in the rotation, and the rate of change in the change (acceleration). This allows rotations to be extrapolated
 which conserves network bandwidth.</para>
+   <para>
+    The mask parameter is a bit-mask that indicates which of the parameters below rot are actually present in
+the command, and helps keep the size of the command down if, for instance, an application works with absolute
+rotations only. It is not possible to mask out the absolute value and specify e.g. rotational acceleration only.
+In a client callback, parameters that were not present in a command will be represented by NULL pointers.
+   </para>
   </desc>
  </command>
 
@@ -176,7 +184,7 @@ which conserves network bandwidth.</para>
    <param mask="yes">
     <name>mask</name>
     <type>uint8</type>
-    <desc><para>A mask that indicates which of the following fields are actually present.</para></desc>
+    <desc><para>A mask that indicates which of the fields after 'rot' are actually present.</para></desc>
    </param>
    <param>
     <name>rot</name>
@@ -209,6 +217,12 @@ which conserves network bandwidth.</para>
 an array of four floating point numbers. It also provides parameters for specifying the rate of change (speed)
 in the rotation, and the rate of change in the change (acceleration). This allows rotations to be extrapolated
 which conserves network bandwidth.</para>
+   <para>
+    The mask parameter is a bit-mask that indicates which of the parameters below rot are actually present in
+the command, and helps keep the size of the command down if, for instance, an application works with absolute
+rotations only. It is not possible to mask out the absolute value and specify e.g. rotational acceleration only.
+In a client callback, parameters that were not present in a command will be represented by NULL pointers.
+   </para>
   </desc>
  </command>
 
@@ -380,7 +394,6 @@ mapping layer, since the mapping can be done using it instead.</desc>
   <desc>
    <para>This command sets (or un-sets) a link from one node, the one the command is sent to,
 to another node.</para>
-<para>To remove a link, specify a link target node of 0.</para>
   </desc>
  </command>
 
@@ -552,30 +565,35 @@ information from the method_create command.</para>
     <desc>Fractions part of timestamp when animation playback is to begin.</desc>
    </param>
    <param>
+    <name>dimensions</name>
+    <type>uint8</type>
+    <desc>The number of dimensions of the target curve.</desc>
+   </param>
+   <param>
     <name>pos</name>
-    <type>real64</type>
-    <desc>Position in curve where playback is to start.</desc>
+    <type array-length="dimensions">real64</type>
+    <desc>Position in curve(s) where playback is to start.</desc>
    </param>
    <param>
     <name>speed</name>
-    <type>real64</type>
-    <desc>Initial playback speed, in units per second.</desc>
+    <type array-length="dimensions">real64</type>
+    <desc>Initial playback speed(s), in units per second.</desc>
    </param>
    <param>
     <name>accel</name>
-    <type>real64</type>
-    <desc>Acceleration of playback speed, in units per second squared.</desc>
+    <type array-length="dimensions">real64</type>
+    <desc>Acceleration(s) of playback speed(s), in units per second squared.</desc>
    </param>
    <param>
     <name>scale</name>
-    <type>real64</type>
-    <desc>Scaling of incoming curves, allows animations to be replayed at different levels of influence
+    <type array-length="dimensions">real64</type>
+    <desc>Scaling(s) of incoming curves, allows animations to be replayed at different levels of influence
 with the same source data. A dimensionless scalar, use 1.0 to not do any scaling.</desc>
    </param>
    <param>
     <name>scale_speed</name>
-    <type>real64</type>
-    <desc>Change of scale of curve, in units per second. Use 0.0 for a constant influence.</desc>
+    <type array-length="dimensions">real64</type>
+    <desc>Change of scale(s) of curve(s), in units per second. Use 0.0 for a constant influence.</desc>
    </param>
   </params>
   <desc>
@@ -597,6 +615,10 @@ future, in which case a receving client should probably enqueue the command for 
 time has reached the indicated starting time.
 </para>
 <para>
+The command specifies the number of dimensions of the animation to be run, and the following parameters
+are all vectors, with one value for each dimension.
+</para>
+<para>
 The next three parameters control where in the animation curve playback is to begin, and how the position
 moves through the curve with time.
 </para>
@@ -605,6 +627,38 @@ The last two parameters allow the specification of an influence scale factor, an
 This can be used to do soft start of an animation, by specifying an initial scale below 1.0, and then
 having it increase over time.
 </para>
+  </desc>
+ </command>
+
+ <command id="46">
+  <meta>
+   <name>hide</name>
+   <purpose>Set hidden/shown status of object.</purpose>
+  </meta>
+  <params>
+   <address>
+    &nodeid;
+   </address>
+   <param>
+    <name>hidden</name>
+    <type>boolean</type>
+    <desc>Sets whether or not the object is hidden.</desc>
+   </param>
+  </params>
+  <desc>
+   <para>
+    This command can be used to hide object nodes. An object that is hidden should not be rendered
+    in the world. Of course, clients that are not attempting to show a realistic/immersive view of
+    the world can still make the node accessible for editing and so on.
+   </para>
+   <para>
+    One intended use for hidden objects is to allow efficient rapid creation of complex objects.
+    Consider a game scenario, where a player wants to launch a rocket for instance. If the rocket
+    is represented as its own object node (with associated geometry and material(s), of course),
+    creating it at the press of the fire button would be problematic. With a hidden object created
+    in advance, it is enough to simply move the node to the proper location and un-hide it, which
+    requires no network roundtrips.
+   </para>
   </desc>
  </command>
 
