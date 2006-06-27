@@ -88,7 +88,7 @@ the name to the new name. The server will respond with the result on success.</p
   <params>
    <address>
     &nodeid;
-    &bufferid;
+    &bufferidalias;
    </address>
   </params>
   <alias add-field="yes">
