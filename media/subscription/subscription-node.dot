@@ -3,23 +3,24 @@
 */
 
 digraph subscription {
+	nodesep=.5;
 	node [label="\N", shape="ellipse", fontsize="11", center];
 	edge [fontsize="10"];
 
 	graph [bb="0,0,256,256"];
-	root -> nodes [label="node_list(M)"];
-	nodes -> root [label="node_list(~M)"];
+	root -> nodes [label="node_index_\\\nsubscribe(M)"];
+	nodes -> root [label="node_index_subscribe(~M)", weight=2];
 
 	root [label="none"]
 	nodes [label="node_create\nnode_destroy"];
 
 	nodes -> anode [label="node_subscribe()"];
-	anode -> nodes [label="node_unsubscribe()"];
+	anode -> nodes [label="node_unsubscribe()", weight=2];
 
 	anode [peripheries="2", label="node_name_set\ntag_group_create\ntag_group_destroy"];
 
 	anode -> tgroup [label="tag_group_subscribe()"];
-	tgroup -> anode [label="tag_group_unsubscribe()"];
+	tgroup -> anode [label="tag_group_unsubscribe()", weight=2];
 
 	tgroup [label="tag_create\ntag_destroy"];
 }
