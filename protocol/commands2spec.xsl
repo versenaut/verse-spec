@@ -212,7 +212,8 @@ is encoded as one (TRUE) to indicate
 
  <xsl:template match="type">
   <xsl:variable name="typename"><xsl:value-of select="."/></xsl:variable>
-  <link linkend="type-{$typename}">
+  <link>
+  <xsl:attribute name="linkend">type-<xsl:value-of select="$typename"/></xsl:attribute>
    <type>
     <xsl:value-of select="$typename"/>
    </type>

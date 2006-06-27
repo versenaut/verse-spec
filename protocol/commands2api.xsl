@@ -117,10 +117,10 @@ the <xref linkend='verse_callback_set'/> function to register a callback for han
    <xsl:when test="type='string16'">const char *</xsl:when>
    <xsl:when test="type='string500'">const char *</xsl:when>
    <xsl:when test="$typesDoc/types/typegroup/structtype[@name=$typename]">
-    const <link linkend='type-{$typename}'><xsl:value-of select="$typename"/></link> *
+    const <link><xsl:attribute name="linkend">type-<xsl:value-of select="$typename"/></xsl:attribute><xsl:value-of select="$typename"/></link> *
    </xsl:when>
    <xsl:otherwise>
-     <link linkend='type-{$typename}'><xsl:value-of select="type"/></link><xsl:text> </xsl:text>
+     <link><xsl:attribute name="linkend">type-<xsl:value-of select="$typename"/></xsl:attribute><xsl:value-of select="type"/></link><xsl:text> </xsl:text>
    </xsl:otherwise>
   </xsl:choose>
   <!-- Emit array postlude ("*"). -->
