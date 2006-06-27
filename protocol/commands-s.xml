@@ -150,8 +150,8 @@ programmer.</para>
 
  <command id="9">
   <meta>
-   <name>node_list</name>
-   <purpose>Request information about existing nodes.</purpose>
+   <name>node_index_subscribe</name>
+   <purpose>Request continuous updates about existing nodes.</purpose>
   </meta>
   <params>
    <address>
@@ -164,10 +164,14 @@ programmer.</para>
   </params>
   <desc>
    <para>Requests that the host informs the client about existing nodes of a given set of types.</para>
-<para>The request is "sticky"; the host will remember the mask, and keep sending node create/destroy commands
-to the client until it disconnects or changes the mask.</para>
+<para>The request is "sticky" like a subscription; the host will remember the mask, and keep sending node
+create/destroy commands to the client until it disconnects or changes the mask.</para>
 <para>This is the standard way for a client to learn about the contents of a host, and a very common
 first command to send over a new connection.</para>
+<para>
+Note that although this command name includes the word "subscribe", there is no corresponding "unsubscribe"
+command. Instead, use a different mask to stop subscribing to information about a given node type.
+</para>
   </desc>
  </command>
 
