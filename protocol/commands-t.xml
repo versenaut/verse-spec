@@ -148,6 +148,19 @@ the buffer will grow.
    <para>text_set(pos=8 length=0 text="really ") on the buffer "this is a test" would result in
 "this is really a test".
    </para>
+   <para>
+This command is different from most other Verse commands, in that it is not indempotent. This
+means that the order in which t_text_set commands are interpreted is significant; if two
+commands are sent from host to client, the client must interpret them in the proper order,
+or the end result might be incorrect. This ordering requirement is transparently handled by
+the Verse network layer.
+   </para>
+   <para>
+If network packets containing t_text_set commands are lost or delivered
+out-of-order by the network between sender and receiver, the receiver must wait until it has
+the proper sequence of commands. For this reason, text commands might suffer from more latency
+than other forms of Verse data.
+   </para>
   </desc>
  </command>
 </commands>
