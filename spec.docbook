@@ -19,17 +19,15 @@
  <subtitle>A platform for sharing 3D data</subtitle>
  <author><firstname>Emil</firstname>  <surname>Brink</surname></author>
  <author><firstname>Eskil</firstname> <surname>Steenberg</surname></author>
- <copyright><year>2004-2005</year><holder>PDC, KTH</holder></copyright>
+ <copyright><year>2004-2006</year><holder>PDC, KTH</holder></copyright>
 
- <legalnotice>
+ <!-- We mis-use the abstract (apologies) mildly, to contain the version symbol. -->
+ <abstract>
   <para>
-   Permission is granted to copy, distribute and/or modify this document
-   under the terms of the GNU Free Documentation License, Version 1.2
-   with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
-   A copy of the license is included in the section entitled
-   <link linkend='gfdl'>GNU Free Documentation License</link>.
+   This document describes version R6 of the Verse platform. The description
+   covers the data model, the protocol, and the client API.
   </para>
- </legalnotice>
+ </abstract>
 
  <!-- For reasons unknown, this log isn't actually rendered in the final HTML. -->
  <revhistory>
@@ -40,6 +38,16 @@
    <revremark>Updated for Verse R6 release.</revremark>
   </revision>
  </revhistory>
+
+ <legalnotice>
+  <para>
+   Permission is granted to copy, distribute and/or modify this document
+   under the terms of the GNU Free Documentation License, Version 1.2
+   with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+   A copy of the license is included in the section entitled
+   <link linkend='gfdl'>GNU Free Documentation License</link>.
+  </para>
+ </legalnotice>
 </bookinfo>
 
 <preface id='preface'>
@@ -487,6 +495,15 @@ in nature.
 Once created, method calls can be emitted by any client and any client is free to respond to a method being
 called. This mechanism allows clients to create representations of their interfaces inside the world held on
 the host.
+</para>
+</sect2>
+<sect2 id="o-animations">
+<title>Animation</title>
+<para>
+Object nodes can be animated. Animation is expressed in the data model by creating <link linkend='geometry-bones'>
+bones</link> in the object's <link linkend='n-geometry'>geometry node</link>, and also one or more
+<link linkend='n-curve'>curve nodes</link>. Once the data is in place, you can instruct the object node
+to <link linkend='o_anim_run'>run</link> the animation.
 </para>
 </sect2>
 <sect2 id="o-hide">
@@ -1083,7 +1100,9 @@ fall-off describes the micro-geometry just as in the <link linkend="m-f-light">l
  <entry>View</entry>
  <entry align="left">
   <anchor id="m-f-view"/><para>This fragment simply generates a vector pointing from the point at the surface,
-directly towards the viewing position.</para>
+directly towards the viewing position. It can be thought of as the surface's normal, transformed by the view
+matrix. For a point on the surface facing straight towards the camera, it will be (0, 0, 1). For a face
+facing to the left, it will be (1, 0, 0), and so on.</para>
 <para>
 The fragment itself is empty, i.e. it has no parameters.
 </para>
@@ -1237,7 +1256,7 @@ input), and blends them using a function chosen from the following list:
    </varlistentry>
    <varlistentry>
     <term><type>fragment</type> <varname>control</varname></term>
-    <listitem><para>The <quote>control</quote> data needed for some of the functions.</para></listitem>
+    <listitem><para>The <quote>control</quote> data needed for the <literal>M_BLEND_FADE</literal> mode.</para></listitem>
    </varlistentry>
   </variablelist>
  </entry>
@@ -1246,14 +1265,22 @@ input), and blends them using a function chosen from the following list:
 <row>
  <entry>Clamp</entry>
  <entry align="left">
-  <anchor id="m-f-clamp"/><para>The clamp fragment limits its input value, either by ensuring that it is
-lower than a set maximum, or higher than a set minimum. It is useful for instance to eliminate negative
-numbers from blending equations.</para>
+  <anchor id="m-f-clamp"/><para>The clamp fragment limits its input value, by computing the <literal>min()</literal>
+or <literal>max()</literal> function on the input and a constant. It is useful for instance to eliminate negative
+numbers from blending equations. The function is computed separately for each of the three channels.</para>
+<note>
+<para>
+It is easy to confuse oneself when thinking about the clamp fragment. It helps to just keep in mind that it
+computes the standard <literal>min()</literal> or <literal>max()</literal> function, and nothing else. For instance,
+to make sure an input is kept to at <emphasis>most</emphasis> (0.5, 0.5, 0.5), set the clamp's <literal>min</literal>
+value to <literal>true</literal>, thus computing the <literal>min()</literal> function, which has the desired result.
+</para>
+</note>
  <variablelist>
   <varlistentry>
    <term><type>boolean</type> <varname>min</varname></term>
-   <listitem><para>Selects whether the clamping is to be done against a minimum (when true) or a maximum
-(when false).</para></listitem>
+   <listitem><para>If <literal>true</literal>, the fragment computes the <literal>min()</literal> function,
+else it computes <literal>max()</literal>.</para></listitem>
   </varlistentry>
   <varlistentry>
    <term><type>real64</type> <varname>red</varname></term>
@@ -1479,7 +1506,7 @@ In their most general form, Verse bitmaps are three-dimensional <quote>cubes</qu
 <quote>pixels</quote>), with independent sizes in each of the three dimensions: width, height, and depth. They
 can be restricted to only two or one dimension(s), which is frequently useful. Such a restriction is done by
 setting the size in the required dimension(s) to one, and must be done from the end of dimension list. So, a
-2D bitmap can only be created by setting the depth to one, not e.g. the height.
+2D bitmap can only be created by setting the <emphasis>depth</emphasis> to one, not e.g. the height.
 </para>
 <para>
 <figure id="b-ex-coords">
@@ -1571,16 +1598,16 @@ a small flat (two-dimensional) square of pixels in the XY plane of a bitmap laye
 8x8 pixels. Tiles make bulk transfer of bitmap data in a network more efficient, by reducing addressing overhead.
 </para>
 <para>
-Each layer is split into tiles by simply dividing it into 8x8 squares, beginning in the top left corner. This
-creates a <quote>tile coordinate system</quote>. If the bitmap's dimensions are not integer multiples of the
+Each layer is split into tiles by simply dividing it into squares of 8x8 pixels, beginning in the top left corner.
+This creates a <quote>tile coordinate system</quote>. If the bitmap's dimensions are not integer multiples of the
 tile side length, eight, there will be tiles with only partial coverage of the bitmap. Any pixels in a tile
-that fall outside of the bitmap itself will not be stored and should transmitted as zeroes when transmission
-is at all required.
+that fall outside of the bitmap itself will not be stored by the host, and should transmitted as zeroes when
+transmission is at all required. Applications should not read them.
 </para>
 <para>
 Each tile is addressed using its tile coordinates in 2D, plus a Z coordinate that locates the tile in the
 third dimension if applicable. For a 2D bitmap, Z will always be zero. Note that there is no tiling in the
-Z direction; a tile is a 2D flat 8x8 square, with depth=1.
+Z direction; a tile is a 2D flat 8x8-pixel square, with depth=1.
 </para>
 </sect2>
 </sect1>
@@ -1610,8 +1637,8 @@ access Verse by sending and receiving node commands, but need not mimic the refe
 </para>
 <para>
 The language name <quote><literal>text</literal></quote> is reserved for text in natural languages. To specify a
-single language, use a slash followed by an ISO 639:1988 standard code. Text in English would then be
-<quote><literal>text/en</literal></quote>.
+single language, use a slash followed by an <ulink url="http://ftp.ics.uci.edu/pub/ietf/http/related/iso639.txt">ISO 639:1988</ulink>
+standard code. Text in English would then be <quote><literal>text/en</literal></quote>.
 </para>
 <para>
 For programming language names, it is advised that the name is chosen to include a version number and a part that
@@ -2268,7 +2295,7 @@ command, respectively. If subscribed to a buffer, a client will receive any data
 <para>
 As with any node that has multiple subscribable entities, it is important to realize that a client can be in both
 the bottom left and bottom right states at the same time, by simply subscribing to both one or more buffers and to
-one or more streams. The <quote>states</quote> are not mutually exclusive.
+one or more streams. The <quote>states</quote> are not mutually exclusive, here.
 </para>
 </sect2>
 
