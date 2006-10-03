@@ -47,6 +47,7 @@
  </xsl:template>
 
  <xsl:template match="commands/desc/para">
+  <xsl:message>processing desc/para</xsl:message>
   <para>
    <xsl:apply-templates/>
   </para>
@@ -116,7 +117,7 @@
        <xsl:variable name="alink"><xsl:value-of select="../../@prefix"/><xsl:if test="../../@prefix">_</xsl:if><xsl:value-of select="following-sibling::alias/meta/name"/></xsl:variable>
        <row>
         <entry><link linkend="type-uint8"><type>uint8</type></link></entry>
-        <entry><varname>alias</varname> = <literal>0</literal></entry>
+        <entry><varname>alias</varname> = <literal>1</literal></entry>
         <entry>If this field is zero (<literal>FALSE</literal>), <emphasis>aliasing</emphasis> is activated, and
 the command should be interpreted as a <link linkend="{$alink}"><xsl:value-of select="$alink"/></link> instead. It
 is encoded as one (TRUE) to indicate
@@ -230,6 +231,19 @@ is encoded as one (TRUE) to indicate
   </refsect1>
  </xsl:template>
 
+ <xsl:template match="*/desc/para">
+  <para>
+   hello
+  </para>
+ </xsl:template>
+
+ <xsl:template match="*/ulink">
+  <xsl:message>hello</xsl:message>
+  <ulink>
+   <xsl:attribute name="url"><xsl:value-of select="@url"/></xsl:attribute>
+  </ulink>
+ </xsl:template>
+
  <xsl:template match="boilerplate">
   <xsl:if test="@context='subscribe'">
    <xsl:variable name="article">
@@ -276,6 +290,9 @@ of said <xsl:value-of select="@what"/> change. If denied, nothing happens.
      <xsl:when test="self::link">
       <xsl:call-template name="do-link"/>
      </xsl:when>
+     <xsl:when test="self::ulink">
+      <xsl:call-template name="do-ulink"/>
+     </xsl:when>
      <xsl:otherwise>
       <xsl:value-of select="."/>
      </xsl:otherwise>
@@ -284,8 +301,17 @@ of said <xsl:value-of select="@what"/> change. If denied, nothing happens.
   </para>
  </xsl:template>
 
+ <!-- Use <link> to link internally in the document. -->
  <xsl:template name="do-link">
   <link linkend="{@target}"><xsl:value-of select="text()"/></link>
+ </xsl:template>
+
+ <!-- Use <ulink> to link by URL. -->
+ <xsl:template name="do-ulink">
+  <ulink>
+   <xsl:attribute name="url"><xsl:value-of select="@url"/></xsl:attribute>
+   <xsl:apply-templates/>
+  </ulink>
  </xsl:template>
 
  <!-- Helper template for boilerplate generation. -->
@@ -356,7 +382,7 @@ To identify it as an alias, certain fields are given specific values, see below.
         <xsl:if test="@add-field='yes'">
          <row>
           <entry><link linkend="type-uint8"><type>uint8</type></link></entry>
-          <entry><varname>alias</varname> = <literal>1</literal></entry>
+          <entry><varname>alias</varname> = <literal>0</literal></entry>
           <entry>A boolean that indicates that this command is, in fact, an alias.</entry>
          </row>
         </xsl:if>
