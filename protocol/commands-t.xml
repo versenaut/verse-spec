@@ -16,7 +16,7 @@
 <commands node="text" prefix="t">
  <command id="96">
   <meta>
-   <name>set_language</name>
+   <name>language_set</name>
    <purpose>Set the langauge descriptor for a text node.</purpose>
   </meta>
   <params>
@@ -39,7 +39,7 @@ this is a per-node value and not per-buffer.</para>
  <command id="97">
   <meta>
    <name>buffer_create</name>
-   <purpose>Create a new text buffer or rename an existing.</purpose>
+   <purpose>Create a new text buffer, or rename an existing.</purpose>
   </meta>
   <params>
    <address>
