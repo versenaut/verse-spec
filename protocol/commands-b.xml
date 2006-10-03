@@ -54,7 +54,7 @@ bitmap to be zero as well. The minimum value for a size is thus 1.</para>
  <command id="81">
   <meta>
    <name>layer_create</name>
-   <purpose>Create a new bitmap data layer.</purpose>
+   <purpose>Create a new bitmap data layer, or change an existing.</purpose>
   </meta>
   <params>
    <address>
@@ -92,6 +92,10 @@ alias.</para>
 provided by the bitmap node; all bitmap data is stored in layers. Each layer has the exact
 dimensions of the node as a whole; for 3D bitmap nodes this means that each layer is a full
 three-dimensional array of pixels.</para>
+   <para>
+If the layer already exists, its parameters (name and type) are changed to the new ones provided
+in the command. Changing the type of a bitmap layer resets its data to all zeros.
+   </para>
   </desc>
  </command>
 

@@ -17,7 +17,7 @@
  <command id="128">
   <meta>
    <name>curve_create</name>
-   <purpose>Create a new curve.</purpose>
+   <purpose>Create a new curve, or change an existing.</purpose>
   </meta>
   <params>
    <address>
@@ -58,7 +58,8 @@ keys belonging to the same curve must be defined with a matching number of dimen
    </desc>
   </alias>
   <desc>
-   <para>This command is used to create a new curve, or to rename an existing one.</para>
+   <para>This command is used to create a new curve, or to rename an existing one (by addressing it with a known ID).
+To create a new curve, a curve_id of ~0 can be used.</para>
   </desc>
  </command>
 
