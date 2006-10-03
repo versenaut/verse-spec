@@ -208,9 +208,9 @@ communications protocol.
 <title>Time</title>
 <para>
 Many operations in Verse are independent of time, they happen <emphasis>now</emphasis>, which is as soon as
-the data arrives at is assumed to be valid. Some operations, however, do not make sense without a concept of
-time. As we'll see later, it is possible for a client to read out the current time, and receive a value
-which is (more or less) in sync with the host's idea of what time it is.
+the data arrives, it is assumed to be valid immediately upon receipt. Some operations, however, do not make
+sense without a concept of time. As we'll see later, it is possible for a client to read out the current time,
+and receive a value which is (more or less) in sync with the host's idea of what time it is.
 </para>
 <para>
 Time counted in seconds, with a precision of 64 bits. Of these, 32 bits are the number of seconds since some
@@ -242,8 +242,24 @@ makes it easy to deal data in this fashion.
 </para>
 <para>
 <emphasis>All</emphasis> data made available by a Verse host can be accessed through subscription in one way
-or another, and being a subscriber is generally required before data can be read or written easily.
+or another, and being a subscriber is generally required before data can be read or written easily. This is
+because being a subcriber ensures that the client has full access to whatever addressing information is used
+for the data in question.
 </para>
+<note>
+<para>
+It is not the intent of the subscription system to serve as a security device, to
+limit access to data to those clients that are subscribed. For instance, it is perfectly legal to create a
+new <link linkend='n-geometry'>geometry node</link>, and then immediately send vertex and polygon data to the
+known layers <literal>0</literal> and <literal>1</literal>. Because these layers are known to exist in all
+geometry nodes, it is not even necessary to subscribe to the <emphasis>node</emphasis>, much less the layers.
+</para>
+<para>
+The main purpose of the subscription-oriented data access architecture is to limit the bandwidth used by a
+client, by permitting a client to tell a host which data it is interested in, and thus which data it needs
+to download and receive updates to.
+</para>
+</note>
 <para>
 There is no data that cannot be changed at any time during a session, which helps make the system very dynamic.
 </para>
@@ -2795,7 +2811,7 @@ host; in practice the default port is only used for the initial connection-estab
 <sect2>
 <title>Packets</title>
 <para>
-Packets are built by simply encoding commands, end-to-end, and pre-pending a 16-bit header. There is no padding
+Packets are built by simply encoding commands, end-to-end, and pre-pending a 32-bit header. There is no padding
 between commands, and also no information in the header about which commands are contained in the packet. Since
 commands do not have much of a header either, specifically they do not have a length indicator, to decode a packet
 it is necessary to decode and interpret each command sequentially until the end of the packet is reached.
@@ -2922,6 +2938,92 @@ While most commands are order-independent and idempotent, some commands can not 
 there is a special transmission mode called <quote>ordered</quote>. Ordered commands must be delivered
 to the receiving application in the order sent. This introduces latency, but is the only acceptable way
 to deal with certain kinds of data.
+</para>
+</sect3>
+
+<sect3>
+<title><quote>Create</quote> versus <quote>Set</quote></title>
+<para>
+One area of interest is the distinction between commands that <emphasis>create</emphasis> something,
+and those that merely <emphasis>set</emphasis> something. This distinction is not very clear-cut, and
+the command naming is in some cases historical or traditional.
+</para>
+<para>
+In general, commands have <link linkend='cmd-addressing'>addresses</link>. It might make sense to just
+look at the address when classifying (if such classification is even necessary) a command as a create
+or a set:
+<itemizedlist>
+<listitem>
+<para>If the address points to something that is unknown, it is a request to create a new instance
+of whatever type is relevant.
+</para>
+</listitem>
+<listitem>
+<para>
+If, on the other hand, the addressed item exists, it should be re-set
+according to the rest of the parameters in the command.
+</para>
+</listitem>
+</itemizedlist>
+In addition, the address value <quote>all bits one</quote> is often reserved to always mean <quote>create
+something new</quote>. However, it is not required that a client use this special address every time it
+wants to create a new instance of something; it is fine to pick its own ID, which should be as close to
+the previously last-known used one as possible, and ask the server to use that.
+</para>
+
+<para>
+There are some specific cases where it might be valuable with some discussion about why the commands
+have been named the way they have:
+<variablelist>
+<varlistentry><term><xref linkend='b_tile_set'/></term>
+<listitem>
+<para>
+This is perhaps one of the more clear-cut command names. It is not possible to create an individual
+bitmap tile; all tiles are implicitly <quote>created</quote> as soon as the bitmap's dimensions are
+set (using <xref linkend='b_dimensions_set'/>).
+</para>
+</listitem>
+</varlistentry>
+
+<varlistentry><term><xref linkend='o_light_set'/></term>
+<listitem>
+<para>
+Again, this is fairly clear-cut. There is no addressing involved; each object node has exactly one
+<quote>slot</quote> that can be used to store light values, and this command always sets precisely
+those values.
+</para>
+</listitem>
+</varlistentry>
+
+<varlistentry><term><xref linkend='g_vertex_set_xyz_real32'/>, <xref linkend='g_polygon_set_corner_uint32'/>, ...</term>
+<listitem>
+<para>
+These commands (all the g_vertex_set_ and g_polygon_set variants) are perhaps a bit dubious, as they obviously
+can both create and change (set) the value of a vertex (or polygon) definition. One possible way to justify the
+naming is that individual vertices and polygons are not subscribable objects, they are lower-level,
+<quote>second class citizens</quote> if you will. Often, the naming leans towards setting un-subscribable
+objects with <quote>set</quote>, while the higher-level, subscribable, entities are set using a
+<quote>create</quote>-command.
+</para>
+<para>
+Another aspect with the geometry data is that is really meant to be stored in an array, with the <quote>id</quote>
+of a vertex (or polygon) being simply its index in that array. This makes it simpler, and thus less worthy of a
+<quote>create</quote> command, perhaps.
+</para>
+</listitem>
+</varlistentry>
+
+<varlistentry><term><xref linkend='g_bone_create'/></term>
+<listitem>
+<para>
+This command, perhaps, is the exception that proves the rule given above. Bones are not subscribable
+entities, yet they are created (or modified) by a command named <quote>create</quote>. One explanation
+here might be that bones contain references to each other, for hierarchy, so the numerical identifiers
+used to address them have slightly more significance than the plain indexes used with vertex and polygon data.
+</para>
+</listitem>
+</varlistentry>
+</variablelist>
 </para>
 </sect3>
 
@@ -3493,8 +3595,31 @@ itself does not use or interpret it in any way.
 </para>
 </refsect1>
 <refsect1><title>Callback Prototypes</title>
-<para>Given a command-sending function X, the proper callback function has the exact same prototype but with a
-single <type>void *</type> <varname>user_pointer</varname> prepended.
+<para>Given a command-sending function, the proper callback function has the exact same prototype, with a
+single <type>void *</type> <varname>user_pointer</varname> prepended. So, take for instance the
+<xref linkend='verse_send_tag_group_create'/> function. It has the following prototype:
+<funcsynopsis>
+ <funcprototype>
+  <funcdef>void <function>verse_send_tag_group_create</function></funcdef>
+  <paramdef>VNodeID <parameter>node_id</parameter></paramdef>
+  <paramdef>uint16 <parameter>group_id</parameter></paramdef>
+  <paramdef>const char * <parameter>name</parameter></paramdef>
+ </funcprototype>
+</funcsynopsis>
+Prepending a single <type>void *</type> <varname>user_pointer</varname> argument, we get the following prototype
+for the callback:
+<funcsynopsis>
+ <funcprototype>
+  <funcdef>void <function>cb_tag_group_create</function></funcdef>
+  <paramdef>void *<parameter>user_pointer</parameter></paramdef>
+  <paramdef>VNodeID <parameter>node_id</parameter></paramdef>
+  <paramdef>uint16 <parameter>group_id</parameter></paramdef>
+  <paramdef>const char * <parameter>name</parameter></paramdef>
+ </funcprototype>
+</funcsynopsis>
+This example also shows how the callback for a given command sending function can be named by replacing the
+<function>verse_send</function> prefix with <function>cb</function>, for <quote>callback</quote>. You are, of
+course, free to develop your own practice for how to name the callback functions you write.
 </para>
 <para>
 Because of the way the API is defined, with a single entry point (this one) that accepts values of a weak type, it is
@@ -3530,6 +3655,12 @@ with the other end of the Verse link; failure to do so will cause the other end'
 which in turn might cause the connection to be terminated.</para></note>
 <para>This function really is <quote>the heart</quote> of Verse clients; any client programmer must figure out a way to get
 his/her client to regularly call this function, to keep the Verse traffic flowing as required.</para>
+<para>
+Any callbacks registered using <xref linkend='verse_callback_set'/> can be called as a result of calling this function,
+if the corresponding Verse event has happened. Execution of this function is the <emphasis>only</emphasis> time during
+which callbacks can be called. This means that a client program can rely on the fact that calling some other Verse API
+function, such as any command-sending function, is guaranteed to <emphasis>not</emphasis> cause a callback to be invoked.
+</para>
 </refsect1>
 </refentry>
 
