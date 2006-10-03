@@ -351,7 +351,7 @@ the values are all zero, meaning the object does not emit light.</para>
  <command id="40">
   <meta>
    <name>link_set</name>
-   <purpose>Create link from an object to another node.</purpose>
+   <purpose>Create a new link from an object to another node, or change an existing.</purpose>
   </meta>
   <params>
    <address>
@@ -359,7 +359,9 @@ the values are all zero, meaning the object does not emit light.</para>
     <param>
      <name>link_id</name>
      <type>uint16</type>
-     <desc>The ID of the link.</desc>
+     <desc>The ID of the link. If the ID is previously known, that link is being re-defined
+           using the new parameters present in the command.
+     </desc>
     </param>
    </address>
    <param>
@@ -375,9 +377,9 @@ the values are all zero, meaning the object does not emit light.</para>
    <param>
     <name>target_id</name>
     <type>uint32</type>
-    <desc>Sub-identifier, used for link-specific purposes. One intended use is to
+    <desc>Sub-identifier, used for link-specific purposes. One intended use is
 when a single object uses several materials; the object node then needs to link to
-more than one material node, and use a mapping geometry layer to indicate which
+more than one material node, and uses a mapping geometry layer to indicate which
 material goes where. This field prevents having to use absolute node IDs in the
 mapping layer, since the mapping can be done using it instead.</desc>
    </param>
@@ -393,7 +395,9 @@ mapping layer, since the mapping can be done using it instead.</desc>
   </alias>
   <desc>
    <para>This command sets (or un-sets) a link from one node, the one the command is sent to,
-to another node.</para>
+to another node. It can be used to either create a new link, if the link_id is unknown, or
+re-set e.g. the label (or any other parameter) of an existing link by specifying a known link_id.
+   </para>
   </desc>
  </command>
 
