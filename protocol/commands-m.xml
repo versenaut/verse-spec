@@ -5,7 +5,7 @@
  <command id="68">
   <meta>
    <name>fragment_create</name>
-   <purpose>Create a new material fragment.</purpose>
+   <purpose>Create a new material fragment, or change an existing.</purpose>
   </meta>
   <params>
    &nodeid;
@@ -34,8 +34,8 @@ they will be left unconnected by the successful execution of this command.</para
   <desc>
    <para>
     This command creates, or edits in place, a material node fragment. Fragments are used to express
-    high-level properties of the desired material, and act kind of like a programming language for
-    this special purpose.
+    high-level properties of the desired material, and act kind of like a node-based programming language
+    for this special purpose.
    </para>
   </desc>
  </command>
