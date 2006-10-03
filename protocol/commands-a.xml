@@ -12,7 +12,7 @@
  <command id="160">
   <meta>
    <name>buffer_create</name>
-   <purpose>Create a new audio buffer (a container where audio can be stored and edited).</purpose>
+   <purpose>Create a new audio buffer (a container where audio can be stored and edited), or change an existing.</purpose>
   </meta>
   <params>
    <address>
