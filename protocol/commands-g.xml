@@ -6,7 +6,7 @@
  <command id="48">
   <meta>
    <name>layer_create</name>
-   <purpose>Create a new geometry data layer.</purpose>
+   <purpose>Create a new geometry data layer, or change an existing.</purpose>
   </meta>
   <params>
    <address>
@@ -43,8 +43,9 @@ created slot.</desc>
   <desc>
    <para>This command is used to create new, or rename existing geometry layers. To create a new layer,
 set the ID to ~0 and the name to the desired name. To rename an existing layer, set the ID to the layer's
-ID and the name to the new desired name. The server will respond with the result on success.
-</para><para>Almost all geometry nodes will have at least two layers; layers 0 and 1, that are the base layers for
+ID and the name to the new desired name. The type of a layer can also be changed, in the same manner.
+The server will respond with the result on success.</para>
+<para>Almost all geometry nodes will have at least two layers; layers 0 and 1, that are the base layers for
 vertex and polygon data, respectively. They are created by the server when the node is created.
    </para>
   </desc>
@@ -612,7 +613,7 @@ crease values should be the same, without creating a rather redundant layer sayi
  <command id="64">
   <meta>
    <name>bone_create</name>
-   <purpose>Create a bone, for skeleton animation purposes.</purpose>
+   <purpose>Create a bone for skeleton animation purposes, or change an existing.</purpose>
   </meta>
   <params>
    <address>
@@ -664,26 +665,26 @@ are used to control the influence of this bone on each of the vertices of the no
     <desc>The Z component of the bone's position.</desc>
    </param>
    <param>
-    <name>pos_label</name>
+    <name>position_label</name>
     <type>string16</type>
     <desc>Curve to use when animating this bone's position. Can be empty for no animation.</desc>
    </param>
    <param>
-    <name>rot</name>
-    <type>VNQuat64</type>
-    <desc>The rotation of the bone.</desc>
-   </param>
-   <param>
-    <name>rot_label</name>
+    <name>rotation_label</name>
     <type>string16</type>
     <desc>Curve to use when animating this bone's rotation. Can be empty for no animation.</desc>
+   </param>
+   <param>
+    <name>scale_label</name>
+    <type>string16</type>
+    <desc>Curve to use when animating this bone's scale. Can be empty for no animation.</desc>
    </param>
   </params>
   <desc>
    <para>Bones are used for skeleton animation of e.g. characters. Associating bones with
 vertices is done through the use of layers that provide the weights.</para>
    <para>
-    The pos_label and rot_label parameters are used to point out (by name) curve nodes that animate the bone.
+    The position_label, rotation_label and scale_label parameters are used to point out (by name) curve nodes that animate the bone.
 Animating a bone also needs the link_id parameter in the o_anim_run command, that is where a curve is animated,
 and all bones that depend on that curve through either pos_label or rot_label will then move.
 </para>
