@@ -105,7 +105,12 @@ it does not appear in the command's network representation.
   <desc>
    <para>The ping command is used to send arbitrary data to a computer that is assumed to be running
 a Verse host service. It is sent without first establishing a connection, so the data is sent without
-authorization or data security.</para>
+authorization or data security. This means ping data is not guaranteed to be delivered.</para>
+   <para>For examples of practical use of the Verse ping command, please see the
+<ulink url="http://verse.blender.org/cms/Server_Description.776.0.html">server description</ulink> and
+<ulink url="http://verse.blender.org/cms/Master_Server__v2.775.0.html">master server</ulink> specifications,
+both of which are implemented on top of ping.
+   </para>
   </desc>
  </command>
 
@@ -232,7 +237,7 @@ the node and reply with the ID filled-in. If rejected, nothing happens.</para>
     </param>
    </address>
   </params>
-  <alias>
+  <alias add-field="yes">
    <meta>
     <name>node_unsubscribe</name>
     <purpose>Stop subscribing to node.</purpose>
@@ -279,7 +284,7 @@ is independent of any actual session with that host.</para>
  <command id="16">
   <meta>
    <name>tag_group_create</name>
-   <purpose>Create a tag group in a node.</purpose>
+   <purpose>Create a tag group in a node, or change an existing.</purpose>
   </meta>
   <params>
    <address>
@@ -313,7 +318,8 @@ destroyed as well and their contents lost.</para>
   </alias>
   <desc>
    <para>This command creates a new tag group. Tag groups act as containers for tags; all tags much
-reside in a group. Tag groups do not nest.</para>
+reside in a group. Tag groups do not nest. To rename a tag group, use a known ID. To create a new group,
+use a new ID, or the special value ~0.</para>
   </desc>
  </command>
 
@@ -352,7 +358,7 @@ reside in a group. Tag groups do not nest.</para>
  <command id="18">
   <meta>
    <name>tag_create</name>
-   <purpose>Create a new tag.</purpose>
+   <purpose>Create a new tag, or change an existing.</purpose>
   </meta>
   <params>
    <address>
@@ -361,8 +367,9 @@ reside in a group. Tag groups do not nest.</para>
     <param>
      <name>tag_id</name>
      <type>&tagid-type;</type>
-     <desc>Set to ~0 in a client-to-host request to create a new tag, and then filled in by the host in the reponse.
-Can be set to the value of an existing tag to work as a rename or just to re-set a tag to a new value.</desc>
+     <desc>Set to ~0 in a client-to-host request to create a new tag, which is then filled in by the host in the
+      reponse. Can be set to the value of an existing tag to work as a rename or just to re-set a tag to a new value.
+     </desc>
      <alias>
       <desc>The ID of the tag to destroy.</desc>
      </alias>
