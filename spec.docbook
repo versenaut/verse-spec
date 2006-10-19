@@ -15,7 +15,7 @@
 <book lang="en">
 
 <bookinfo>
- <title>Verse Specification</title>
+ <title>The Verse Specification</title>
  <subtitle>A platform for sharing 3D data</subtitle>
  <author><firstname>Emil</firstname>  <surname>Brink</surname></author>
  <author><firstname>Eskil</firstname> <surname>Steenberg</surname></author>
@@ -626,7 +626,7 @@ is a table that summarizes the available layer formats.
 </table>
 </para>
 <para>
-The first layer, named <quote><literal>vertex</literal></quote> but sometimes refereed to as the
+The first layer, named <quote><literal>vertex</literal></quote> but sometimes referred to as the
 <quote>base layer</quote>, is always of type <symbol>G_LAYER_VERTEX_XYZ</symbol>. The second layer is always
 used to define the polygons of the subdivision mesh, and must have type <symbol>G_LAYER_POLYGON_CORNER_UINT32</symbol>
 and be named <quote><literal>polygon</literal></quote>. These two layers are rigidly defined since a host must be
@@ -667,6 +667,20 @@ information can be stored in a layer and referenced that way. If a layer is used
 for edges. These values are given the following interpretation: zero represents a smooth surface (no crease),
 while <literal>MAX_UINT32</literal> should give the maximum amount of crease to the vertex or edge.
 </para>
+
+<para>
+Vertex crease information is, as mentioned, stored in a regular <symbol>G_LAYER_VERTEX_UINT32</symbol> layer. This
+layer has room for one integer per vertex slot, which is exactly what is needed.
+</para>
+<para>
+For polygon edges, however, perhaps
+a bit more explanations are in order. The crease data is stored in a layer of type <symbol>G_LAYER_POLYGON_CORNER_UINT32</symbol>.
+Now, such a layer is normally used to associate values with the <emphasis>corners</emphasis> of the polygons, not with
+their edges. But, since the difference is small here, and since Verse doesn't provide a specialized per-edge layer,
+the layer is simply re-used. The way to interpret edge creases is can be stated like this: <quote>each corner holds the crease data
+for the edge that starts in that corner</quote>.
+</para>
+
 </sect2>
 <sect2 id='geometry-bones'>
 <title>Bones</title>
@@ -832,9 +846,19 @@ The final point we need to take care of is the creasing. To make sure the cube i
 shape, we need to explicitly set the creasing to <quote>sharp</quote> for all vertices and edges. Crease information
 can be stored in vertex and polygon layers, when finer control is needed, but there is also a way to set the default
 to use for corners and edges, respectively. In this case, we need all the crease values to be the same, so we can use
-the defaults and set them to <literal>0xffffffff</literal> which means <quote>maximum sharpness</quote>.
+the defaults and set them to <literal>0xffffffff</literal> which means <quote>maximum sharpness everywhere</quote>.
 </para>
 </example>
+
+<!--
+<example>
+<title>Creased Geometry</title>
+<para>
+Nothing to see here.
+</para>
+</example>
+-->
+
 </sect2>
 </sect1>
 
@@ -3254,6 +3278,36 @@ or that is to be sent.</para>
 </itemizedlist>
 </para>
 <para>For a host application, this list would look different.</para>
+</sect1>
+
+<sect1 id='api-data-ownership'>
+<title>Data Ownership</title>
+<para>
+As has been mentioned previously, data is passed to the application from the Verse API through <emphasis>callback functions</emphasis>.
+These callbacks carry the parameters of whatever command was received, as ordinary function arguments. So, take for instance the
+<xref linkend='verse_send_node_name_set'/> command. This command has two parameters: the node ID of the node whose name is to be changed,
+and the new name. Because the Verse API is in C, the latter is represented as standard pointer to a character, which is simply a standard
+C string (i.e., an array of characters, terminated by a character with all bits zero).
+</para>
+<para>
+When this command is received, and unpacked, the Verse network layer will unpack the various parameters into local, temporary, variables
+inside the unpacking function. It will then check its global registry of callbacks, to see if the application has registered a callback
+for the command in question, and call it if there is one. In this call, it will simply pass the address of its local variable, for any
+parameter represented as a pointer.
+</para>
+<para>
+What this means for the application programmer, is that any parameter value represented as a pointer <emphasis>must</emphasis> be copied
+into the application. You cannot simply store the pointer, as the memory being pointed at by the pointer will go away as the unpacking
+function in the Verse library leaves its scope.
+</para>
+<note>
+<para>Pointer arguments to callbacks point at <emphasis>temporary memory</emphasis>, owned by the Verse library (typically on the stack),
+and data that the application wishes to store <emphasis>must</emphasis> be copied.
+</para>
+</note>
+<para>
+The above can be abbreviated into <quote>the Verse library doesn't store data</quote>.
+</para>
 </sect1>
 
 <sect1 id='api-ref-session'>
