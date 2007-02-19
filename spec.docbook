@@ -19,7 +19,7 @@
  <subtitle>A platform for sharing 3D data</subtitle>
  <author><firstname>Emil</firstname>  <surname>Brink</surname></author>
  <author><firstname>Eskil</firstname> <surname>Steenberg</surname></author>
- <copyright><year>2004-2006</year><holder>PDC, KTH</holder></copyright>
+ <copyright><year>2004-2007</year><holder>PDC, KTH</holder></copyright>
 
  <!-- We mis-use the abstract (apologies) mildly, to contain the version symbol. -->
  <abstract>
@@ -31,6 +31,12 @@
 
  <!-- For reasons unknown, this log isn't actually rendered in the final HTML. -->
  <revhistory>
+  <revision>
+   <revnumber>R6-2</revnumber>
+   <date>February, 2007</date>
+   <authorinitials>eb</authorinitials>
+   <revremark>Added lots of text in the Security section</revremark>
+  </revision>
   <revision>
    <revnumber>R6</revnumber>
    <date>June 2006</date>
@@ -60,6 +66,11 @@ by breaking it down into manageable parts and then describing each of those in a
 <para>
 This specification should be complete and precise enough to serve as the basis for creating a
 new Verse implementation, while retaining compatibility on all levels with the existing one.
+</para>
+<para>
+While great care has been taken in preparing this document, there will most likely be omissions
+or even errors. We apologize, and ask that you help us improve this document whenever you find
+a problem, by reporting it to us. Thanks.
 </para>
 </abstract>
 </preface>
@@ -213,10 +224,10 @@ sense without a concept of time. As we'll see later, it is possible for a client
 and receive a value which is (more or less) in sync with the host's idea of what time it is.
 </para>
 <para>
-Time counted in seconds, with a precision of 64 bits. Of these, 32 bits are the number of seconds since some
-unspecified previous event (such as the starting of the host), while the remaining 32 bits are fractions so
-that times less than one second can be expressed. So, time is a pair of unsigned 32-bit integers, one called
-&time_s; (the whole seconds) and the other &time_f; (the fractional part).
+Time is counted in seconds, with a precision of 64 bits. Of these, 32 bits are the number of whole seconds since
+some unspecified previous event (such as the starting of the host), while the remaining 32 bits are fractions.
+Fractions are used so that times less than one second can be expressed. So, time is a pair of unsigned 32-bit integers,
+one called &time_s; (the whole seconds) and the other &time_f; (the fractional part).
 </para>
 <para>
 The &time_f; fractional part is in units of 1/4,294,967,296:th of a second. This means that the time
@@ -262,6 +273,8 @@ to download and receive updates to.
 </note>
 <para>
 There is no data that cannot be changed at any time during a session, which helps make the system very dynamic.
+Being prepared for this and designing data structures accordingly is a great skill to have when writing Verse
+applications.
 </para>
 </sect1>
 
@@ -527,7 +540,7 @@ to <link linkend='o_anim_run'>run</link> the animation.
 <para>
 Object nodes can be selectively <emphasis>hidden</emphasis>. Hiding an object makes it invisible in the 3D
 world. This is useful to cut down on latency and round-trips, by pre-defining content which can then be
-rapidly made visible by just toggling the hidden status of the root object node.
+rapidly made visible by just un-hiding the root object node.
 </para>
 </sect2>
 </sect1>
@@ -1347,7 +1360,12 @@ else it computes <literal>max()</literal>.</para></listitem>
  <entry align="left">
   <anchor id="m-f-matrix"/><para>The matrix fragment runs its input values through a 4x4 transformation matrix.
 Since the data passed between fragments is defined to be only triplets, they are considered extended with a
-fourth element with the value zero for these purposes.
+fourth element with the value zero for these purposes. This element is then dropped again, since the data
+flowing between material fragments is only three components (RGB color). Of course, you can also think of it
+as just ignoring the last row and column of the matrix, and doing the operation on the 3x3 upper-left sub matrix.
+  </para>
+  <para>
+The operation is a post-multiplication of the matrix by the color, e.g. output = matrix &times; color.
   </para>
   <variablelist>
    <varlistentry>
@@ -1705,10 +1723,10 @@ This command is fairly powerful, it combines two operations into one:
 <listitem><para>Inserting new text.</para></listitem>
 </itemizedlist>
 Deleting text moves any text after the removed range closer to the start of the buffer, effectively replacing the range
-with nothing. The new text is inserted at the beginning of the range that was deleted, moving any text following the range further
-towards the end of the buffer. If no new text is specified, the command acts as a pure deletion. Likewise, if the
-the size of the range to delete is 0, the command acts as a pure text-insertion operation. This command has been designed to support
-the implementation of online text editing, which typically needs both deletion and insertion.
+with nothing. The new text is inserted at the beginning of the indicated range, moving any text following the range further
+towards the end of the buffer. If no new text is specified, the command acts as a pure deletion. Likewise, if the the size of
+the range to delete is 0, the command acts as a pure text-insertion operation. This command has been designed to support the
+implementation of online text editing, which typically needs both deletion and insertion.
 </para>
 <para>
 Here is an example showing the contents of a text buffer during the execution of a sequence of <symbol>t_text_set</symbol> commands:
@@ -1719,17 +1737,19 @@ Here is an example showing the contents of a text buffer during the execution of
   <screen>[]</screen>
  At this point, we execute the command <literal>t_text_set</literal> with range <literal>[0,0)</literal>
 <footnote>
-<para>
-Ranges are given in <literal>[start,end)</literal> notation. The interpretation is <quote>all characters from index
-<varname>start</varname> up to, but not including, index <varname>end</varname></quote>.
-</para>
+ <para>
+ Ranges are given in <literal>[start,end)</literal> notation. The interpretation is <quote>all characters from index
+ <varname>start</varname> up to, but not including, index <varname>end</varname></quote>. This means that the number
+ of deleted characters is computed by <literal>end - start</literal>, and this that a range where <literal>start</literal> and
+ <literal>end</literal> are the same, is empty.
+ </para>
 </footnote>
  and new text equal to <quote><literal>foorag</literal></quote>. Since the range is empty, this ends up being a straight
  insert, leaving the new state as simply the new text:
   <screen>[foorag]</screen>
  The next command to execute has range <literal>[3,3)</literal>, i.e. an empty range, and the text <quote><literal>ba</literal></quote>. We get:
  <screen>[foobarag]</screen>
- Finally, execute a command with range <literal>[6,7)</literal> and en empty new text, to delete the last two characters. Result:
+ Finally, execute a command with range <literal>[6,8)</literal> and en empty new text, to delete the last two characters. Result:
  <screen>[foobar]</screen>
  </para>
 </example>
@@ -1737,7 +1757,8 @@ Ranges are given in <literal>[start,end)</literal> notation. The interpretation 
 <para>
 It is important to realize that a single command is generally not enough to send the entire contents of a text buffer.
 There is an inherent limit on the amount of data in a single command, for network efficiency reasons. For such buffers,
-a sequence of commands will be required to send over the full content.
+a sequence of commands will be required to send over the full content. For typical purposes, sending more than ~1,000
+bytes of text per command should be avoided.
 </para>
 </sect2>
 </sect1>
@@ -2483,7 +2504,7 @@ unions always occupy enough space to accommodate their largest possible member.
 <title>Structures and Unions</title>
 <para>
 A <link linkend='structs'>structure</link> is encoded by encoding its fields, in order as they appear in the
-definitions, end-to-end.
+definitions, end-to-end. There is no padding between fields.
 </para>
 <para>
 A union type is encoded by picking one of the fields, using external information, and then applying whatever
@@ -2594,7 +2615,7 @@ encodes as the following 10-byte sequence using UTF-8:
 <tgroup cols='8'>
 <tbody>
 <row>
-<entry><literal>0x53</literal></entry>  <!-- S -->
+<entry><literal>0x73</literal></entry>  <!-- s -->
 <entry><literal>0x6d</literal></entry>  <!-- m -->
 <entry><literal>0xc3</literal></entry>  <!-- ö -->
  <entry><literal>0xb6</literal></entry> <!-- ö part 2-->
@@ -2910,9 +2931,53 @@ was actually lost, since it might have been replaced by a more recent command ch
 <sect1 id='security'>
 <title>Security</title>
 <para>
-At the time of writing (R2, June 2004), Verse has basically no security at the protocol level. There are planned
-changes that will add encryption, but they have not yet been implemented.
+Security in Verse is a complicated topic. Security concepts fit at two different levels of the system: at the network
+level, to protect the data that gets sent, and at a higher level, in the form of access restrictions and similar.
 </para>
+<sect2 id='security-net'>
+<title>Network Security</title>
+<para>
+For a long time, all the way back to the initial version of Verse developed at the <ulink url='http://w3.tii.se/'>Interactive
+Institute</ulink> in 1999, Verse had no network security at all. The network traffic was not encrypted or protected in any way,
+all data was sent in clear text.
+</para>
+<para>
+In the more recent second version, which has been further developed during the <ulink url='http://www.uni-verse.org/'>Uni-Verse</ulink>
+project, network security has been added as one of the basic requirements for the platform. This requirement was met
+by adding two distinct types of encryption, one for each of Verse's two communication phases: during connection establishment,
+and once connected.
+</para>
+<para>
+During connection establishment, the focus is on security. Thus, data sent then (which includes potentially
+sensitive information such as the username and password of the client trying to connect) is protected using
+relatively <quote>heavy</quote> encryption (<ulink url='http://en.wikipedia.org/wiki/RSA'>RSA</ulink>, currently with a key length
+of just 512 bits though). The performance penalty caused by the complicated encryption/decryption algorithms is offset by the fact
+that a client only connects once, and that the total count of packets exchanged using this encryption is fairly low.
+</para>
+<para>
+Once connected, performance becomes more critical. Therefore, Verse switches to a simple and fast XOR-based encryption
+algorithm for data sent when connected. The key used for the XOR encryption is created by the server during the connection
+establishment, and thus protected by RSA when sent to the client. The key is indexed by the packet number, and the result (modulo
+the key size) is then used as the starting position in they key for the packet's contents. This should make it more difficult for
+an attacker to figure out the key.
+</para>
+</sect2>
+<sect2>
+<title>Access Restrictions</title>
+<para>
+In addition to the low-level network security, which prevents an attacker from seeing the data stream and possibly interfering
+with it (or just eaves-dropping it to learn potentially sensitive information), Verse needs a higher-level security  mechanism.
+It should be the responsibility of this mechanism to allow the administrator of a Verse server to implement restrictions on what
+users can do on the server. For instance, it might be valuable to set up a limit, so that no user can create a geometry node with
+more than N vertices or polygons, to conserve memory. Or, you might want to limit the total number of nodes a single client is
+allowed to create, again to limit memory use.
+</para>
+<para>
+Access restrictions are currently not implemented in Verse. There has been some <ulink url='http://verse.blender.org/cms/Auxiliary_Spec.711.0.html#3235'>very
+rough sketches</ulink>, but no full specification or code exist. It is anticipated that defining a usable model for controlling
+access to Verse nodes will be a quite complex and difficult problem.
+</para>
+</sect2>
 </sect1>
 
 <sect1 id="command-reference">
