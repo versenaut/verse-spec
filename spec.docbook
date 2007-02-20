@@ -292,11 +292,11 @@ host cannot directly exchange node IDs with each other and expect a sensible res
 way to reference nodes, however.
 </para>
 <para>
-As we shall see, most nodes have a lot of internal structure (layers, fragments, buffers, and channels), that
+As we shall see, most nodes have a lot of internal structure (layers, fragments, buffers, channels, et cetera), that
 are always also identified using numerical IDs. Unlike node IDs, these numbers <emphasis>can</emphasis> be shared
 as long as the context is also provided. So, if a host contains a geometry node that client A knows as node
 number 4096, and client B knows as node number 8999, the layer that A thinks is 4096.17 will be the exact same
-data as B sees as 8999.17. This is harder to explain easily than it is to understand, we hope.
+data as B sees as 8999.17. This is harder to explain in a simple way, than it is to actually understand, we hope.
 </para>
 
 <sect2>
@@ -375,7 +375,7 @@ These are the types of tag values supported:
 </tgroup>
 </informaltable>
 A tag always has a value, which means that it always has exactly one type. It is possible to rename, delete,
-and change the type of tags, as well as creating new ones of course. We will see later on how these actions
+and change the type of tags, as well as create new tags of course. We will see later on how these actions
 are performed, in the <link linkend='system-commands'>system commands</link> section.
 </para>
 </sect3>
@@ -440,7 +440,8 @@ scaled, and also given any defined material. This link type does not use the <li
 <listitem>
 <para>
 This specifies how light is emitted by the object. The referenced node should be a <link linkend='n-geometry'>geometry node</link>,
-and it defines the shape of the light source. Each polygon of the geometry is taken to be an area light.
+and it defines the shape of the light source. Each polygon of the geometry is taken to be an area light. At the time of writing,
+no known renderer supports light links.
 </para>
 </listitem>
 </varlistentry>
@@ -451,9 +452,9 @@ and it defines the shape of the light source. Each polygon of the geometry is ta
 The object's material. The referenced node, which should really be a <link linkend='n-material'>material node</link>,
 defines the material to apply to the surface of the object during rendering. There can be more than one such link,
 for objects that need more than one material. They are then all given the label <literal>material</literal>, and
-assigned unique <literal>target</literal> values. A face integer layer is then added to the geometry, and populated
-with integers from the set of <literal>target</literal> values to pick one of the available materials for each
-of the faces.
+assigned unique <literal>target</literal> values. A face integer layer named <literal>material</literal> is then added
+to the geometry, and populated with integers from the set of <literal>target</literal> values to pick one of the available
+materials for each of the faces.
 </para>
 </listitem>
 </varlistentry>
@@ -587,49 +588,49 @@ is a table that summarizes the available layer formats.
 </thead>
 <tbody>
 <row>
- <entry align="right"><symbol>G_LAYER_VERTEX_XYZ</symbol></entry><entry><literal>0</literal></entry>
+ <entry align="right"><symbol>VN_G_LAYER_VERTEX_XYZ</symbol></entry><entry><literal>0</literal></entry>
  <entry>Floating Point</entry>
  <entry>64</entry>
  <entry>3</entry>
 </row>
 <row>
- <entry align="right"><symbol>G_LAYER_VERTEX_UINT32</symbol></entry><entry><literal>1</literal></entry>
+ <entry align="right"><symbol>VN_G_LAYER_VERTEX_UINT32</symbol></entry><entry><literal>1</literal></entry>
  <entry>Unsigned Integer</entry>
  <entry>32</entry>
  <entry>1</entry>
 </row>
 <row>
- <entry align="right"><symbol>G_LAYER_VERTEX_REAL</symbol></entry><entry><literal>2</literal></entry>
+ <entry align="right"><symbol>VN_G_LAYER_VERTEX_REAL</symbol></entry><entry><literal>2</literal></entry>
  <entry>Floating Point</entry>
  <entry>64</entry>
  <entry>1</entry>
 </row>
 <row>
- <entry align="right"><symbol>G_LAYER_POLYGON_CORNER_UINT32</symbol></entry><entry><literal>128</literal></entry>
+ <entry align="right"><symbol>VN_G_LAYER_POLYGON_CORNER_UINT32</symbol></entry><entry><literal>128</literal></entry>
  <entry>Unsigned Integer</entry>
  <entry>32</entry>
  <entry>4</entry>
 </row>
 <row>
- <entry align="right"><symbol>G_LAYER_POLYGON_CORNER_REAL</symbol></entry><entry><literal>129</literal></entry>
+ <entry align="right"><symbol>VN_G_LAYER_POLYGON_CORNER_REAL</symbol></entry><entry><literal>129</literal></entry>
  <entry>Floating Point</entry>
  <entry>64</entry>
  <entry>4</entry>
 </row>
 <row>
- <entry align="right"><symbol>G_LAYER_POLYGON_FACE_UINT8</symbol></entry><entry><literal>130</literal></entry>
+ <entry align="right"><symbol>VN_G_LAYER_POLYGON_FACE_UINT8</symbol></entry><entry><literal>130</literal></entry>
  <entry>Unsigned Integer</entry>
  <entry>8</entry>
  <entry>1</entry>
 </row>
 <row>
- <entry align="right"><symbol>G_LAYER_POLYGON_FACE_UINT32</symbol></entry><entry><literal>131</literal></entry>
+ <entry align="right"><symbol>VN_G_LAYER_POLYGON_FACE_UINT32</symbol></entry><entry><literal>131</literal></entry>
  <entry>Unsigned Integer</entry>
  <entry>32</entry>
  <entry>1</entry>
 </row>
 <row>
- <entry align="right"><symbol>G_LAYER_POLYGON_FACE_REAL</symbol></entry><entry><literal>132</literal></entry>
+ <entry align="right"><symbol>VN_G_LAYER_POLYGON_FACE_REAL</symbol></entry><entry><literal>132</literal></entry>
  <entry>Floating Point</entry>
  <entry>64</entry>
  <entry>1</entry>
@@ -640,8 +641,8 @@ is a table that summarizes the available layer formats.
 </para>
 <para>
 The first layer, named <quote><literal>vertex</literal></quote> but sometimes referred to as the
-<quote>base layer</quote>, is always of type <symbol>G_LAYER_VERTEX_XYZ</symbol>. The second layer is always
-used to define the polygons of the subdivision mesh, and must have type <symbol>G_LAYER_POLYGON_CORNER_UINT32</symbol>
+<quote>base layer</quote>, is always of type <symbol>VN_G_LAYER_VERTEX_XYZ</symbol>. The second layer is always
+used to define the polygons of the subdivision mesh, and must have type <symbol>VN_G_LAYER_POLYGON_CORNER_UINT32</symbol>
 and be named <quote><literal>polygon</literal></quote>. These two layers are rigidly defined since a host must be
 able to perform validity checking on them, and thus must be able to uniquely identify which layer is the base vertex
 layer and which defines the polygons. They are always present in every geometry node.
@@ -658,9 +659,9 @@ bandwidth demands.
 </para>
 <para>
 The way to think about layers, is as two <quote>stacks</quote>, one for vertices and one for polygons. The vertex
-stack always includes a <quote>base layer</quote> of type <literal>V_G_LAYER_VERTEX_XYZ</literal> (with the numerical
+stack always includes a <quote>base layer</quote> of type <literal>VN_G_LAYER_VERTEX_XYZ</literal> (with the numerical
 ID 0 and the name <quote><literal>vertex</literal></quote>, while the polygon stack always has a
-<literal>V_G_LAYER_POLYGON_CORNER_UINT32</literal> layer (with ID 1, and name <quote><literal>polygon</literal></quote>).
+<literal>VN_G_LAYER_POLYGON_CORNER_UINT32</literal> layer (with ID 1, and name <quote><literal>polygon</literal></quote>).
 Other layers, when created, will end up in one of the stacks depending on whether it is a vertex or polygon layer.
 The size of all layers in a stack is controlled by the size of the base layer of that stack, i.e. one of the
 aforementioned always-present layers. As vertices and/or polygons are created, the defining data (the XYZ coordinates
@@ -676,18 +677,18 @@ Crease information is used to control the subdivision algorithm, by specifying h
 or edge should have it is possible to avoid getting all <quote>smoothed out</quote> objects. There are two
 possible approached supported for the two creases: either they can all be set to a single constant, or crease
 information can be stored in a layer and referenced that way. If a layer is used, it must be of type
-<symbol>G_LAYER_VERTEX_UINT32</symbol> for vertex creases, and <symbol>G_LAYER_POLYGON_CORNER_UINT32</symbol>
+<symbol>VN_G_LAYER_VERTEX_UINT32</symbol> for vertex creases, and <symbol>VN_G_LAYER_POLYGON_CORNER_UINT32</symbol>
 for edges. These values are given the following interpretation: zero represents a smooth surface (no crease),
 while <literal>MAX_UINT32</literal> should give the maximum amount of crease to the vertex or edge.
 </para>
 
 <para>
-Vertex crease information is, as mentioned, stored in a regular <symbol>G_LAYER_VERTEX_UINT32</symbol> layer. This
+Vertex crease information is, as mentioned, stored in a regular <symbol>VN_G_LAYER_VERTEX_UINT32</symbol> layer. This
 layer has room for one integer per vertex slot, which is exactly what is needed.
 </para>
 <para>
 For polygon edges, however, perhaps
-a bit more explanations are in order. The crease data is stored in a layer of type <symbol>G_LAYER_POLYGON_CORNER_UINT32</symbol>.
+a bit more explanations are in order. The crease data is stored in a layer of type <symbol>VN_G_LAYER_POLYGON_CORNER_UINT32</symbol>.
 Now, such a layer is normally used to associate values with the <emphasis>corners</emphasis> of the polygons, not with
 their edges. But, since the difference is small here, and since Verse doesn't provide a specialized per-edge layer,
 the layer is simply re-used. The way to interpret edge creases is can be stated like this: <quote>each corner holds the crease data
@@ -708,7 +709,7 @@ upwards, and the sequence of IDs will typically be kept <quote>tight</quote>, wi
 </para>
 <para>
 The weight layer pointer is used to reference a layer that defines the influence of that particular bone on each vertex of
-the model. Such layers must be of type <symbol>G_LAYER_VERTEX_UINT32</symbol> or <symbol>G_LAYER_VERTEX_REAL</symbol>.
+the model. Such layers must be of type <symbol>VN_G_LAYER_VERTEX_UINT32</symbol> or <symbol>VN_G_LAYER_VERTEX_REAL</symbol>.
 Integer layers are interpreted as being in the range 0..1 by dividing each value by 4,294,967,295. The value in each slot
 says how much the bone's transform affects the corresponding vertex.
 </para>
@@ -718,7 +719,7 @@ one layer of weights for each bone, it ends up using a lot of storage space. Thi
 are typically local; the number of vertices influenced by each bone is typically small, and does not increase with
 the number of bones or the number of vertices. Having to <quote>pay</quote> for them anyway adds a lot of overhead,
 which is something to be avoided. The method used is to add another layer of indirection to the bone system. By
-specifying the name of a <symbol>G_LAYER_VERTEX_UINT32</symbol> layer in the reference field of a bone, this secondary
+specifying the name of a <symbol>VN_G_LAYER_VERTEX_UINT32</symbol> layer in the reference field of a bone, this secondary
 system is triggered. The layer should contain bone IDs, and the effect is that the weight values for the bone carrying
 the reference are applied to the bones being referenced, rather than directly to the vertices. In this case, the
 weight value carried in the bone definition no longer applies to the bone itself, but to any number of bones, as defined
@@ -800,7 +801,7 @@ solution:
 </informaltable>
 Here, the four first vertices outline the top quadrilateral, in clock-wise order when seen from the outside. The last four
 do the same for the bottom quadrilateral. Note how each cell (<quote>slot</quote> in the layer) contains three values,
-this is because the layer has type <symbol>G_LAYER_XYZ</symbol>.
+this is because the layer has type <symbol>VN_G_LAYER_XYZ</symbol>.
 </para>
 <para>
 Next, we need to define the polygons. This is done in the layer with ID=1, called <symbol>polygon</symbol>. Here is
@@ -2934,8 +2935,6 @@ was actually lost, since it might have been replaced by a more recent command ch
 Security in Verse is a complicated topic. Security concepts fit at two different levels of the system: at the network
 level, to protect the data that gets sent, and at a higher level, in the form of access restrictions and similar.
 </para>
-<sect2 id='security-net'>
-<title>Network Security</title>
 <para>
 For a long time, all the way back to the initial version of Verse developed at the <ulink url='http://w3.tii.se/'>Interactive
 Institute</ulink> in 1999, Verse had no network security at all. The network traffic was not encrypted or protected in any way,
@@ -2943,22 +2942,27 @@ all data was sent in clear text.
 </para>
 <para>
 In the more recent second version, which has been further developed during the <ulink url='http://www.uni-verse.org/'>Uni-Verse</ulink>
-project, network security has been added as one of the basic requirements for the platform. This requirement was met
-by adding two distinct types of encryption, one for each of Verse's two communication phases: during connection establishment,
-and once connected.
+project, network security has been added as one of the basic requirements for the platform. 
+</para>
+<sect2 id='security-net'>
+<title>Network Security</title>
+<para>
+Verse's network security aims to make the data passing on the wire harder for an attacker to read. This is done by
+<ulink url='http://en.wikipedia.org/wiki/Encryption'>encrypting</ulink> the packets sent by Verse, using two distinct types of encryption:
+one during connection establishment, and a different one once connected.
 </para>
 <para>
 During connection establishment, the focus is on security. Thus, data sent then (which includes potentially
 sensitive information such as the username and password of the client trying to connect) is protected using
 relatively <quote>heavy</quote> encryption (<ulink url='http://en.wikipedia.org/wiki/RSA'>RSA</ulink>, currently with a key length
 of just 512 bits though). The performance penalty caused by the complicated encryption/decryption algorithms is offset by the fact
-that a client only connects once, and that the total count of packets exchanged using this encryption is fairly low.
+that a client only connects once, and that the total number of packets exchanged using this encryption is fairly low.
 </para>
 <para>
 Once connected, performance becomes more critical. Therefore, Verse switches to a simple and fast XOR-based encryption
 algorithm for data sent when connected. The key used for the XOR encryption is created by the server during the connection
 establishment, and thus protected by RSA when sent to the client. The key is indexed by the packet number, and the result (modulo
-the key size) is then used as the starting position in they key for the packet's contents. This should make it more difficult for
+the key size) is then used as a new starting position in the key, for the packet's contents. This should make it more difficult for
 an attacker to figure out the key.
 </para>
 </sect2>
@@ -2973,9 +2977,9 @@ more than N vertices or polygons, to conserve memory. Or, you might want to limi
 allowed to create, again to limit memory use.
 </para>
 <para>
-Access restrictions are currently not implemented in Verse. There has been some <ulink url='http://verse.blender.org/cms/Auxiliary_Spec.711.0.html#3235'>very
-rough sketches</ulink>, but no full specification or code exist. It is anticipated that defining a usable model for controlling
-access to Verse nodes will be a quite complex and difficult problem.
+Access restrictions are currently not implemented in Verse. There has been some <ulink url='http://verse.blender.org/cms/Auxiliary_Spec.711.0.html#3235'>rough
+sketching</ulink>, but no full specification or code exist. It is anticipated that defining a usable model for controlling access to Verse
+nodes is a quite complex and difficult problem. Suggestions welcome.
 </para>
 </sect2>
 </sect1>
@@ -3248,11 +3252,11 @@ itself (no need to define event data structures).
 The callback approach requires two things:
 <itemizedlist>
 <listitem><para>That it is clearly defined how the callback for a given event should look. As will become
-clear later, this is met by a simple symmetry between the API's functions for sending commands and functions
-for handling notification, defined by the application programmer.</para></listitem>
+clear later, this is met by a simple symmetry between the API's functions for sending commands and the functions
+for handling notifications.</para></listitem>
 <listitem><para>There must be a way for the application programmer to associate a callback with the
 reception of a command. This is handled through the API's <xref linkend='verse_callback_set'/> function,
-using send functions as keys.
+using send function pointers as keys.
 </para></listitem>
 </itemizedlist>
 </para>
