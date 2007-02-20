@@ -157,6 +157,12 @@ to be no larger than necessary. This section will describe this data model exhau
 abstractions and structures used to represent data throughout Verse. We begin with the underlying idea, the
 almost-philosophical concept of perfect data.
 </para>
+<note>
+<para>
+Throughout this section, sidebars labelled <quote>API Link</quote> appear, that reference you straight to the
+function(s) in the <link linkend='api'>API chapter</link> that deal with that particular aspect of the model.
+</para>
+</note>
 
 <!-- DO NOT MENTION NODES YET! -->
 <sect1>
@@ -312,6 +318,11 @@ All nodes have, in addition to the numerical ID mentioned above, a textual name.
 <emphasis>not</emphasis> session-specific but can be shared between sessions. Names should be unique across
 all nodes.
 </para>
+<sidebar>
+<title>API Link</title>
+<para>To set the name of a node, use the <xref linkend='verse_send_node_name_set'/> function.
+</para>
+</sidebar>
 </sect3>
 <sect3>
 <title>Tags</title>
@@ -378,6 +389,15 @@ A tag always has a value, which means that it always has exactly one type. It is
 and change the type of tags, as well as create new tags of course. We will see later on how these actions
 are performed, in the <link linkend='system-commands'>system commands</link> section.
 </para>
+<sidebar>
+<title>API Links</title>
+<para>Tags groups are manipulated using the <xref linkend='verse_send_tag_group_create'/>,
+<xref linkend='verse_send_tag_group_destroy'/>,
+<xref linkend='verse_send_tag_group_subscribe'/> and
+<xref linkend='verse_send_tag_group_unsubscribe'/> functions. Tags are manipulated using the
+<xref linkend='verse_send_tag_create'/> and <xref linkend='verse_send_tag_destroy'/> functions.
+</para>
+</sidebar>
 </sect3>
 </sect2>
 
