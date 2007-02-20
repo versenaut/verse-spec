@@ -91,6 +91,7 @@
     <name>type</name>
     <type>VNABlockType</type>
     <desc>The type of the audio samples.</desc>
+    <alias><value>255</value></alias>
    </param>
    <param>
     <name>data</name>
@@ -98,6 +99,17 @@
     <desc>Actual audio data.</desc>
    </param>
   </params>
+  <alias>
+   <meta>
+    <name>block_clear</name>
+    <purpose>Clear a block of audio data.</purpose>
+   </meta>
+   <desc>
+    <para>This command is used to clear away audio data from a buffer. This is different from just using
+a_block_set to set the block to silence, since it allows the buffer to really shrink (as in, occupy less
+memory).</para>
+   </desc>
+  </alias>
   <desc>
    <para>This command is used to transfer audio data in the form of an array of samples.</para>
    <para>This text needs to be far longer.</para>
