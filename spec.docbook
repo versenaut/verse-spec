@@ -459,6 +459,10 @@ materials for each of the faces.
 </listitem>
 </varlistentry>
 </variablelist>
+<sidebar>
+<title>API Link</title>
+<para>Object links are set using the <xref linkend='verse_send_o_link_set'/> function.</para>
+</sidebar>
 </sect2>
 
 <sect2 id='obj-transform'>
@@ -492,6 +496,17 @@ The object node is the <emphasis>only</emphasis> node to provide a transform. Ot
 that need to be associated to a point in space need to do so by being linked from an object node
 at the required position.
 </para>
+<sidebar>
+<title>API Links</title>
+<para>Object transform is set using the
+<xref linkend='verse_send_o_transform_pos_real32'/>,
+<xref linkend='verse_send_o_transform_pos_real64'/>,
+<xref linkend='verse_send_o_transform_rot_real32'/>,
+<xref linkend='verse_send_o_transform_rot_real64'/>,
+<xref linkend='verse_send_o_transform_rot_real32'/> and
+<xref linkend='verse_send_o_transform_rot_real64'/>
+ functions.</para>
+</sidebar>
 </sect2>
 <sect2 id='obj-light'>
 <title>Light Sources</title>
@@ -511,6 +526,10 @@ in each direction spherically, centered on the object's position. To create a mo
 create a link to a <link linkend='n-geometry'>geometry node</link> and label it <quote><literal>light</literal></quote>.
 This has the semantics of defining an area light, which only emits light from the faces of the geometry.
 </para>
+<sidebar>
+<title>API Link</title>
+<para>Object light is set using the <xref linkend='verse_send_o_light_set'/> function.</para>
+</sidebar>
 </sect2>
 <sect2 id="o-methods">
 <title>Methods</title>
@@ -526,6 +545,14 @@ Once created, method calls can be emitted by any client and any client is free t
 called. This mechanism allows clients to create representations of their interfaces inside the world held on
 the host.
 </para>
+<sidebar>
+<title>API Links</title>
+<para>Object methods are manipulated using the
+<xref linkend='verse_send_o_method_group_create'/>, <xref linkend='verse_send_o_method_group_destroy'/>, <xref linkend='verse_send_o_method_group_subscribe'/>,
+<xref linkend='verse_send_o_method_group_unsubscribe'/>, <xref linkend='verse_send_o_method_create'/>, <xref linkend='verse_send_o_method_destroy'/> and
+<xref linkend='verse_send_o_method_call'/> functions.
+</para>
+</sidebar>
 </sect2>
 <sect2 id="o-animations">
 <title>Animation</title>
@@ -535,6 +562,10 @@ bones</link> in the object's <link linkend='n-geometry'>geometry node</link>, an
 <link linkend='n-curve'>curve nodes</link>. Once the data is in place, you can instruct the object node
 to <link linkend='o_anim_run'>run</link> the animation.
 </para>
+<sidebar>
+<title>API Link</title>
+<para>Object animations are controlled using the <xref linkend='verse_send_o_anim_run'/> function.</para>
+</sidebar>
 </sect2>
 <sect2 id="o-hide">
 <title>Hiding</title>
@@ -543,6 +574,10 @@ Object nodes can be selectively <emphasis>hidden</emphasis>. Hiding an object ma
 world. This is useful to cut down on latency and round-trips, by pre-defining content which can then be
 rapidly made visible by just un-hiding the root object node.
 </para>
+<sidebar>
+<title>API Link</title>
+<para>Control an object's hidden status using the <xref linkend='verse_send_o_hide'/> function.</para>
+</sidebar>
 </sect2>
 </sect1>
 
@@ -669,6 +704,28 @@ or the vertex references, respectively) are placed in a slot in the base layer, 
 provide a slot of data space of whatever type the layer has for the new addition. This slot is typically initialized
 with a default value, to make it well-defined until explicitly set.
 </para>
+<sidebar>
+<title>API Links</title>
+<para>
+Geometry layers are manipulated using the
+<xref linkend='verse_send_g_layer_create'/>, <xref linkend='verse_send_g_layer_destroy'/>, <xref linkend='verse_send_g_layer_subscribe'/>,
+<xref linkend='verse_send_g_layer_unsubscribe'/> commands. Layer data is manipulated using the
+<xref linkend='verse_send_g_vertex_set_xyz_real32'/>,
+<xref linkend='verse_send_g_vertex_delete_real32'/>,
+<xref linkend='verse_send_g_vertex_set_xyz_real64'/>,
+<xref linkend='verse_send_g_vertex_delete_real64'/>,
+<xref linkend='verse_send_g_vertex_set_uint32'/>,
+<xref linkend='verse_send_g_vertex_set_real32'/>,
+<xref linkend='verse_send_g_vertex_set_real64'/>,
+<xref linkend='verse_send_g_polygon_set_corner_uint32'/>,
+<xref linkend='verse_send_g_polygon_delete'/>,
+<xref linkend='verse_send_g_polygon_set_corner_real32'/>,
+<xref linkend='verse_send_g_polygon_set_corner_real64'/>,
+<xref linkend='verse_send_g_polygon_set_face_uint32'/>,
+<xref linkend='verse_send_g_polygon_set_face_real32'/> and
+<xref linkend='verse_send_g_polygon_set_face_real64'/> functions.
+</para>
+</sidebar>
 </sect2>
 <sect2>
 <title>Creases</title>
@@ -694,6 +751,12 @@ their edges. But, since the difference is small here, and since Verse doesn't pr
 the layer is simply re-used. The way to interpret edge creases is can be stated like this: <quote>each corner holds the crease data
 for the edge that starts in that corner</quote>.
 </para>
+
+<sidebar>
+<title>API Links</title>
+<para>Geometry crease data is set using the <xref linkend='verse_send_g_crease_set_vertex'/> and
+<xref linkend='verse_send_g_crease_set_edge'/> functions.</para>
+</sidebar>
 
 </sect2>
 <sect2 id='geometry-bones'>
@@ -744,6 +807,10 @@ they work. To draw a bone structure:
 </para>
 <para>Now you have something that looks like a bone structure, with the important (and typical) property that
 if you rotate any bone, all bones <quote>downstream</quote> of it will rotate, too.</para>
+<sidebar>
+<title>API Links</title>
+<para>Bones are manipulated using the <xref linkend='verse_send_g_bone_create'/> and <xref linkend='verse_send_g_bone_destroy'/> functions.</para>
+</sidebar>
 </sect2>
 <sect2>
 <title>Examples</title>
@@ -1513,6 +1580,10 @@ corresponding side of surfaces invisible.
 </tgroup>
 </table>
 </para>
+<sidebar>
+<title>API Links</title>
+<para>Material fragments are manipulated using the <xref linkend='verse_send_m_fragment_create'/> and <xref linkend='verse_send_m_fragment_destroy'/> functions.</para>
+</sidebar>
 </sect2>
 <sect2>
 <title>Examples</title>
@@ -1582,6 +1653,10 @@ the leftmost, topmost, and foremost pixel. <xref linkend='b-ex-coords'/> shows t
 The Z, or depth, axis, is intended to go <quote>into</quote> the document, making this a right-handed coordinate
 system.
 </para>
+<sidebar>
+<title>API Link</title>
+<para>The dimensions of a bitmap node are set using the <xref linkend='verse_send_b_dimensions_set'/> function.</para>
+</sidebar>
 </sect2>
 
 <sect2>
@@ -1649,6 +1724,11 @@ The <symbol>B_LAYER_UINT1</symbol> format is slightly special, since there is no
 in Verse. As we will see in subsequent sections, pixels in a 1-bit layer are expressed using the bits of
 a single uint16 value.
 </para>
+<sidebar>
+<title>API Links</title>
+<para>Bitmap layers are manipulated using the <xref linkend='verse_send_b_layer_create'/>, <xref linkend='verse_send_b_layer_destroy'/>,
+<xref linkend='verse_send_b_layer_subscribe'/> and <xref linkend='verse_send_b_layer_unsubscribe'/> commands.</para>
+</sidebar>
 </sect2>
 <sect2>
 <title>Tiles</title>
@@ -1669,6 +1749,10 @@ Each tile is addressed using its tile coordinates in 2D, plus a Z coordinate tha
 third dimension if applicable. For a 2D bitmap, Z will always be zero. Note that there is no tiling in the
 Z direction; a tile is a 2D flat 8x8-pixel square, with depth=1.
 </para>
+<sidebar>
+<title>API Link</title>
+<para>Bitmap pixel tiles are set using the <xref linkend='verse_send_b_tile_set'/> function.</para>
+</sidebar>
 </sect2>
 </sect1>
 
@@ -1708,6 +1792,10 @@ buffer or not. For instance, a file written in C and using the reference API mig
 <quote><literal>C/std</literal></quote>. Text in XML as used by the <quote>Purple</quote> plug-in scripting
 engine is given a language starting with <quote><literal>XML/purple</literal></quote>.
 </para>
+<sidebar>
+<title>API Link</title>
+<para>The language of a text node is set using the <xref linkend='verse_send_t_language_set'/> function.</para>
+</sidebar>
 </sect2>
 
 <sect2>
@@ -1762,6 +1850,13 @@ There is an inherent limit on the amount of data in a single command, for networ
 a sequence of commands will be required to send over the full content. For typical purposes, sending more than ~1,000
 bytes of text per command should be avoided.
 </para>
+<sidebar>
+<title>API Links</title>
+<para>Text buffers are manipulated using the <xref linkend='verse_send_t_buffer_create'/>,
+<xref linkend='verse_send_t_buffer_destroy'/>,
+<xref linkend='verse_send_t_buffer_subscribe'/> and
+<xref linkend='verse_send_t_buffer_unsubscribe'/> functions. Text is set using the <xref linkend='verse_send_t_text_set'/> function.</para>
+</sidebar>
 </sect2>
 </sect1>
 
@@ -1792,6 +1887,12 @@ some parameter. For example, curves can be used to control <link linkend='geomet
 creating smooth animation that is easily controlled by editing curves rather than complex transforms directly.
 Or, they can be used to control aspects of materials, or the light emitted by an object.
 </para>
+<sidebar>
+<title>API Links</title>
+<para>Curves are manipulated using the <xref linkend='verse_send_c_curve_create'/>,
+<xref linkend='verse_send_c_curve_destroy'/>, <xref linkend='verse_send_c_curve_subscribe'/> and
+<xref linkend='verse_send_c_curve_unsubscribe'/> functions.</para>
+</sidebar>
 <sect3>
 <title>Keys</title>
 <para>
@@ -1836,6 +1937,10 @@ curve is created.
 <para>
 With these basic definitions out of the way, it is time to discuss how a curve is actually evaluated.
 </para>
+<sidebar>
+<title>API Links</title>
+<para>Curve keys are manipulated using the <xref linkend='verse_send_c_key_set'/> and <xref linkend='verse_send_c_key_destroy'/> functions.</para>
+</sidebar>
 </sect3>
 
 <sect3><title>Evaluating a Curve</title>
@@ -2064,6 +2169,15 @@ zero, and how the index of the silent block is still a valid index.
 </mediaobject>
 </figure>
 </para>
+<sidebar>
+<title>API Links</title>
+<para>
+Audio buffers are manipulated using the <xref linkend='verse_send_a_buffer_create'/>,
+<xref linkend='verse_send_a_buffer_destroy'/>, <xref linkend='verse_send_a_buffer_subscribe'/>
+and <xref linkend='verse_send_a_buffer_unsubscribe'/> functions. Data for buffers is set using
+the <xref linkend='verse_send_a_block_set'/> and <xref linkend='verse_send_a_block_clear'/> functions.
+</para>
+</sidebar>
 </sect3>
 
 <sect3>
@@ -2090,6 +2204,15 @@ stream playing client will put the block in a queue, sorted on the timestamp. Bl
 and played, possibly employing some kind of double buffering scheme, as the current time reaches that of
 the block's timestamp.
 </para>
+<sidebar>
+<title>API Links</title>
+<para>
+Audio streams are manipulated using the <xref linkend='verse_send_a_stream_create'/>,
+<xref linkend='verse_send_a_stream_destroy'/>,
+<xref linkend='verse_send_a_stream_subscribe'/> and
+<xref linkend='verse_send_a_stream_unsubscribe'/> functions. Data is sent across the stream using the <xref linkend='verse_send_a_stream'/> function.
+</para>
+</sidebar>
 </sect3>
 </sect2>
 
