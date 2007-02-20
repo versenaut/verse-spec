@@ -47,6 +47,6 @@ DONE	- shorten to three-dimensional only, treat 2/1D as special cases
 DONE	- restrict so 1D must be in X (with height=1)
 DONE	- write about bitmaps being samples, filtering is ok
 
-* Link to API from data model text
+DONE	Link to API from data model text
 * Link/specify required subscription from API calls
 * Create overview of how numerical IDs are allocated/treated
