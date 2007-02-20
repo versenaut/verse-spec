@@ -969,8 +969,9 @@ with each one. This number is used to identify a fragment type in the network pr
 </para>
 
 <para>
-<xref linkend="m-frags-table"/> presents the defined fragment types. It gives a description for each one,
-including its input fields and what operation it performs to generate its emitted color.
+<xref linkend="m-frags-table"/> presents the defined fragment types. It mentions the purpose of each one,
+including its input fields and what operation it performs to generate its emitted color. Click the fragment
+name to jump into the table below, for a more detailed explanation.
 </para>
 <para>
 These are the types of <link linkend='m-f-output'>output</link> fragment that are currently defined:
@@ -1124,10 +1125,9 @@ fall-off describes the micro-geometry just as in the <link linkend="m-f-light">l
 <row>
  <entry>Volume</entry>
  <entry align="left">
-  <anchor id="m-f-volume"/><para>This fragment represents the properties of the surface that is behind the
-evaluation point. The refraction index represent how light is bent when passing through the surface, and the normal
-fall-off describes the micro-geometry just as in the <link linkend="m-f-light">light</link> and
-<link linkend="m-f-reflection">reflection</link> fragments.
+  <anchor id="m-f-volume"/><para>This fragment represents the volume of air between the light source and the point
+on the surface being shaded. It allows you to model non-clear air, by specifying a color that will be weighted in
+according to the distance travelled through the volume.
   </para>
   <variablelist>
    <varlistentry>
@@ -1459,7 +1459,8 @@ one-dimensional input value into the three-dimensional color space.
  <entry align="left">
   <anchor id="m-f-alternative"/><para>This fragment specifies two inputs, and allows the parser to select one and
 ignore the other. The most preferable path should always be specified as the one labeled A. The intent is to allow
-e.g. simpler materials to be defined in an alternative path.
+e.g. simpler materials to be defined in an alternative path. It is not defined how a shading implementation is
+supposed to chose between the two, it is left up to the implementor.
   </para>
   <variablelist>
    <varlistentry>
