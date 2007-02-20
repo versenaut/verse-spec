@@ -76,7 +76,8 @@ for integers however, and that name is natural so by analogy we have reals.</par
    <desc><para>For clarity and convenience, there are many integer types defined that are simply aliases for one of
 the types defined above.</para>
 <para>Having these aliases makes many descriptions easier to read, and in some situations (such as API function
-prototypes) makes them a lot more information-dense and useful.</para>
+prototypes) makes them a lot more information-dense, descriptive, and generally useful. Note that these are not enumerations;
+there are no named values associated with these types.</para>
    </desc>
   </meta>
   <aliasedtype name="boolean">
