@@ -80,11 +80,14 @@
   <params>
    <address>
     &nodeid;
-    &bufferid;
+    &bufferidalias;
     <param>
      <name>block_index</name>
      <type>uint32</type>
      <desc>The location of this block in the buffer as a whole.</desc>
+     <alias>
+      <desc>The index of the block to clear.</desc>
+     </alias>
     </param>
    </address>
    <param>
