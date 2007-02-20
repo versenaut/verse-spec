@@ -61,7 +61,7 @@ function to register a callback for handling the reception of that command.</par
  <xsl:template match="command/alias">
   <xsl:variable name="fullname"><xsl:if test="ancestor::commands[1]/@prefix"><xsl:value-of select="ancestor::commands[1]/@prefix"/>_</xsl:if><xsl:value-of select="meta/name"/></xsl:variable>
   <xsl:variable name="funcname">verse_send_<xsl:value-of select="$fullname"/></xsl:variable>
-  <refentry id="{$funcname}">
+  <refentry id="{$funcname}" xreflabel="{$funcname}()">
    <refnamediv>
     <refname><xsl:value-of select="$funcname"/></refname>
     <refpurpose>Send the <xsl:value-of select="$fullname"/> command.</refpurpose>
