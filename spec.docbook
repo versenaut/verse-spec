@@ -139,10 +139,11 @@ to be rather low-level. The detail level can be said to increase over the three 
 of a general trend than a struct rule.
 </para>
 <para>
-This document was written by Emil Brink, using an original document by Eskil Steenberg, and his reference
-implementation of the Verse standard, as input. Most of the document was written in the
+This document was written by Emil Brink, with much of the initial structure and text coming from an original document
+by Eskil Steenberg, and his reference implementation of the Verse standard. Most of the document was written in the
 <ulink url='http://www.docbook.org/'>DocBook</ulink> format, although much of the highly structured data
-(the type, command and API references) were created programmatically from custom XML data.
+(the type, command and API references) were created programmatically from custom XML data, processed into
+DocBook using <ulink url='http://www.w3.org/TR/xslt'>XSLT</ulink>.
 </para>
 </sect1>
 
@@ -1671,7 +1672,9 @@ setting the size in the required dimension(s) to one, and must be done from the 
 Coordinates are in a <quote>screen-like</quote> space, with three axis called x, y and z. The pixel at (0,0,0) is
 the leftmost, topmost, and foremost pixel. <xref linkend='b-ex-coords'/> shows the coordinate system used for bitmaps.
 The Z, or depth, axis, is intended to go <quote>into</quote> the document, making this a right-handed coordinate
-system.
+system. The number of pixels contained in a bitmap is unknown when the node has just been created; it must be set
+by the application, before any pixels can be stored in the bitmap. The width, height and depth of a bitmap are
+colletively referred to as the bitmap's <emphasis>dimensions</emphasis>.
 </para>
 <sidebar>
 <title>API Link</title>
@@ -1754,8 +1757,9 @@ a single uint16 value.
 <title>Tiles</title>
 <para>
 The smallest individually addressable part of a bitmap layer is a <emphasis>tile</emphasis>. A tile is simply
-a small flat (two-dimensional) square of pixels in the XY plane of a bitmap layer. The standard tile size is
-8x8 pixels. Tiles make bulk transfer of bitmap data in a network more efficient, by reducing addressing overhead.
+a small flat (two-dimensional) square of pixels in the XY plane of a bitmap layer. The current standard tile size is
+8x8 pixels. This size is fixed and the same for all Verse programs, it cannot be changed by client programmers. Tiles
+make bulk transfer of bitmap data in a network more efficient, by reducing addressing overhead.
 </para>
 <para>
 Each layer is split into tiles by simply dividing it into squares of 8x8 pixels, beginning in the top left corner.
