@@ -31,7 +31,7 @@
   <refentry id="{$funcname}" xreflabel="{$funcname}()">
    <refnamediv>
     <refname><xsl:value-of select="$funcname"/></refname>
-    <refpurpose>Send the <xsl:value-of select="$fullname"/> command.</refpurpose>
+    <refpurpose><xsl:value-of select="substring-before(meta/purpose, '.')"/> (send the <xsl:value-of select="$fullname"/> command).</refpurpose>
    </refnamediv>
    <refsynopsisdiv>
     <funcsynopsis>
@@ -48,7 +48,7 @@
     </funcsynopsis>
    </refsynopsisdiv>
    <refsect1><title>Description</title>
-   <para>This function sends the <xref linkend='{$fullname}'/> command,
+   <para><xsl:value-of select="meta/purpose"/></para><para>This function sends the <xref linkend='{$fullname}'/> command,
 and should be used as an argument to the <xref linkend='verse_callback_set'/>
 function to register a callback for handling the reception of that command.</para>
    <para>For descriptions of the arguments, see the command reference page.
@@ -64,7 +64,7 @@ function to register a callback for handling the reception of that command.</par
   <refentry id="{$funcname}" xreflabel="{$funcname}()">
    <refnamediv>
     <refname><xsl:value-of select="$funcname"/></refname>
-    <refpurpose>Send the <xsl:value-of select="$fullname"/> command.</refpurpose>
+    <refpurpose><xsl:value-of select="substring-before(meta/purpose, '.')"/> (send the <xsl:value-of select="$fullname"/> command).</refpurpose>
    </refnamediv>
    <refsynopsisdiv>
     <funcsynopsis>
@@ -83,7 +83,7 @@ function to register a callback for handling the reception of that command.</par
     </funcsynopsis>
    </refsynopsisdiv>
    <refsect1><title>Description</title>
-   <para>This function sends out the <xref linkend='{$fullname}'/> command, and should be used as an argument to
+   <para><xsl:value-of select="meta/purpose"/></para><para>This function sends out the <xref linkend='{$fullname}'/> command, and should be used as an argument to
 the <xref linkend='verse_callback_set'/> function to register a callback for handling the reception of that command.
 </para>
    <para>For descriptions of the arguments, see the command reference page.
