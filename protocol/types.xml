@@ -370,8 +370,9 @@ is used to indicate this condition. Such a fieldname is in lower-case characters
 of a symbolic (upper-case) constant.
 </para>
 <para>When a union type (see below) is made into an array, it is not defined if each element in the array has the
-same type, or if the type can vary between slots. This needs to be specified for each such use. This has consequences
-for encoding.
+same type, or if the type can vary between slots. This needs to be specified for each such use, and taken into
+account when encoding (or decoding) the data. The ability to vary the type of an array of unions per-slot gives
+a lot of flexibility.
 </para>
 </desc>
   </meta>
